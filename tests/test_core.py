@@ -1,6 +1,5 @@
 """Tests for storytelling.core module."""
 
-import pytest
 from storytelling.core import Story
 
 
@@ -25,7 +24,7 @@ def test_story_add_content():
     story = Story("Test Title")
     story.add_content("First paragraph")
     assert story.content == "First paragraph"
-    
+
     story.add_content("Second paragraph")
     assert story.content == "First paragraph\n\nSecond paragraph"
 
@@ -42,7 +41,7 @@ def test_story_metadata():
     story = Story("Test Title")
     story.set_metadata("author", "Test Author")
     story.set_metadata("genre", "Fiction")
-    
+
     assert story.get_metadata("author") == "Test Author"
     assert story.get_metadata("genre") == "Fiction"
     assert story.get_metadata("nonexistent") is None
@@ -53,7 +52,7 @@ def test_story_metadata_update():
     story = Story("Test Title")
     story.set_metadata("author", "First Author")
     story.set_metadata("author", "Updated Author")
-    
+
     assert story.get_metadata("author") == "Updated Author"
 
 
