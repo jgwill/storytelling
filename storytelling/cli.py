@@ -195,7 +195,9 @@ def main(argv: Optional[List[str]] = None) -> int:
 
             # Load session state
             try:
-                loaded_state = load_state_from_session(session_args.resume)
+                # Initialize logger for resume
+                logger = Logger(config)
+                loaded_state = load_state_from_session(session_manager, session_args.resume, config, logger)
                 print(f"Loaded state from session with {len(loaded_state)} keys")
             except Exception as e:
                 print(f"Warning: Could not load full session state: {e}")
@@ -205,13 +207,11 @@ def main(argv: Optional[List[str]] = None) -> int:
             session_manager.update_session_status(session_args.resume, "in_progress")
 
             # Create resume graph
-            graph = create_resume_graph(
-                config, session_args.resume, session_manager, resume_node
-            )
+            graph = create_resume_graph(session_manager, session_args.resume, resume_node)
 
             # Initialize state for resume
-            initial_state = StoryState(**loaded_state) if loaded_state else StoryState()
-            initial_state.session_id = session_args.resume
+            initial_state = loaded_state if loaded_state else {}
+            initial_state["session_id"] = session_args.resume
 
             # Run the graph
             final_state = graph.invoke(initial_state)
@@ -276,7 +276,14 @@ def main(argv: Optional[List[str]] = None) -> int:
             initial_prompt = f.read().strip()
 
         # Initialize state
-        initial_state = StoryState(initial_prompt=initial_prompt, session_id=session_id)
+        initial_state = {
+            "initial_prompt": initial_prompt, 
+            "session_id": session_id,
+            "config": config,
+            "logger": logger,
+            "session_manager": session_manager,
+            "retriever": retriever
+        }
 
         # Run the graph
         final_state = graph.invoke(initial_state)
