@@ -87,6 +87,26 @@ enhanced = [
     "storytelling[cloud]",
     "beautifulsoup4>=4.12.0",
     "html2text>=2020.1.16",
+    "requests>=2.31.0",
+]
+
+# Web fetching and MCP integration
+web = [
+    "requests>=2.31.0",
+    "beautifulsoup4>=4.12.0",
+    "html2text>=2020.1.16",
+]
+
+# CoAiAPy MCP integration (requires external tools)
+mcp = [
+    # Note: Requires coaia CLI tool to be installed separately
+    "requests>=2.31.0",
+]
+
+# IAIP integration for North Direction storytelling practices
+iaip = [
+    "pyyaml>=6.0.0",
+    "storytelling[enhanced,mcp]",
 ]
 
 # Development dependencies
@@ -112,7 +132,12 @@ test = [
 
 # Convenience bundles
 all = [
-    "storytelling[local-ml,google,openrouter,gpu,cloud,enhanced]",
+    "storytelling[local-ml,google,openrouter,gpu,cloud,enhanced,web,mcp,iaip]",
+]
+
+# Maximum features bundle
+complete = [
+    "storytelling[all]",
 ]
 
 [project.urls]
