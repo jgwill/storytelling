@@ -1,6 +1,10 @@
 # WillWrite LLM Provider Specification
 
+**Status**: ✅ IMPLEMENTED (Core Providers), ⏳ PLANNED (myflowise)
+
 This document defines the URI-based format used to configure and select LLM providers and models within the `WillWrite` application. This system allows for flexible, dynamic selection of models from various sources through a single configuration string.
+
+**Implementation**: `storytelling/llm_providers.py`
 
 ## 1. URI Format
 
@@ -61,10 +65,11 @@ The provider string is a URI with the following structure:
     -   `parameters`: Maps to the generation parameters of the OpenRouter client.
 -   **Example:** `openrouter://google/gemini-pro-1.5-flash?temperature=0.9`
 
-### 2.4. `myflowise`
+### 2.4. `myflowise` ⏳ PLANNED
 
 -   **Scheme:** `myflowise://`
--   **Mapping:**
+-   **Status**: Not yet implemented
+-   **Planned Mapping:**
     -   `model_identifier`: This is the Flowise **Flow ID** (a UUID).
     -   `host`: The hostname and port of the Flowise instance (e.g., `localhost:3222`).
     -   `parameters`: Not typically used, as parameters are usually configured within the Flowise UI itself.

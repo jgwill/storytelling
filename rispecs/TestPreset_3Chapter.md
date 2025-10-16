@@ -1,4 +1,6 @@
-# 3‑Chapter Test Preset (PROPOSED)
+# 3‑Chapter Test Preset
+
+**Status**: ⏳ PLANNED
 
 ## Structural Tension
 - Desired Outcome: Stable test runs that consistently create exactly 3 chapters with predictable time/cost.
