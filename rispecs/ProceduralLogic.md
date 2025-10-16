@@ -1,6 +1,8 @@
 # WillWrite Procedural Logic
 
-This document provides a detailed, step-by-step procedural description of the `WillWrite` application's logic. It serves as a bridge between the high-level specifications and the actual implementation, detailing the "glue" code that connects the various stages and LLM calls.
+**Status**: ✅ IMPLEMENTED
+
+This document provides a detailed, step-by-step procedural description of the `WillWrite` application's logic. It serves as a bridge between the high-level specifications and the actual implementation in `storytelling/graph.py` and related modules, detailing the "glue" code that connects the various stages and LLM calls.
 
 ## Main Application Flow
 
@@ -61,20 +63,23 @@ This document provides a detailed, step-by-step procedural description of the `W
 
 ### Generate Outline
 
-1.  Call the LLM with the `GET_IMPORTANT_BASE_PROMPT_INFO` prompt to get the `BaseContext`.
+**Implementation**: `generate_initial_outline_node()` in `storytelling/graph.py`
+
+1.  Call the LLM with the `STORY_ELEMENTS_PROMPT` to manifest the foundational story elements.
 2.  Initialize an empty string for `RetrievedContext`.
-3.  **Conditional Logic:** If a `Retriever` is available in the application state:
-    a. Use the `Retriever` to find document chunks relevant to the user's main prompt.
-    b. Store this in `RetrievedContext`.
-    c. Inject `RetrievedContext` into the `INITIAL_OUTLINE_PROMPT`.
-4.  Call the LLM with the `INITIAL_OUTLINE_PROMPT` to get the initial `Outline`.
-5.  **Loop** for a number of iterations between `-OutlineMinRevisions` and `-OutlineMaxRevisions`:
+3.  **Conditional Logic:** If a `Retriever` is available and `outline_rag_enabled` is true:
+    a. Call `retrieve_outline_context()` from `storytelling/rag.py` to find document chunks relevant to the user's prompt and story elements.
+    b. Uses configuration parameters: `outline_context_max_tokens`, `outline_rag_top_k`, and `outline_rag_similarity_threshold`.
+    c. Store the formatted context in `RetrievedContext`.
+    d. Inject `RetrievedContext` into the `INITIAL_OUTLINE_PROMPT`.
+4.  Call the LLM with the `INITIAL_OUTLINE_PROMPT` to create the initial `Outline`.
+5.  **Loop** for a number of iterations between `outline_min_revisions` and `outline_max_revisions`:
     a. **Conditional Logic:** If `RetrievedContext` is not empty, inject it into the `CRITIC_OUTLINE_PROMPT`.
-    b. Call the LLM with the `CRITIC_OUTLINE_PROMPT` to get `Feedback`.
-    c. Call the LLM with the `OUTLINE_COMPLETE_PROMPT` and its corresponding `DataSchema` to check for completion.
+    b. Call the LLM with the `CRITIC_OUTLINE_PROMPT` to receive structural enhancement opportunities.
+    c. Call the LLM with the `OUTLINE_COMPLETE_PROMPT` and its corresponding `DataSchema` to evaluate completion.
     d. **Conditional Logic:** If the outline is complete and the minimum revisions have been met, **break** the loop.
     e. **Conditional Logic:** If `RetrievedContext` is not empty, inject it into the `OUTLINE_REVISION_PROMPT`.
-    f. Call the LLM with the `OUTLINE_REVISION_PROMPT`, passing the current `Outline` and `Feedback`, and update the `Outline`.
+    f. Call the LLM with the `OUTLINE_REVISION_PROMPT`, passing the current `Outline` and enhancement opportunities, to advance the `Outline`.
 6.  Return the final `Outline`, `StoryElements`, and `BaseContext`.
 
 ### Generate All Chapters

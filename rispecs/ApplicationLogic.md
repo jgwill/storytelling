@@ -1,6 +1,13 @@
 # WillWrite Application Logic Overview
 
-This document describes the high-level logical workflow of the `WillWrite` application for generating a story. It is not tied to any specific implementation details. For the exact text of the prompts mentioned, see `Prompts.md`.
+**Status**: ✅ IMPLEMENTED
+
+**Structural Tension**
+- Desired Outcome: A clear, implementation-aligned description of the story generation workflow that empowers developers to understand and extend the creative pipeline.
+- Current Reality: The workflow is implemented in LangGraph nodes and edges in `storytelling/graph.py`.
+- Natural Progression: Document the advancing patterns that enable transformation from user prompt to complete narrative.
+
+This document describes the high-level logical workflow of the `WillWrite` application for generating a story, aligned with the LangGraph implementation in `storytelling/graph.py`. For the exact text of the prompts mentioned, see `Prompts.md`.
 
 ## 1. Initialization and Configuration
 
@@ -10,48 +17,76 @@ The process begins by configuring the story generation pipeline. This involves s
 *   The quality thresholds and revision limits for the outline and chapters.
 *   Optional features to be enabled or disabled, such as expanding the outline, performing a final edit pass, scrubbing the chapters, and translating the story.
 
-## 2. Outline Generation and Refinement
+## 2. Manifesting the Story Foundation
 
-Once the application is configured, it generates the story outline. This is a multi-step process:
+The application establishes the narrative foundation through advancing patterns that transform the user's creative vision into a structured blueprint.
 
-1.  **Prompt Analysis**: The initial user prompt is analyzed to extract any important context or constraints that are not part of the story itself (e.g., desired chapter length, overall tone). This is done using the `GET_IMPORTANT_BASE_PROMPT_INFO` prompt.
-2.  **Story Element Generation**: The core elements of the story are generated, including characters, setting, plot, theme, and conflict.
-3.  **Initial Outline Generation**: An initial outline is generated based on the story elements and the user's prompt, using the `INITIAL_OUTLINE_PROMPT`.
-4.  **Outline Refinement Loop**: The outline enters a feedback loop:
-    *   The `CRITIC_OUTLINE_PROMPT` is used to get feedback on the current outline.
-    *   The `OUTLINE_COMPLETE_PROMPT` is used to check if the outline meets the quality standards.
-    *   If the outline is not complete, the `OUTLINE_REVISION_PROMPT` is used to revise it based on the feedback.
-    *   This loop continues until the outline is complete or the maximum number of revisions is reached.
+**LangGraph Implementation**: These stages are implemented as nodes in `storytelling/graph.py`
 
-## 3. Chapter Generation
+1.  **Story Element Generation** (`generate_story_elements_node`): 
+    - Creates the foundational narrative components: characters, setting, plot, theme, and conflict
+    - Uses `STORY_ELEMENTS_PROMPT` to manifest the creative building blocks
+    - Enables RAG context injection when knowledge base is configured
 
-With a finalized outline, the application proceeds to generate the chapters of the story. This is an iterative process that can be broken down as follows:
+2.  **Initial Outline Creation** (`generate_initial_outline_node`):
+    - Manifests a chapter-by-chapter outline from the story elements
+    - Integrates knowledge base context when `outline_rag_enabled` is true
+    - Uses `retrieve_outline_context()` to enhance outline with relevant knowledge
+    - Applies `INITIAL_OUTLINE_PROMPT` to create the narrative structure
 
-1.  **Chapter Detection**: The number of chapters in the story is determined from the outline using the `CHAPTER_COUNT_PROMPT`.
-2.  **Chapter Outline Expansion (Optional)**: If enabled, a more detailed outline is generated for each chapter using the `CHAPTER_OUTLINE_PROMPT`.
-3.  **Iterative Chapter Writing**: The application iterates through each chapter and generates the content. This is a multi-stage process for each chapter:
-    *   **Plot Generation**: The initial plot of the chapter is written using the `CHAPTER_GENERATION_STAGE1` prompt.
-    *   **Character Development**: Character development is added to the plot using the `CHAPTER_GENERATION_STAGE2` prompt.
-    *   **Dialogue Addition**: Dialogue is added to the chapter using the `CHAPTER_GENERATION_STAGE3` prompt.
-    *   **Revision Loop**: The generated chapter is critiqued and revised:
-        *   The `CRITIC_CHAPTER_PROMPT` is used to get feedback on the chapter.
-        *   The `CHAPTER_COMPLETE_PROMPT` is used to check if the chapter meets the quality standards.
-        *   If the chapter is not complete, the `CHAPTER_REVISION` prompt is used to revise it based on the feedback.
-        *   This loop continues until the chapter is complete or the maximum number of revisions is reached.
+3.  **Outline Refinement Loop**: The outline advances through iterative enhancement:
+    - The `CRITIC_OUTLINE_PROMPT` surfaces opportunities to strengthen the narrative
+    - The `OUTLINE_COMPLETE_PROMPT` evaluates structural completeness
+    - When refinement is needed, `OUTLINE_REVISION_PROMPT` advances the outline toward the desired outcome
+    - This advancing pattern continues until quality standards are met or revision limits are reached
 
-## 4. Post-Processing
+## 3. Building the Narrative, Chapter by Chapter
 
-After all the chapters have been generated, the story goes through a series of optional post-processing steps:
+With a complete outline foundation, the application manifests each chapter through advancing patterns that layer complexity and depth.
 
-1.  **Final Edit Pass (Optional)**: The entire novel is edited for consistency and flow using the `CHAPTER_EDIT_PROMPT`.
-2.  **Scrubbing (Optional)**: The generated chapters are cleaned to remove any leftover artifacts from the generation process, using the `CHAPTER_SCRUB_PROMPT`.
-3.  **Translation (Optional)**: The entire novel is translated into a specified language using the `CHAPTER_TRANSLATE_PROMPT`.
+**LangGraph Implementation**: Chapter generation flows through node transitions orchestrated by `storytelling/graph.py`
 
-## 5. Final Output
+1.  **Chapter Count Determination** (`determine_chapter_count_node`):
+    - Extracts the total chapter count from the outline using `CHAPTER_COUNT_PROMPT`
+    - Establishes the scope for iterative chapter creation
 
-The final step is to generate the output files:
+2.  **Chapter Index Progression** (`increment_chapter_index_node`):
+    - Advances the chapter index for each iteration
+    - Controls the flow through the chapter generation loop
 
-1.  **Story Info Generation**: The title, summary, and tags for the story are generated using the `STATS_PROMPT`.
-2.  **File Creation**:
-    *   A Markdown file is created containing the final story, along with statistics and the story outline.
-    *   A JSON file is created containing all the information about the story, including the outline, story elements, and generated chapters.
+3.  **Scene-by-Scene Chapter Creation** (`generate_single_chapter_scene_by_scene_node`):
+    - **Chapter Outline Expansion** (when enabled): Creates detailed scene-level structure using `CHAPTER_OUTLINE_PROMPT`
+    - **Layered Content Generation**: Builds chapters through progressive stages:
+        - Stage 1 (`CHAPTER_GENERATION_STAGE1`): Manifests the plot foundation
+        - Stage 2 (`CHAPTER_GENERATION_STAGE2`): Weaves in character development
+        - Stage 3 (`CHAPTER_GENERATION_STAGE3`): Enriches with dialogue
+        - Stage 4 (`CHAPTER_GENERATION_STAGE4`): Creates the final integrated form
+    - **RAG Context Integration**: Retrieves and injects relevant knowledge for each scene when knowledge base is configured
+    - **Advancement Loop**: The chapter evolves through iterative refinement:
+        - `CRITIC_CHAPTER_PROMPT` identifies opportunities for narrative enhancement
+        - `CHAPTER_COMPLETE_PROMPT` evaluates structural and creative completeness
+        - `CHAPTER_REVISION` advances the chapter toward the desired outcome
+        - This pattern continues until quality thresholds are met or revision limits are reached
+
+## 4. Polishing and Finalizing
+
+After manifesting all chapters, the application applies optional refinement layers to advance the story toward publication readiness.
+
+1.  **Final Edit Pass** (when enabled): Unifies the entire narrative for consistency and flow using `CHAPTER_EDIT_PROMPT`
+2.  **Content Refinement** (when enabled): Removes generation artifacts through `CHAPTER_SCRUB_PROMPT`
+3.  **Language Transformation** (when enabled): Manifests the story in the target language using `CHAPTER_TRANSLATE_PROMPT`
+
+## 5. Story Completion and Output
+
+The final stage creates the deliverable artifacts that manifest the complete creative work.
+
+**LangGraph Implementation**: The `generate_final_story_node` orchestrates the completion sequence
+
+1.  **Story Metadata Generation**: 
+    - Creates title, summary, tags, and overall rating using `STATS_PROMPT`
+    - Establishes the story's identity and discoverability
+
+2.  **Output Manifestation**:
+    - **Markdown File**: Contains the complete polished narrative with statistics and outline
+    - **JSON File**: Preserves the complete creative history including outline, story elements, and all generated chapters
+    - **Session Checkpoint**: Captures the final creative state for future reference or continuation
