@@ -1,10 +1,12 @@
-# Creative Orientation Operating Guide (PROPOSED)
+# Creative Orientation Operating Guide
+
+**Status**: ✅ IMPLEMENTED
 
 **Purpose**: Operationalize Creative Orientation within WillWrite by defining short, enforceable rules and templates that align with the RISE framework without reframing observations as problems.
 
 ---
 
-## Operating Rules (PROPOSED)
+## Operating Rules
 - Structural Tension block appears at the top of major docs and agent outputs.
 - Observations are recorded neutrally (including Risks & Issues) without categorization.
 - Structural Assessment states whether a structure tends to advance or oscillate.
@@ -31,14 +33,14 @@
 - Language patterns adhere to create-language rules.  
 - If Advancing Moves are provided, they describe natural progression, not elimination.
 
-### Doc-Lint Policy (PROPOSED)
+### Doc-Lint Policy
 - Allow neutral Observations; flag problem-elimination verbs outside of technical contexts.  
 - Require “advancing/oscillating” only in Structural Assessment.  
 - Require Structural Tension block in governed docs.
 
 ---
 
-## Agent Application Matrix (PROPOSED)
+## Agent Application Matrix
 - vision-agent: produces the Structural Tension block first.  
 - architect-agent: outlines reflect advancing patterns; Observations kept separate.  
 - writer-agent: prompts and staging described in create-language.  
@@ -49,7 +51,7 @@
 
 ---
 
-## Examples (PROPOSED)
+## Examples
 - Reactive: “Fix chapter over-generation in tests.”  
   Creative: “Create a 3‑chapter test preset that stabilizes chapter count during test runs.”
 - Reactive: “Eliminate outline inconsistency.”  

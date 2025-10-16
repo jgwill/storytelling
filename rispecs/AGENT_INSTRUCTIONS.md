@@ -1,8 +1,10 @@
 # Agent Build Instructions for WillWrite
 
-**Objective:** Your primary goal is to build a fully functional Python application that implements the `WillWrite` specification. You must use **only the documents within this `specifications/` directory** as your source of truth. Do not reference the original source code that was used to generate these specs.
+**Status**: ✅ IMPLEMENTED
 
-> PROPOSED — Creative Orientation Operating Rules: Before writing or updating any spec or agent output, follow `specifications/Creative_Orientation_Operating_Guide.md`. Include a Structural Tension block, keep Observations neutral (including Risks & Issues), place advancement classification in a separate Structural Assessment, and add Advancing Moves when useful. Use create-language; avoid problem-elimination phrasing.
+**Objective:** Your primary goal is to build a fully functional Python application that implements the `WillWrite` specification. You must use **only the documents within this `rispecs/` directory** as your source of truth. Do not reference the original source code that was used to generate these specs.
+
+> Creative Orientation Operating Rules: Before writing or updating any spec or agent output, follow `rispecs/Creative_Orientation_Operating_Guide.md`. Include a Structural Tension block, keep Observations neutral (including Risks & Issues), place advancement classification in a separate Structural Assessment, and add Advancing Moves when useful. Use create-language; avoid problem-elimination phrasing.
 
 ## Step 1: Understand the Vision and the Blueprint
 
@@ -27,14 +29,14 @@ Once you understand the workflow, familiarize yourself with the specific technic
 Use the **`ImplementationNotes.md`** as your guide for technology and architecture choices. The following is a recommended build order:
 
 1.  **Project Setup:**
-    *   Create a Python project with a `src/willwrite` structure.
+    *   Create a Python project with a `storytelling/` structure.
     *   Create a `requirements.txt` file and add the libraries mentioned in `ImplementationNotes.md` (Pydantic, LangChain, LangGraph, etc.).
 
 2.  **Core Components:**
     *   Implement the configuration loader (`config.py`) using Pydantic and argparse, as specified.
     *   Implement the data models (`data_models.py`) using Pydantic, as specified in `DataSchemas.md`.
     *   Create a `prompts.py` module to store all prompts from `Prompts.md` as constants.
-    *   Implement the LLM Provider parser utility that can read the URI format and initialize the correct LangChain LLM clients.
+    *   Implement the LLM Provider parser utility (`llm_providers.py`) that can read the URI format and initialize the correct LangChain LLM clients.
 
 3.  **Workflow Orchestration (LangGraph):**
     *   Define the `StoryState` TypedDict that will be used to manage the graph's state.
