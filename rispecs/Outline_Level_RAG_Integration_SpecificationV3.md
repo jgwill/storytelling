@@ -39,8 +39,9 @@ This specification defines the implementation of an **Event-Driven Adaptive RAG 
 
 ### 1.1 Current State
 - ✅ **Scene-Level RAG**: Functional during chapter generation with context injection.
-- ❌ **Outline-Level RAG (Static)**: Initial implementation for outline generation without dynamic adaptation.
-- ✅ **Infrastructure**: Core RAG system (`src/willwrite/rag.py`) and Unified Creative Orientation Framework components (e.g., `coaia-memory`, `mcp-coaia-sequential-thinking`, `co-lint`) are ready for advanced integration.
+- ✅ **Outline-Level RAG (Basic)**: Basic implementation completed with `retrieve_outline_context()` function providing static knowledge retrieval during outline generation.
+- ⏳ **Outline-Level RAG (Advanced)**: Event-Driven Adaptive RAG, semantic adaptation layer, and RISE-aware prioritization features are under development.
+- ✅ **Infrastructure**: Core RAG system (`storytelling/rag.py`) and configuration parameters are in place for advanced integration.
 
 ### 1.2 Strategic Importance
 Outline-level RAG is critical for ensuring that story foundations are not only grounded in established world-building but also **actively guided towards creative orientation and advancing patterns from the outset**. By integrating with the Unified Creative Orientation Framework, this system will:
