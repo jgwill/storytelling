@@ -27,9 +27,9 @@
 
 ---
 
-## Standardized Checkpoint Format (PROPOSED)
+## Standardized Checkpoint Format ✅ IMPLEMENTED
 
-To enable robust resume functionality and narrative forking, a standardized JSON checkpoint file will be generated at each defined boundary. This file will encapsulate the complete state required to re-hydrate the application.
+A standardized JSON checkpoint file is generated at each workflow boundary. This file encapsulates the complete state required to re-hydrate the application. Implementation is in `storytelling/session_manager.py`.
 
 **Schema:**
 ```json
@@ -60,13 +60,18 @@ To enable robust resume functionality and narrative forking, a standardized JSON
 
 ---
 
-## Re-hydration for Narrative Forking (PROPOSED)
+## Re-hydration for Narrative Forking
 
-The standardized checkpoint format enables powerful narrative forking capabilities:
+**Infrastructure**: ✅ IMPLEMENTED  
+**User-Facing Commands**: ⏳ PLANNED
 
-1.  **Load Checkpoint**: The application can be initialized by loading a specific checkpoint file. This re-hydrates the `StoryState` to the exact point where the checkpoint was saved.
-2.  **Modify State**: Once re-hydrated, users can modify elements of the `StoryState` (e.g., change the outline, alter a character's personality, inject new RAG context, or swap LLM models).
-3.  **Continue Generation**: The application then continues the generation process from that modified state, effectively creating a new narrative branch from a historical point.
-4.  **Iterative Exploration & Time-Travel**: This allows for rapid experimentation with different creative choices, exploring alternative plotlines, character arcs, or stylistic variations, and even 'time-traveling' to previous states to branch narratives, all without re-generating the entire story from scratch.
+The standardized checkpoint format enables powerful narrative forking capabilities through the implemented infrastructure:
 
-This mechanism transforms the logging system from a mere record-keeper into a dynamic tool for creative exploration and iterative storytelling.
+1.  **Load Checkpoint** ✅: The `SessionManager.load_session_state()` can restore `StoryState` from any checkpoint
+2.  **Modify State** (Infrastructure Ready): State can be programmatically modified after loading
+3.  **Continue Generation** ✅: The `create_resume_graph()` function enables continuation from any checkpoint
+4.  **Iterative Exploration** (Planned): User-facing commands for checkpoint-based forking and state modification are under development
+
+**Current Capabilities**: The infrastructure fully supports narrative forking through the session management system. Direct CLI commands for forking workflows are planned for future releases.
+
+This mechanism transforms the session system from a mere record-keeper into a dynamic foundation for creative exploration and iterative storytelling.
