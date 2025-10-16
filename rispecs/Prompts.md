@@ -1,6 +1,8 @@
 # WillWrite Prompts Specification
 
-This document contains the full text of all prompts used in the WillWrite application, organized by their function in the story generation pipeline.
+**Status**: ✅ IMPLEMENTED
+
+This document contains the full text of all prompts used in the WillWrite application, organized by their function in the story generation pipeline. Prompts include RAG context placeholders (`{RetrievedContext}`) that enable knowledge-aware generation when a knowledge base is configured.
 
 ## 1. Outline Generation Prompts
 

@@ -1,6 +1,8 @@
-# WillWrite Enhanced Logging and Traceability Specification ✅ **UPDATED**
+# WillWrite Enhanced Logging and Traceability Specification
 
-This document defines the enhanced logging, session tracing, and observability requirements for the `WillWrite` application with **Langfuse integration**. The core principle is to ensure that every step of the creative process is recorded for debugging, analysis, and full transparency while providing production-grade observability capabilities.
+**Status**: ✅ IMPLEMENTED (Core Features), ⏳ PLANNED (Langfuse Tracing)
+
+This document defines the logging, session management, and observability features for the `WillWrite` application. The core principle is to ensure that every step of the creative process is recorded for debugging, analysis, and full transparency.
 
 ## 1. Core Principles
 
@@ -32,64 +34,57 @@ Logs/
 
 ## 3. Enhanced Logging and Tracing Architecture ✅ **UPDATED**
 
-### 3.1. Session-Based Tracing with Langfuse Integration ✅ **NEW**
+### 3.1. Session-Based Logging ✅ IMPLEMENTED
 
-**Purpose**: Comprehensive observability for story generation sessions with cloud-based analytics and local fallback.
+**Purpose**: Comprehensive session management and logging for story generation.
 
-**Implementation**: `WillWriteTracer` class in `src/storytelling/__main__.py`
+**Implementation**: `Logger` class in `storytelling/logger.py` and `SessionManager` in `storytelling/session_manager.py`
 
 **Features**:
-- **Langfuse Integration**: Automatic cloud tracing when available
-- **Local Fallback**: JSON trace files when cloud services unavailable  
-- **Session Management**: Unique session IDs for each generation run
-- **Observation Types**: Events, spans, and generations with detailed metadata
+- ✅ **Session Management**: Unique session IDs and directories for each generation run
+- ✅ **Structured Logging**: Console and file-based logging with session context
+- ✅ **LLM Interaction Tracing**: Detailed capture of prompts and responses in JSON/Markdown formats
+- ✅ **Checkpoint Persistence**: Automatic state preservation at workflow boundaries
+- ⏳ **Langfuse Integration** (Planned): Cloud-based tracing and observability
 
-**Session Flow**:
-```python
-# 1. Initialize tracer
-tracer = WillWriteTracer(session_id)
+**Current Implementation**:
+- Session-based directory structure (`Logs/Generation_{timestamp}/`)
+- LLM interaction logging in `LangchainDebug/` subdirectory
+- Checkpoint files for session resume capabilities
+- Console logging with colored output and progress indicators
 
-# 2. Create main trace
-tracer.create_trace("Storytelling_Generation", input_data, metadata)
+### 3.2. Logging Components ✅ IMPLEMENTED
 
-# 3. Add observations throughout pipeline
-tracer.add_observation("load_configuration", "event", input_data, metadata)
-tracer.add_observation("story_generation", "generation", input_data, output_data)
-
-# 4. Finalize with session summary
-tracer.finalize_trace(output_data, metadata)
-```
-
-### 3.2. Observation Types ✅ **NEW**
-
-**Events**: Single-point activities in the generation pipeline
-- Configuration loading
-- Knowledge base initialization  
-- Model connection establishment
-- Error occurrences
-
-**Spans**: Multi-step processes with duration tracking
-- RAG knowledge base construction
-- Complete story generation phases
-- Chapter revision loops
-
-**Generations**: LLM interactions with input/output capture
-- Individual model calls
-- Token usage tracking
-- Generation timing metrics
-- Context and response logging
-
-### 3.3. Traditional Logging Components ✅ **ENHANCED**
-
-**Console Logging** - Enhanced with emoji indicators and structured formatting
-- Real-time feedback with visual indicators (🚀, 📊, ✅, ⚠️, ❌)
-- Session ID display for correlation with traces
+**Console Logging** - Structured output with visual feedback
+- Real-time progress updates with timestamps
+- Color-coded log levels (INFO, DEBUG, WARNING, ERROR)
+- Session information display
 - Progress indicators for long-running operations
 
-**Session Log Files** - Comprehensive session artifacts
-- **Main Session Log**: Complete execution record with timestamps
-- **Local Trace Files**: JSON exports when Langfuse unavailable (`trace_{session_id}.json`)
-- **Story Outputs**: Generated narratives in both JSON and Markdown formats
+**Session Log Files** - Comprehensive session artifacts  
+- **Main Session Log**: Complete execution record in `Main.log`
+- **LLM Interaction Logs**: Detailed prompt/response pairs in `LangchainDebug/`
+  - JSON format for machine processing
+  - Markdown format for human readability
+- **Story Outputs**: Generated narratives in both `Story.json` and `Story.md` formats
+- **Checkpoint Files**: Session state preservation for resume capabilities
+
+### 3.3. Future Enhancements ⏳ PLANNED
+
+**Advanced Observability with Langfuse**:
+- Cloud-based trace aggregation and analytics
+- Multi-run comparison and performance tracking
+- Token usage and cost analysis
+- Advanced debugging and replay capabilities
+
+**CoAiAPy Integration Option**:
+The `coaiapy` package (`pip install coaiapy`) provides a `coaia fuse` command that could enable optional Langfuse tracing at the session level. This would complement the existing Logger class by adding:
+- Automatic trace creation for storytelling sessions
+- Step-by-step observation tracking (events, spans, generations)
+- Internal state observations at workflow boundaries
+- Cloud-based trace persistence and analysis
+
+This integration would be optional and configurable, allowing users to enable Langfuse tracing without requiring code changes to the core Logger implementation.
 
 ## 4. Final Artifacts
 

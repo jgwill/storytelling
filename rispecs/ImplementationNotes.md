@@ -1,79 +1,108 @@
 # WillWrite Implementation Notes
 
-This document provides recommended technical guidance for implementing the `WillWrite` application based on the specifications. While the core specs are technology-agnostic, these notes suggest libraries and patterns that align well with the application's architecture and intent.
+**Status**: ✅ IMPLEMENTED
 
-## 1. Configuration Management
+This document provides technical guidance for the `WillWrite` application implementation. All recommendations described here have been implemented in the `storytelling/` module.
 
-It is recommended to use a robust configuration library to manage the numerous parameters.
+## 1. Configuration Management ✅ IMPLEMENTED
 
--   **Technology:** `pydantic` combined with Python's `argparse`.
--   **Pattern:**
-    1.  Define a `WillWriteConfig` class using `pydantic.BaseModel` to get type validation, default values, and clear schema definition.
-    2.  Use `argparse` to parse command-line arguments.
-    3.  Instantiate the `WillWriteConfig` model from the parsed arguments to create a single, validated configuration object.
-    4.  This pattern provides a clean separation of concerns and ensures that the application receives a valid configuration.
+**Implementation**: `storytelling/config.py`
 
-## 2. Data Schemas
+-   **Technology:** `pydantic` combined with Python's `argparse`
+-   **Implementation Details:**
+    1.  `WillWriteConfig` class defined using `pydantic.BaseModel` with type validation and defaults
+    2.  `load_config()` function uses `argparse` to parse command-line arguments
+    3.  Configuration validation ensures all parameters are correctly typed
+    4.  Support for all model selection, RAG, workflow control, and revision parameters
 
-The data schemas defined in `DataSchemas.md` should be enforced in the implementation.
+## 2. Data Schemas ✅ IMPLEMENTED
 
--   **Technology:** `pydantic`.
--   **Pattern:**
-    1.  Create a `pydantic.BaseModel` for each schema defined in `DataSchemas.md`.
-    2.  When using an LLM framework like LangChain, integrate these Pydantic models with the output parser (`JsonOutputParser(pydantic_object=...)`) to automatically parse and validate the LLM's JSON output.
-    3.  This ensures data consistency and catches errors early in the process.
+**Implementation**: `storytelling/data_models.py` and `storytelling/session_manager.py`
 
-## 3. LLM Interaction and Workflow Orchestration
+-   **Technology:** `pydantic` and Python `dataclasses`
+-   **Implementation Details:**
+    1.  Pydantic models for LLM output validation (chapter count, completion checks, etc.)
+    2.  `SessionCheckpoint` and `SessionInfo` dataclasses for session management
+    3.  Integration with LangChain's `JsonOutputParser` for automatic validation
+    4.  Comprehensive error handling for schema validation failures
 
-The core of the application is a stateful, multi-step workflow. It is highly recommended to use a framework designed for this purpose.
+## 3. LLM Interaction and Workflow Orchestration ✅ IMPLEMENTED
 
--   **Technology:** `LangChain` and `LangGraph`.
--   **Pattern:**
-    1.  **LLM Clients:** Implement a parser that conforms to `LLM_Provider_Specification.md`. This parser will read the URI string from the configuration and instantiate the appropriate LangChain client (`ChatOllama`, `ChatGoogleGenerativeAI`, etc.) with the correct parameters.
-    2.  **State Management:** Use `LangGraph`'s `StatefulGraph` to manage the application's state (the `StoryState` object). This enables robust and scalable state persistence, including capabilities for checkpointing, session recovery, and even 'time-travel' to explore alternative narrative branches.
-    3.  **Nodes and Edges:** Implement each step in the `ProceduralLogic.md` as a node in the LangGraph graph. The conditional logic (e.g., "if `-ExpandOutline` is true") should be implemented as conditional edges.
-    4.  **Chains:** Use the LangChain Expression Language (LCEL) to construct chains for each LLM call (e.g., `prompt_template | model | output_parser`). This is a declarative and composable way to define the logic for each node.
+**Implementation**: `storytelling/graph.py` and `storytelling/llm_providers.py`
 
-## 4. Prompts
+-   **Technology:** `LangChain` and `LangGraph`
+-   **Implementation Details:**
+    1.  **LLM Clients** (`storytelling/llm_providers.py`): URI parser instantiates appropriate LangChain clients (`ChatOllama`, `ChatGoogleGenerativeAI`, etc.) based on provider scheme
+    2.  **State Management** (`storytelling/graph.py`): `StoryState` TypedDict manages workflow state with LangGraph
+    3.  **Nodes**: Key nodes include `generate_story_elements_node`, `generate_initial_outline_node`, `generate_single_chapter_scene_by_scene_node`, `determine_chapter_count_node`, `increment_chapter_index_node`, `generate_final_story_node`
+    4.  **Edges**: Conditional routing based on configuration and state
+    5.  **Chains**: LCEL chains construct LLM interactions with prompt templates, models, and output parsers
+    6.  **Session Integration**: `create_resume_graph()` enables checkpoint-based resume capabilities
 
--   **Technology:** `LangChain`'s `ChatPromptTemplate`.
--   **Pattern:**
-    1.  Store all prompts from `Prompts.md` in a dedicated module (e.g., `prompts.py`).
-    2.  Define each prompt as a `ChatPromptTemplate` object. This allows for easy formatting and integration into LangChain chains.
+## 4. Prompts ✅ IMPLEMENTED
 
-By following these recommendations, an implementing agent can create a robust, maintainable, and scalable version of the `WillWrite` application that faithfully executes the creative intent laid out in the specifications.
+**Implementation**: `storytelling/prompts.py`
 
-## 6. Knowledge Base (RAG) - ✅ IMPLEMENTED
+-   **Technology:** `LangChain`'s `ChatPromptTemplate`
+-   **Implementation Details:**
+    1.  All prompts from `Prompts.md` stored in dedicated module
+    2.  Each prompt defined as `ChatPromptTemplate` with variable placeholders
+    3.  RAG context placeholders (`{RetrievedContext}`) for knowledge injection
+    4.  Integration with LCEL chains for seamless LLM interaction
 
-**Implementation Status**: Complete with full test coverage
+## 5. Knowledge Base (RAG) ✅ IMPLEMENTED
 
--   **Technology:** `LangChain`'s document loaders, text splitters, embedding models, and vector stores.
--   **Implementation**: See `src/willwrite/rag.py` for complete implementation
--   **Pattern**:
-    1.  **Document Loading:** Implemented using `langchain_community.document_loaders.DirectoryLoader` with recursive markdown file scanning.
-    2.  **Vector Store:** FAISS in-memory vector store with configurable embedding models (OpenAI, HuggingFace).
-    3.  **Retrieval Integration:** Context injection during scene generation in LangGraph workflow.
-    4.  **Multi-Provider Support**: Automatic embedding model selection based on model identifier.
-    5.  **Error Handling**: Comprehensive validation and graceful error recovery.
+**Implementation**: `storytelling/rag.py`, `storytelling/enhanced_rag.py`, `storytelling/web_fetcher.py`, `storytelling/coaia_fuse.py`
 
-**Key Features**:
-- Multi-provider embedding support (OpenAI, HuggingFace, with fallback)
-- Recursive directory scanning for markdown knowledge files
-- Text chunking with semantic boundary preservation (1000 chars, 200 overlap)
-- Real-time context injection during story generation
-- Performance optimization with in-memory vector search
-- Comprehensive test suite with unit, integration, and performance tests
+-   **Technology:** `LangChain`'s document loaders, text splitters, embedding models, and vector stores
+-   **Implementation Details:**
+    1.  **Document Loading**: `DirectoryLoader` with recursive markdown file scanning
+    2.  **Vector Store**: FAISS in-memory vector store with configurable embedding models
+    3.  **Multi-Source Integration**: Web content fetching, CoAiAPy Fuse, and local files
+    4.  **Outline-Level RAG**: `retrieve_outline_context()` function for knowledge-aware story foundations
+    5.  **Scene-Level RAG**: Context injection during chapter generation
+    6.  **Multi-Provider Support**: Ollama, OpenAI, and HuggingFace embedding models
 
-**Configuration**: 
-- `--KnowledgeBasePath`: Directory containing markdown knowledge files
-- `--EmbeddingModel`: Embedding model identifier (e.g., `text-embedding-ada-002`, `sentence-transformers/all-MiniLM-L6-v2`)
+**Key Functions**:
+- `initialize_rag_system()`: Setup multi-source knowledge base
+- `retrieve_outline_context()`: Knowledge retrieval for outline generation
+- `retrieve_context()`: Knowledge retrieval for scene generation
+- `fetch_web_content()`: Web URL content fetching with caching
+- `retrieve_coaia_datasets()` and `retrieve_coaia_prompts()`: CoAiAPy integration
 
-**See**: `specifications/RAG_Implementation_Specification.md` for complete technical documentation.
+**Configuration Parameters**: 
+- Knowledge Base: `--knowledge-base-path`, `--embedding-model`
+- Outline RAG: `--outline-rag-enabled`, `--outline-context-max-tokens`, `--outline-rag-top-k`, `--outline-rag-similarity-threshold`
+- Multi-Source: `--scratchpad-file`, `--coaiаpy-datasets`, `--coaiаpy-prompts`, `--existing-knowledge-dirs`, `--web-cache-ttl`
 
-## 5. Logging and Traceability
+**See**: `rispecs/RAG_Implementation_Specification.md` and `rispecs/Enhanced_Multi_Source_RAG_Specification.md` for complete technical documentation.
 
--   **Technology:** Python's built-in `logging` module.
--   **Pattern:**
-    1.  Create a custom `Logger` class that handles the setup of the session directory structure as defined in `Logging_And_Traceability_Specification.md`.
-    2.  Use file handlers to direct logs to both the console (with color support, e.g., using the `termcolor` library) and the `Main.log` file.
-    3.  Implement a dedicated method within the logger (e.g., `save_interaction`) that takes a message history and a descriptive name, and saves the `.json` and `.md` traceability files. This method should be called from a central point after each LLM call.
+## 6. Logging and Traceability ✅ IMPLEMENTED
+
+**Implementation**: `storytelling/logger.py` and `storytelling/session_manager.py`
+
+-   **Technology:** Python's `logging` module with `termcolor`
+-   **Implementation Details:**
+    1.  **Logger Class** (`storytelling/logger.py`): Custom logger handling session directory structure
+    2.  **Session Management** (`storytelling/session_manager.py`): SessionManager for checkpoint persistence and resume
+    3.  **Console Logging**: Color-coded output with timestamps and progress indicators
+    4.  **File Logging**: Complete execution record in `Main.log` within session directories
+    5.  **LLM Interaction Tracing**: Detailed prompt/response capture in `LangchainDebug/` subdirectory
+    6.  **Checkpoint Files**: Session state preservation for resume capabilities
+
+**Directory Structure**:
+```
+Logs/
+└── Generation_{timestamp}/
+    ├── LangchainDebug/
+    │   ├── 0_Main.GenerateOutline.json
+    │   ├── 0_Main.GenerateOutline.md
+    │   └── ...
+    ├── checkpoint_{id}.json
+    ├── session_info.json
+    ├── Main.log
+    ├── Story.md
+    └── Story.json
+```
+
+**See**: `rispecs/Logging_And_Traceability_Specification.md` for complete specification.

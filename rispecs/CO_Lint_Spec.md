@@ -1,8 +1,10 @@
-# CO‑Lint — Creative Orientation Linter Specification (PROPOSED)
+# CO‑Lint — Creative Orientation Linter Specification
 
-Version: 0.1.0 (PROPOSED)
+**Status**: ⏳ PLANNED
 
-## PROPOSED — Structural Tension
+Version: 0.1.0
+
+## Structural Tension
 - Desired Outcome: Maintain methodological integrity by ensuring docs and agent outputs consistently advance Creative Orientation rather than drifting into gap‑thinking.
 - Current Reality: Without guardrails, contributors and agents can regress to reactive phrasing and oscillating patterns across specs and reviews.
 - Natural Progression: Introduce a simple, configurable linter that validates required blocks and language patterns, guiding outputs toward advancing structures.

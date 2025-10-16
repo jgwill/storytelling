@@ -59,10 +59,10 @@ The **"Initialize Knowledge Base"** procedure has been implemented in the applic
 
 The `Retriever` has been implemented to augment the context provided to the LLMs at key generation stages:
 
-1.  **During Outline Generation:** ⚠️ **PLANNED** (infrastructure ready)
-    *   Specification calls for retrieval before `INITIAL_OUTLINE_PROMPT`
-    *   **Current Status**: Retriever passed through state, outline integration pending
-    *   **Implementation Path**: Add retrieval logic to outline generation node
+1.  **During Outline Generation:** ✅ **FULLY IMPLEMENTED**
+    *   ✅ The system retrieves knowledge relevant to the user's prompt before `INITIAL_OUTLINE_PROMPT`
+    *   ✅ Retrieved context is injected into outline generation to ensure foundational consistency
+    *   **Implementation**: `retrieve_outline_context()` function in `storytelling/rag.py`
 
 2.  **During Chapter Generation:** ✅ **FULLY IMPLEMENTED**
     *   ✅ Before scene generation, the system uses the `Retriever` to find document chunks relevant to the current scene outline

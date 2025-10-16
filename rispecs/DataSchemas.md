@@ -1,5 +1,7 @@
 # WillWrite Data Schemas
 
+**Status**: ✅ IMPLEMENTED
+
 This document defines the structure of the key data objects, particularly the JSON payloads, that are used throughout the WillWrite application.
 
 ## Session Management Schemas ✅ IMPLEMENTED

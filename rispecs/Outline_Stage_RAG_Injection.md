@@ -1,4 +1,8 @@
-# Outline-Stage RAG Injection — Criteria & Boundaries (PROPOSED)
+# Outline-Stage RAG Injection — Criteria & Boundaries
+
+**Status**: ⚠️ DEPRECATED - See `Outline_Level_RAG_Integration_SpecificationV1.md` and `Outline_Level_RAG_Integration_SpecificationV3.md` for complete specifications.
+
+> **Note**: This document's content has been incorporated into the comprehensive Outline-Level RAG specifications. The basic functionality described here is implemented in V1, and advanced features are detailed in V3.
 
 ## Structural Tension
 - Desired Outcome: Foundational outlines naturally reflect relevant knowledge from the KB without overpowering user vision.

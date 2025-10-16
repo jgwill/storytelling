@@ -1,6 +1,8 @@
-# WillWrite Configuration Specification
+# Storytelling Package Configuration Specification
 
-This document details all the configuration parameters that control the behavior of the `WillWrite` application. These are typically set via command-line arguments.
+**Status**: ✅ IMPLEMENTED
+
+This document details all the configuration parameters that control the behavior of the Storytelling package. These are typically set via command-line arguments.
 
 ## Core Parameters
 
@@ -151,4 +153,9 @@ These parameters control the behavior of the feedback and revision loops.
 -   **`-Debug`**
     -   **Type:** `boolean`
     -   **Description:** If `true`, prints system prompts and other debugging information to the console.
+    -   **Default:** `false`
+
+-   **`-MockMode`**
+    -   **Type:** `boolean`
+    -   **Description:** If `true`, uses mock responses instead of actual LLM calls for testing purposes.
     -   **Default:** `false`
