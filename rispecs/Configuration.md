@@ -1,8 +1,8 @@
-# WillWrite Configuration Specification
+# Storytelling Package Configuration Specification
 
 **Status**: ✅ IMPLEMENTED
 
-This document details all the configuration parameters that control the behavior of the `WillWrite` application. These are typically set via command-line arguments.
+This document details all the configuration parameters that control the behavior of the Storytelling package. These are typically set via command-line arguments.
 
 ## Core Parameters
 

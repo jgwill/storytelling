@@ -4,10 +4,22 @@
 
 **Structural Tension**
 - Desired Outcome: A clear, implementation-aligned description of the story generation workflow that empowers developers to understand and extend the creative pipeline.
-- Current Reality: The workflow is implemented in LangGraph nodes and edges in `storytelling/graph.py`.
-- Natural Progression: Document the advancing patterns that enable transformation from user prompt to complete narrative.
+- Current Reality: The core workflow is implemented in LangGraph nodes in `storytelling/graph.py`. However, several specified features including prompt analysis, critique/revision loops, and iterative refinement are defined but not yet integrated into the workflow.
+- Natural Progression: Document the advancing patterns currently implemented while identifying opportunities for enhancement through critique loops and iterative refinement mechanisms.
 
-This document describes the high-level logical workflow of the `WillWrite` application for generating a story, aligned with the LangGraph implementation in `storytelling/graph.py`. For the exact text of the prompts mentioned, see `Prompts.md`.
+This document describes the high-level logical workflow of the Storytelling package for generating a story, aligned with the LangGraph implementation in `storytelling/graph.py`. For the exact text of the prompts mentioned, see `Prompts.md`.
+
+## ⚠️ Implementation Status Note
+
+**Currently Implemented**: The core single-pass workflow (story elements → outline → chapters → final story) is fully operational.
+
+**Specified but Not Yet Implemented**: Several enhancement features exist in specifications and prompts but are not yet integrated into the workflow:
+- Prompt Analysis step using `GET_IMPORTANT_BASE_PROMPT_INFO`
+- Outline critique and revision loop using `CRITIC_OUTLINE_PROMPT` and `OUTLINE_REVISION_PROMPT`
+- Chapter critique and revision loop using `CRITIC_CHAPTER_PROMPT` and `CHAPTER_REVISION`
+- Configuration parameters for revision counts (`outline_min_revisions`, `outline_max_revisions`, `chapter_min_revisions`, `chapter_max_revisions`) are defined but not utilized
+
+**Path Forward**: These iterative refinement features represent advancing patterns that would enhance story quality through feedback loops. Implementation would require adding critique/revision nodes to the LangGraph workflow.
 
 ## 1. Initialization and Configuration
 

@@ -77,6 +77,15 @@ Logs/
 - Token usage and cost analysis
 - Advanced debugging and replay capabilities
 
+**CoAiAPy Integration Option**:
+The `coaiapy` package (`pip install coaiapy`) provides a `coaia fuse` command that could enable optional Langfuse tracing at the session level. This would complement the existing Logger class by adding:
+- Automatic trace creation for storytelling sessions
+- Step-by-step observation tracking (events, spans, generations)
+- Internal state observations at workflow boundaries
+- Cloud-based trace persistence and analysis
+
+This integration would be optional and configurable, allowing users to enable Langfuse tracing without requiring code changes to the core Logger implementation.
+
 ## 4. Final Artifacts
 
 The final generated story and its associated JSON data are the ultimate artifacts of the process and are also part of the traceability record.
