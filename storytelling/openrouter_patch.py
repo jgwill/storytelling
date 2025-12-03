@@ -2,7 +2,7 @@ import os
 from typing import Any, ClassVar, Dict, List, Optional
 
 import requests
-from langchain.llms.base import LLM
+from langchain_core.language_models.llms import LLM
 from pydantic import Field
 
 
