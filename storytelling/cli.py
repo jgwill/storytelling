@@ -285,8 +285,8 @@ def main(argv: Optional[List[str]] = None) -> int:
             "retriever": retriever
         }
 
-        # Run the graph
-        final_state = graph.invoke(initial_state)
+        # Run the graph with increased recursion limit for longer stories
+        final_state = graph.invoke(initial_state, {"recursion_limit": 50})
 
         # Update session status
         session_manager.update_session_status(session_id, "completed")
