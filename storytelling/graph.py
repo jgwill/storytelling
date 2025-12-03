@@ -1,6 +1,6 @@
 from typing import Dict, Any
 from langgraph.graph import StateGraph, END
-from langchain.output_parsers import PydanticOutputParser
+from langchain_core.output_parsers import PydanticOutputParser
 from .llm_providers import get_llm_from_uri
 from . import prompts
 from .data_models import ChapterCount, CompletionCheck, SummaryCheck, StoryInfo, SceneList
@@ -20,7 +20,9 @@ def generate_single_chapter_scene_by_scene_node(state: StoryState) -> dict:
         logger.info(f"=== NODE: Chapter {index + 1}, Scene-by-Scene Generation ===")
     
     try:
-        if config.mock_mode:
+        if config is None:
+            rough_chapter = f"Mock Chapter {index + 1}\n\nConfig was not preserved. Using mock content."
+        elif config.mock_mode:
             rough_chapter = f"Mock Chapter {index + 1}\n\nThis is a mock chapter generated for testing purposes. The chapter follows the outline and develops the story further."
             if logger:
                 logger.info(f"Using mock chapter {index + 1}")
@@ -66,14 +68,18 @@ Generate the chapter content now:"""
             "chapters": chapters, 
             "current_chapter_text": rough_chapter, 
             "chapter_revision_count": 0,
-            # Preserve state from previous nodes  
+            # Preserve ALL state from previous nodes  
             "story_elements": state.get('story_elements', ''),
             "base_context": state.get('base_context', ''),
             "outline": state.get('outline', ''),
             "total_chapters": state.get('total_chapters', 1),
             "current_chapter_index": state.get('current_chapter_index', 0),
             "session_manager": state.get('session_manager'),
-            "session_id": state.get('session_id')
+            "session_id": state.get('session_id'),
+            "config": state.get('config'),
+            "logger": state.get('logger'),
+            "initial_prompt": state.get('initial_prompt'),
+            "retriever": state.get('retriever')
         }
         
         # Save checkpoint after successful completion
@@ -112,12 +118,18 @@ Generate the chapter content now:"""
             "current_chapter_text": "Could not connect to LLM.", 
             "chapter_revision_count": 0, 
             "errors": state.get("errors", []) + [str(e)],
-            # Preserve state from previous nodes
+            # Preserve ALL state from previous nodes
             "story_elements": state.get('story_elements', ''),
             "base_context": state.get('base_context', ''),
             "outline": state.get('outline', ''),
             "total_chapters": state.get('total_chapters', 1),
-            "current_chapter_index": state.get('current_chapter_index', 0)
+            "current_chapter_index": state.get('current_chapter_index', 0),
+            "config": state.get('config'),
+            "logger": state.get('logger'),
+            "initial_prompt": state.get('initial_prompt'),
+            "retriever": state.get('retriever'),
+            "session_manager": state.get('session_manager'),
+            "session_id": state.get('session_id')
         }
 
 def should_use_scene_generation_pipeline(state: StoryState) -> str:
@@ -150,7 +162,6 @@ def generate_story_elements_node(state: StoryState) -> dict:
             return {"story_elements": "Missing logger or config", "errors": state.get("errors", []) + ["Missing logger or config"]}
             
         logger.info("=== NODE: Generating story elements ===")
-        print("DEBUG: Story elements node starting")
         
         if config.mock_mode:
             story_elements = f"Mock Story Elements for: {state['initial_prompt'][:50]}..."
@@ -185,7 +196,6 @@ def generate_story_elements_node(state: StoryState) -> dict:
             )
             logger.info("Checkpoint saved: generate_story_elements")
         
-        print(f"DEBUG: Story elements returning: {list(result.keys())}")
         return result
     except Exception as e:
         error_msg = f"Error generating story elements: {e}"
@@ -215,8 +225,6 @@ def generate_initial_outline_node(state: StoryState) -> dict:
             return {"outline": "Missing logger or config", "errors": state.get("errors", []) + ["Missing logger or config"]}
             
         logger.info("=== NODE: Generating initial outline ===")
-        print("DEBUG: Outline node starting")
-        print(f"DEBUG: Outline node - logger: {type(logger)}, config: {type(config)}")
         
         if config.mock_mode:
             outline = "Mock Outline\n\nChapter 1: Introduction\nThe story begins...\n\nChapter 2: Development\nThe plot thickens..."
@@ -308,13 +316,36 @@ def determine_chapter_count_node(state: StoryState) -> dict:
         if logger:
             logger.info("=== NODE: Determining chapter count ===")
         
-        # Simple chapter count determination - can be made more sophisticated
+        # More sophisticated chapter count determination
         outline = state.get('outline', '')
-        # Count potential chapters based on outline structure or default to 2
-        if 'Chapter' in outline:
-            chapter_count = max(1, outline.count('Chapter'))  # At least 1 chapter
-        else:
-            chapter_count = 1  # Default for testing - just one chapter
+        chapter_count = 0
+        
+        # Look for various chapter/section markers
+        import re
+        # Count "Chapter X" patterns
+        chapter_count = max(chapter_count, len(re.findall(r'Chapter\s*\d+', outline, re.IGNORECASE)))
+        # Count "# Chapter" markdown headers
+        chapter_count = max(chapter_count, len(re.findall(r'#+\s*Chapter', outline, re.IGNORECASE)))
+        # Count "Act" markers (3-act structure)
+        act_count = len(re.findall(r'Act\s*[IVX\d]+', outline, re.IGNORECASE))
+        if act_count > 0 and chapter_count == 0:
+            chapter_count = act_count
+        # Count numbered sections like "1.", "2.", etc. at start of lines
+        numbered_sections = len(re.findall(r'^\s*\d+\.', outline, re.MULTILINE))
+        if numbered_sections > chapter_count:
+            chapter_count = numbered_sections
+        # Count markdown headers with Roman numerals
+        roman_count = len(re.findall(r'#+\s*[IVX]+\.', outline))
+        if roman_count > chapter_count:
+            chapter_count = roman_count
+        # Look for "Part" markers
+        part_count = len(re.findall(r'Part\s*[IVX\d]+', outline, re.IGNORECASE))
+        if part_count > chapter_count:
+            chapter_count = part_count
+            
+        # Default to 3 chapters if nothing found (reasonable story length)
+        if chapter_count == 0:
+            chapter_count = 3
             
         if logger:
             logger.info(f"Determined chapter count: {chapter_count}")
@@ -327,7 +358,11 @@ def determine_chapter_count_node(state: StoryState) -> dict:
             "base_context": state.get('base_context', ''),
             "outline": state.get('outline', ''),
             "session_manager": state.get('session_manager'),
-            "session_id": state.get('session_id')
+            "session_id": state.get('session_id'),
+            "config": state.get('config'),
+            "logger": state.get('logger'),
+            "initial_prompt": state.get('initial_prompt'),
+            "retriever": state.get('retriever')
         }
         
         # Save checkpoint after successful completion
@@ -359,7 +394,6 @@ def determine_chapter_count_node(state: StoryState) -> dict:
 
 def generate_final_story_node(state: StoryState) -> dict:
     """Combine all chapters into final story"""
-    print("DEBUG: Final story node starting")
     logger = state.get('logger')
     if logger:
         logger.info("Generating final story...")
@@ -406,7 +440,7 @@ def check_if_more_chapters_needed(state: StoryState) -> str:
         logger.info(f"Checking chapters: current={current_index}, total={total_chapters}, chapters_generated={len(chapters)}")
     
     # Safety check - prevent infinite loops
-    if current_index > 10:  # Safety limit
+    if current_index > 20:  # Safety limit - increased for longer stories
         if logger:
             logger.error(f"Safety limit reached: current_index={current_index}")
         return "finalize"
@@ -438,7 +472,11 @@ def increment_chapter_index_node(state: StoryState) -> dict:
         "outline": state.get('outline', ''),
         "base_context": state.get('base_context', ''),
         "session_manager": state.get('session_manager'),
-        "session_id": state.get('session_id')
+        "session_id": state.get('session_id'),
+        "config": state.get('config'),
+        "logger": state.get('logger'),
+        "initial_prompt": state.get('initial_prompt'),
+        "retriever": state.get('retriever')
     }
     
     # Save checkpoint after index increment
