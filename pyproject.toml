@@ -4,54 +4,140 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "storytelling"
-version = "0.1.0"
-description = "A Python package for storytelling applications"
+version = "0.2.0"
+description = "AI-powered narrative generation system implementing Software 3.0 methodology - The Soul of Your Story's Blueprint"
 readme = "README.md"
-license = {text = "CC0-1.0"}
+license = {text = "MIT"}
 authors = [
-    {name = "jgwill"},
+    {name = "JGWill", email = "jgwill@example.com"}
 ]
 maintainers = [
-    {name = "jgwill"},
+    {name = "JGWill"},
 ]
 classifiers = [
-    "Development Status :: 3 - Alpha",
-    "Intended Audience :: Developers",
-    "License :: CC0 1.0 Universal (CC0 1.0) Public Domain Dedication",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers", 
+    "Intended Audience :: End Users/Desktop",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.10", 
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
-    "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Text Processing",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Multimedia :: Graphics",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Games/Entertainment",
+    "License :: OSI Approved :: MIT License",
 ]
-keywords = ["storytelling", "narrative", "text", "stories"]
-requires-python = ">=3.8"
-dependencies = []
+keywords = [
+    "narrative-generation",
+    "ai-writing",
+    "software-3.0",
+    "creative-writing", 
+    "story-generation",
+    "langchain",
+    "langgraph",
+    "rag",
+    "llm",
+    "ollama",
+    "interactive-storytelling",
+    "worldbuilding"
+]
+requires-python = ">=3.9"
+dependencies = [
+    "pydantic>=2.0",
+    "langchain>=0.1.0",
+    "langgraph>=0.0.40",
+    "langchain-community>=0.0.20",
+    "langchain-openai>=0.0.8",
+    "langchain-ollama>=0.0.1",
+    "faiss-cpu>=1.7.4",
+    "termcolor>=2.0.0",
+    "python-dotenv>=1.0.0",
+    "requests>=2.31.0",
+]
 
 [project.optional-dependencies]
+# Heavy ML dependencies for local embedding models
+local-ml = [
+    "sentence-transformers>=2.2.2",
+    "langchain-huggingface>=0.0.1",
+]
+
+# Provider-specific extensions
+google = [
+    "langchain-google-genai>=0.0.6",
+]
+openrouter = [
+    "langchain-openrouter>=0.0.1",
+]
+
+# Performance and deployment options
+gpu = [
+    "faiss-gpu>=1.7.4",
+]
+cloud = [
+    "langfuse>=2.0.0",
+    "openai>=1.0.0",
+]
+
+# Enhanced RAG and multi-source features
+enhanced = [
+    "storytelling[cloud]",
+    "beautifulsoup4>=4.12.0",
+    "html2text>=2020.1.16",
+    "requests>=2.31.0",
+]
+
+# Web fetching and MCP integration
+web = [
+    "requests>=2.31.0",
+    "beautifulsoup4>=4.12.0",
+    "html2text>=2020.1.16",
+]
+
+# CoAiAPy MCP integration (requires external tools)
+mcp = [
+    # Note: Requires coaia CLI tool to be installed separately
+    "requests>=2.31.0",
+]
+
+# IAIP integration for North Direction storytelling practices
+iaip = [
+    "pyyaml>=6.0.0",
+    "storytelling[enhanced,mcp]",
+]
+
+# Development dependencies
 dev = [
-    "pytest>=7.0",
-    "pytest-cov>=4.0",
-    "black>=23.0",
-    "ruff>=0.1.0",
-    "mypy>=1.0",
-    "pre-commit>=3.0",
-    "twine>=4.0",
-    "build>=1.0",
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "isort>=5.12.0", 
+    "flake8>=6.0.0",
+    "mypy>=1.0.0",
+    "pre-commit>=3.0.0",
 ]
 docs = [
-    "sphinx>=7.0",
-    "sphinx-rtd-theme>=1.3",
-    "myst-parser>=2.0",
+    "sphinx>=6.0.0",
+    "sphinx-rtd-theme>=1.2.0", 
+    "myst-parser>=1.0.0",
 ]
 test = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
     "pytest-mock>=3.0",
+]
+
+# Convenience bundles
+all = [
+    "storytelling[local-ml,google,openrouter,gpu,cloud,enhanced,web,mcp,iaip]",
+]
+
+# Maximum features bundle
+complete = [
+    "storytelling[all]",
 ]
 
 [project.urls]
@@ -63,21 +149,34 @@ Issues = "https://github.com/jgwill/storytelling/issues"
 [project.scripts]
 storytelling = "storytelling.cli:main"
 
+# Legacy compatibility aliases
+willwrite = "storytelling.cli:main"
+specforge = "storytelling.cli:main"
+
 [tool.setuptools.packages.find]
 include = ["storytelling*"]
 
+[tool.setuptools.package-data]
+storytelling = [
+    "templates/*.txt",
+    "templates/*.md",
+    "configs/*.json", 
+    "configs/*.yaml",
+]
+
 [tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q --strict-markers"
 testpaths = ["tests"]
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-addopts = [
-    "--strict-markers",
-    "--strict-config",
-]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+    "rag: marks tests that require RAG functionality",
+    "ollama: marks tests that require local Ollama models",
 ]
 
 [tool.coverage.run]
@@ -142,17 +241,19 @@ ignore = [
 "tests/*" = ["B011"]
 
 [tool.mypy]
-python_version = "3.8"
-check_untyped_defs = true
-disallow_any_generics = true
-disallow_incomplete_defs = true
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
 disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
 no_implicit_optional = true
 warn_redundant_casts = true
 warn_unused_ignores = true
-warn_return_any = true
+warn_no_return = true
+warn_unreachable = true
 strict_equality = true
-show_error_codes = true
 
 [[tool.mypy.overrides]]
 module = "tests.*"
