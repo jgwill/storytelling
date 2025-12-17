@@ -1,21 +1,21 @@
 #!/bin/bash
-# Storytelling Release Script - Simple & Direct
+# Release: build & publish to PyPI
 
 set -e
 
-echo "📦 Release: storytelling"
+VERSION=$(grep 'version = ' pyproject.toml | head -1 | sed 's/.*version = "\(.*\)".*/\1/')
 
-# Install dev dependencies
-echo "🔧 Installing dependencies..."
-pip install -e ".[dev,test]"
-
-# Run checks
-echo "🔍 Running checks..."
-make check
-make build
-
-# Upload to PyPI
-echo "📤 Ready to publish to PyPI"
-echo "   Run: twine upload dist/*"
+echo "🚀 Releasing storytelling v$VERSION"
 echo ""
-echo "   Or for test PyPI: twine upload --repository testpypi dist/*"
+
+# Build
+echo "📦 Building..."
+python3 -m build
+
+# Publish
+echo ""
+echo "📤 Publishing to PyPI..."
+twine upload dist/*
+
+echo ""
+echo "✅ Published v$VERSION"

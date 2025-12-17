@@ -141,7 +141,7 @@ class SessionManager:
         with open(checkpoint_file) as f:
             checkpoint_data = json.load(f)
 
-        return checkpoint_data["state"] as Dict[str, Any]
+        return checkpoint_data["state"]  # type: Dict[str, Any]
 
     def list_sessions(self) -> List[SessionInfo]:
         """List all available sessions"""

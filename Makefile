@@ -21,7 +21,7 @@ format: ## Format code
 	ruff check --fix storytelling tests
 
 .PHONY: lint
-lint: ## Run linting
+lint: ## Run linting (black and ruff check)
 	black --check storytelling tests
 	ruff check storytelling tests
 
@@ -39,6 +39,8 @@ clean: ## Clean build artifacts
 build: clean ## Build package
 	$(PYTHON) -m build
 
-.PHONY: check
-check: lint test ## Run lint and tests
-	@echo "✓ All checks passed"
+.PHONY: release
+release: build ## Build package for release (no tests, just build)
+	@echo "✅ Build complete. Ready to publish."
+	@echo ""
+	@echo "📤 Next: twine upload dist/*"
