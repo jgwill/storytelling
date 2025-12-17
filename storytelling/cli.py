@@ -216,8 +216,20 @@ def main(argv: Optional[List[str]] = None) -> int:
             # Run the graph
             final_state = graph.invoke(initial_state)
 
+            # Write the final story to output file if completed
+            if final_state.get("status") == "completed" or (session_info.status == "completed"):
+                if "final_story_markdown" in final_state and final_state["final_story_markdown"]:
+                    try:
+                        output_path = session_info.output_file
+                        with open(output_path, "w", encoding="utf-8") as f:
+                            f.write(final_state["final_story_markdown"])
+                        print(f"Story written to: {output_path}")
+                    except Exception as e:
+                        print(f"Error writing output file: {e}")
+                        return 1
+
             print("\nSession resumed successfully!")
-            print(f"Final status: {final_state}")
+            print(f"Final status: Session completed" if final_state.get("status") == "completed" else "Session in progress")
 
         except Exception as e:
             print(f"Error resuming session: {e}")
@@ -287,6 +299,20 @@ def main(argv: Optional[List[str]] = None) -> int:
 
         # Run the graph with increased recursion limit for longer stories
         final_state = graph.invoke(initial_state, {"recursion_limit": 50})
+
+        # Write the final story to output file
+        if "final_story_markdown" in final_state and final_state["final_story_markdown"]:
+            try:
+                output_path = config.output_file
+                with open(output_path, "w", encoding="utf-8") as f:
+                    f.write(final_state["final_story_markdown"])
+                logger.info(f"Story written to: {output_path}")
+            except Exception as e:
+                logger.error(f"Failed to write output file: {e}")
+                return 1
+        else:
+            logger.error("No final story generated (final_story_markdown not in state)")
+            return 1
 
         # Update session status
         session_manager.update_session_status(session_id, "completed")
