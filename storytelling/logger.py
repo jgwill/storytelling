@@ -12,14 +12,14 @@ class Logger:
     directory creation, console logging, file logging, and LLM interaction tracing.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: Any) -> None:
         self.config = config
         self.session_dir = ""
         self.debug_dir = ""
         self._setup_directories()
         self._setup_logger()
 
-    def _setup_directories(self):
+    def _setup_directories(self) -> None:
         """Creates the logging directories for the current session."""
         base_log_dir = "Logs"
         if not os.path.exists(base_log_dir):
@@ -32,7 +32,7 @@ class Logger:
         self.debug_dir = os.path.join(self.session_dir, "LangchainDebug")
         os.makedirs(self.debug_dir, exist_ok=True)
 
-    def _setup_logger(self):
+    def _setup_logger(self) -> None:
         """Configures the root logger for console and file output."""
         self.logger = logging.getLogger("WillWrite")
         self.logger.setLevel(logging.DEBUG if self.config.debug else logging.INFO)
@@ -56,7 +56,7 @@ class Logger:
         file_handler.setFormatter(file_formatter)
         self.logger.addHandler(file_handler)
 
-    def save_interaction(self, name: str, messages: list):
+    def save_interaction(self, name: str, messages: List[Any]) -> None:
         """
         Saves the history of an LLM interaction to JSON and Markdown files.
 
@@ -99,16 +99,16 @@ class Logger:
         except Exception as e:
             self.error(f"Failed to save Markdown interaction log for {name}: {e}")
 
-    def info(self, msg):
+    def info(self, msg: str) -> None:
         self.logger.info(msg)
 
-    def debug(self, msg):
+    def debug(self, msg: str) -> None:
         self.logger.debug(msg)
 
-    def warning(self, msg):
+    def warning(self, msg: str) -> None:
         self.logger.warning(msg)
 
-    def error(self, msg):
+    def error(self, msg: str) -> None:
         self.logger.error(msg)
 
 
@@ -125,7 +125,7 @@ class ColoredFormatter(logging.Formatter):
         "ERROR": "red",
     }
 
-    def format(self, record):
+    def format(self, record: logging.LogRecord) -> str:
         log_message = super().format(record)
         return colored(log_message, self.COLORS.get(record.levelname))
 

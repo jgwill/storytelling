@@ -9,35 +9,47 @@ Four Directions framework, specifically supporting North Direction practices:
 - Ceremonial diary integration
 """
 
-from typing import Dict, List, Optional, Any
+import json
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-import json
+from typing import Any, Dict, List, Optional
 
-from .core import Story
-from .session_manager import SessionManager, SessionInfo
 from .config import WillWriteConfig
+from .core import Story
+from .session_manager import SessionInfo
 
 
 @dataclass
 class CeremonialPhase:
     """Represents a phase in the ceremonial technology methodology."""
+
     key: str  # e.g., 'miigwechiwendam', 'nindokendaan', etc.
     name: str  # Human-readable name
     description: str
 
     # Map storytelling activities to phases
-    SACRED_SPACE = ("miigwechiwendam", "Sacred Space Creation",
-                    "Establishing intention and ceremonial container")
-    RESEARCH = ("nindokendaan", "Two-Eyed Research Gathering",
-                "Comprehensive research using Indigenous-Western balance")
-    INTEGRATION = ("ningwaab", "Knowledge Integration",
-                   "Synthesizing research into coherent understanding")
-    EXPRESSION = ("nindoodam", "Creative Expression",
-                  "Transforming knowledge into accessible formats")
-    CLOSING = ("migwech", "Ceremonial Closing",
-               "Honoring work and capturing learning")
+    SACRED_SPACE = (
+        "miigwechiwendam",
+        "Sacred Space Creation",
+        "Establishing intention and ceremonial container",
+    )
+    RESEARCH = (
+        "nindokendaan",
+        "Two-Eyed Research Gathering",
+        "Comprehensive research using Indigenous-Western balance",
+    )
+    INTEGRATION = (
+        "ningwaab",
+        "Knowledge Integration",
+        "Synthesizing research into coherent understanding",
+    )
+    EXPRESSION = (
+        "nindoodam",
+        "Creative Expression",
+        "Transforming knowledge into accessible formats",
+    )
+    CLOSING = ("migwech", "Ceremonial Closing", "Honoring work and capturing learning")
 
 
 class NorthDirectionStoryteller:
@@ -62,9 +74,9 @@ class NorthDirectionStoryteller:
         self.current_phase: Optional[CeremonialPhase] = None
         self.story_session: Optional[SessionInfo] = None
 
-    def begin_ceremonial_session(self,
-                                 intention: str,
-                                 participant: str = "user") -> Dict[str, Any]:
+    def begin_ceremonial_session(
+        self, intention: str, participant: str = "user"
+    ) -> Dict[str, Any]:
         """Begin a new ceremonial storytelling session.
 
         Args:
@@ -82,11 +94,10 @@ class NorthDirectionStoryteller:
             "intention": intention,
             "participant": participant,
             "timestamp": datetime.utcnow().isoformat() + "Z",
-            "status": "initiated"
+            "status": "initiated",
         }
 
-    def map_storytelling_activity_to_phase(self,
-                                          activity: str) -> CeremonialPhase:
+    def map_storytelling_activity_to_phase(self, activity: str) -> CeremonialPhase:
         """Map a storytelling activity to appropriate ceremonial phase.
 
         Args:
@@ -97,21 +108,23 @@ class NorthDirectionStoryteller:
             Appropriate CeremonialPhase
         """
         phase_mapping = {
-            'outline': CeremonialPhase.SACRED_SPACE,
-            'research': CeremonialPhase.RESEARCH,
-            'synthesis': CeremonialPhase.INTEGRATION,
-            'generation': CeremonialPhase.EXPRESSION,
-            'reflection': CeremonialPhase.CLOSING
+            "outline": CeremonialPhase.SACRED_SPACE,
+            "research": CeremonialPhase.RESEARCH,
+            "synthesis": CeremonialPhase.INTEGRATION,
+            "generation": CeremonialPhase.EXPRESSION,
+            "reflection": CeremonialPhase.CLOSING,
         }
 
         phase_data = phase_mapping.get(activity, CeremonialPhase.SACRED_SPACE)
         return CeremonialPhase(*phase_data)
 
-    def create_diary_entry(self,
-                          content: str,
-                          entry_type: str,
-                          participant: str = "storyteller_agent",
-                          metadata: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def create_diary_entry(
+        self,
+        content: str,
+        entry_type: str,
+        participant: str = "storyteller_agent",
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
         """Create a diary entry compatible with IAIP ceremonial diary schema.
 
         Implements schema from /src/IAIP/ISSUE_11_Creation_of_Diaries.md
@@ -138,7 +151,7 @@ class NorthDirectionStoryteller:
             "participant": participant,
             "phase": self.current_phase.key,
             "entryType": entry_type,
-            "content": content
+            "content": content,
         }
 
         if metadata:
@@ -146,9 +159,9 @@ class NorthDirectionStoryteller:
 
         return entry
 
-    def format_diary_as_markdown(self,
-                                entries: List[Dict[str, Any]],
-                                participant: str = "storyteller_agent") -> str:
+    def format_diary_as_markdown(
+        self, entries: List[Dict[str, Any]], participant: str = "storyteller_agent"
+    ) -> str:
         """Format diary entries as Markdown compatible with IAIP storage.
 
         Follows the format in /src/IAIP/_v0.dev/diaries/
@@ -170,7 +183,7 @@ class NorthDirectionStoryteller:
                 f"timestamp: {entry['timestamp']}",
                 f"participant: {entry['participant']}",
                 f"phase: {entry['phase']}",
-                f"entryType: {entry['entryType']}"
+                f"entryType: {entry['entryType']}",
             ]
 
             # Add metadata if present
@@ -187,10 +200,12 @@ class NorthDirectionStoryteller:
 
         return "\n".join(markdown_parts)
 
-    def export_session_as_diary(self,
-                               session_id: str,
-                               output_dir: Path,
-                               participant_name: str = "north_storyteller") -> Path:
+    def export_session_as_diary(
+        self,
+        session_id: str,
+        output_dir: Path,
+        participant_name: str = "north_storyteller",
+    ) -> Path:
         """Export a storytelling session as IAIP-compatible diary.
 
         Args:
@@ -214,22 +229,21 @@ class NorthDirectionStoryteller:
             content=f"Storytelling session {session_id} exported to ceremonial diary.",
             entry_type="learning",
             participant=participant_name,
-            metadata={"session_id": session_id}
+            metadata={"session_id": session_id},
         )
 
         markdown_content = self.format_diary_as_markdown(
-            [template_entry],
-            participant_name
+            [template_entry], participant_name
         )
 
-        with open(diary_path, 'w', encoding='utf-8') as f:
+        with open(diary_path, "w", encoding="utf-8") as f:
             f.write(markdown_content)
 
         return diary_path
 
-    def create_reflection_from_story(self,
-                                    story: Story,
-                                    reflection_prompt: Optional[str] = None) -> Dict[str, Any]:
+    def create_reflection_from_story(
+        self, story: Story, reflection_prompt: Optional[str] = None
+    ) -> Dict[str, Any]:
         """Create a North Direction reflection entry from a generated story.
 
         This supports the North Direction practice of wisdom extraction
@@ -278,8 +292,8 @@ Generated through North Direction storytelling practice.
             metadata={
                 "story_title": story.title,
                 "story_length": len(story.content),
-                "practice": "storytelling_reflection"
-            }
+                "practice": "storytelling_reflection",
+            },
         )
 
 
@@ -296,10 +310,12 @@ class TwoEyedSeeingStorytellingAdapter:
         """Initialize the Two-Eyed Seeing adapter."""
         pass
 
-    def create_dual_perspective_prompt(self,
-                                      base_prompt: str,
-                                      indigenous_lens: Optional[str] = None,
-                                      western_lens: Optional[str] = None) -> str:
+    def create_dual_perspective_prompt(
+        self,
+        base_prompt: str,
+        indigenous_lens: Optional[str] = None,
+        western_lens: Optional[str] = None,
+    ) -> str:
         """Create a prompt that integrates both perspectives.
 
         Args:
@@ -342,8 +358,7 @@ Honor both precision and mystery, structure and emergence.
 
         return enhanced_prompt
 
-    def analyze_story_through_dual_lens(self,
-                                       story: Story) -> Dict[str, Any]:
+    def analyze_story_through_dual_lens(self, story: Story) -> Dict[str, Any]:
         """Analyze a story through both Indigenous and Western lenses.
 
         Args:
@@ -357,27 +372,27 @@ Honor both precision and mystery, structure and emergence.
                 "relationships": "Analysis of character relationships and web of connections",
                 "medicine": "What healing or teaching the story carries",
                 "ceremony": "How the narrative structure mirrors ceremonial progression",
-                "oral_tradition": "Story's suitability for oral sharing"
+                "oral_tradition": "Story's suitability for oral sharing",
             },
             "western_perspective": {
                 "narrative_structure": "Three-act structure, plot progression",
                 "character_development": "Character arcs and transformation",
                 "literary_devices": "Use of symbolism, foreshadowing, metaphor",
-                "genre_conventions": "Adherence to or innovation within genre"
+                "genre_conventions": "Adherence to or innovation within genre",
             },
             "spiral_integration": {
                 "synthesis": "How both perspectives create deeper understanding",
                 "emergent_wisdom": "Insights that arise from dual viewing",
-                "creative_tension": "Productive tensions between perspectives"
-            }
+                "creative_tension": "Productive tensions between perspectives",
+            },
         }
 
 
 # Utility functions for IAIP integration
 
+
 def create_north_direction_session_metadata(
-    intention: str,
-    knowledge_base_paths: Optional[List[str]] = None
+    intention: str, knowledge_base_paths: Optional[List[str]] = None
 ) -> Dict[str, Any]:
     """Create metadata for a North Direction storytelling session.
 
@@ -395,14 +410,12 @@ def create_north_direction_session_metadata(
         "intention": intention,
         "timestamp": datetime.utcnow().isoformat() + "Z",
         "knowledge_base": knowledge_base_paths or [],
-        "ceremonial_methodology": "five_phase_ceremonial_technology"
+        "ceremonial_methodology": "five_phase_ceremonial_technology",
     }
 
 
 def export_storytelling_wisdom_to_iaip(
-    stories: List[Story],
-    output_dir: Path,
-    session_metadata: Dict[str, Any]
+    stories: List[Story], output_dir: Path, session_metadata: Dict[str, Any]
 ) -> List[Path]:
     """Export storytelling wisdom for IAIP North Direction.
 
@@ -442,7 +455,7 @@ def export_storytelling_wisdom_to_iaip(
 
 """
 
-    with open(wisdom_file, 'w', encoding='utf-8') as f:
+    with open(wisdom_file, "w", encoding="utf-8") as f:
         f.write(wisdom_content)
 
     created_files.append(wisdom_file)

@@ -23,7 +23,6 @@ except ImportError:
 # Advanced components (optional)
 try:
     from .graph import (
-        StoryState,
         create_graph,
         create_resume_graph,
         load_state_from_session,
@@ -197,7 +196,9 @@ def main(argv: Optional[List[str]] = None) -> int:
             try:
                 # Initialize logger for resume
                 logger = Logger(config)
-                loaded_state = load_state_from_session(session_manager, session_args.resume, config, logger)
+                loaded_state = load_state_from_session(
+                    session_manager, session_args.resume, config, logger
+                )
                 print(f"Loaded state from session with {len(loaded_state)} keys")
             except Exception as e:
                 print(f"Warning: Could not load full session state: {e}")
@@ -207,7 +208,9 @@ def main(argv: Optional[List[str]] = None) -> int:
             session_manager.update_session_status(session_args.resume, "in_progress")
 
             # Create resume graph
-            graph = create_resume_graph(session_manager, session_args.resume, resume_node)
+            graph = create_resume_graph(
+                session_manager, session_args.resume, resume_node
+            )
 
             # Initialize state for resume
             initial_state = loaded_state if loaded_state else {}
@@ -217,8 +220,13 @@ def main(argv: Optional[List[str]] = None) -> int:
             final_state = graph.invoke(initial_state)
 
             # Write the final story to output file if completed
-            if final_state.get("status") == "completed" or (session_info.status == "completed"):
-                if "final_story_markdown" in final_state and final_state["final_story_markdown"]:
+            if final_state.get("status") == "completed" or (
+                session_info.status == "completed"
+            ):
+                if (
+                    "final_story_markdown" in final_state
+                    and final_state["final_story_markdown"]
+                ):
                     try:
                         output_path = session_info.output_file
                         with open(output_path, "w", encoding="utf-8") as f:
@@ -229,7 +237,11 @@ def main(argv: Optional[List[str]] = None) -> int:
                         return 1
 
             print("\nSession resumed successfully!")
-            print(f"Final status: Session completed" if final_state.get("status") == "completed" else "Session in progress")
+            print(
+                "Final status: Session completed"
+                if final_state.get("status") == "completed"
+                else "Session in progress"
+            )
 
         except Exception as e:
             print(f"Error resuming session: {e}")
@@ -289,19 +301,22 @@ def main(argv: Optional[List[str]] = None) -> int:
 
         # Initialize state
         initial_state = {
-            "initial_prompt": initial_prompt, 
+            "initial_prompt": initial_prompt,
             "session_id": session_id,
             "config": config,
             "logger": logger,
             "session_manager": session_manager,
-            "retriever": retriever
+            "retriever": retriever,
         }
 
         # Run the graph with increased recursion limit for longer stories
         final_state = graph.invoke(initial_state, {"recursion_limit": 50})
 
         # Write the final story to output file
-        if "final_story_markdown" in final_state and final_state["final_story_markdown"]:
+        if (
+            "final_story_markdown" in final_state
+            and final_state["final_story_markdown"]
+        ):
             try:
                 output_path = config.output_file
                 with open(output_path, "w", encoding="utf-8") as f:

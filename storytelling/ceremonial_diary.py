@@ -7,26 +7,29 @@ with IAIP's ceremonial diary structure (Issue #11) and the Five-Phase
 Ceremonial Technology Methodology.
 """
 
-from typing import Dict, List, Optional, Any, Tuple
+import json
 from dataclasses import dataclass, field
 from datetime import datetime
-from pathlib import Path
 from enum import Enum
-import json
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
 import yaml
 
 
 class CeremonialPhaseEnum(str, Enum):
     """Ceremonial phase enumeration."""
+
     MIIGWECHIWENDAM = "miigwechiwendam"  # Sacred Space Creation
-    NINDOKENDAAN = "nindokendaan"        # Two-Eyed Research Gathering
-    NINGWAAB = "ningwaab"                # Knowledge Integration
-    NINDOODAM = "nindoodam"              # Creative Expression
-    MIGWECH = "migwech"                  # Ceremonial Closing
+    NINDOKENDAAN = "nindokendaan"  # Two-Eyed Research Gathering
+    NINGWAAB = "ningwaab"  # Knowledge Integration
+    NINDOODAM = "nindoodam"  # Creative Expression
+    MIGWECH = "migwech"  # Ceremonial Closing
 
 
 class EntryTypeEnum(str, Enum):
     """Diary entry type enumeration."""
+
     INTENTION = "intention"
     OBSERVATION = "observation"
     HYPOTHESIS = "hypothesis"
@@ -44,6 +47,7 @@ class DiaryEntry:
 
     Implements the schema from /src/IAIP/ISSUE_11_Creation_of_Diaries.md
     """
+
     id: str
     timestamp: str  # ISO 8601 format
     participant: str  # 'user', 'mia', 'miette', 'echo_weaver', 'system', custom
@@ -53,12 +57,14 @@ class DiaryEntry:
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     @classmethod
-    def create_new(cls,
-                  content: str,
-                  participant: str,
-                  phase: CeremonialPhaseEnum,
-                  entry_type: EntryTypeEnum,
-                  metadata: Optional[Dict[str, Any]] = None) -> 'DiaryEntry':
+    def create_new(
+        cls,
+        content: str,
+        participant: str,
+        phase: CeremonialPhaseEnum,
+        entry_type: EntryTypeEnum,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> "DiaryEntry":
         """Create a new diary entry with auto-generated ID and timestamp.
 
         Args:
@@ -80,7 +86,7 @@ class DiaryEntry:
             phase=phase,
             entryType=entry_type,
             content=content,
-            metadata=metadata or {}
+            metadata=metadata or {},
         )
 
     def to_dict(self) -> Dict[str, Any]:
@@ -92,7 +98,7 @@ class DiaryEntry:
             "phase": self.phase.value,
             "entryType": self.entryType.value,
             "content": self.content,
-            "metadata": self.metadata
+            "metadata": self.metadata,
         }
 
     def to_markdown(self) -> str:
@@ -102,7 +108,7 @@ class DiaryEntry:
             "timestamp": self.timestamp,
             "participant": self.participant,
             "phase": self.phase.value,
-            "entryType": self.entryType.value
+            "entryType": self.entryType.value,
         }
 
         if self.metadata:
@@ -113,7 +119,7 @@ class DiaryEntry:
         return f"---\n{frontmatter}---\n\n{self.content}\n"
 
     @classmethod
-    def from_markdown(cls, markdown_text: str) -> 'DiaryEntry':
+    def from_markdown(cls, markdown_text: str) -> "DiaryEntry":
         """Parse a diary entry from Markdown format.
 
         Args:
@@ -140,7 +146,7 @@ class DiaryEntry:
             phase=CeremonialPhaseEnum(frontmatter["phase"]),
             entryType=EntryTypeEnum(frontmatter["entryType"]),
             content=content,
-            metadata=frontmatter.get("metadata", {})
+            metadata=frontmatter.get("metadata", {}),
         )
 
 
@@ -155,16 +161,19 @@ class CeremonialDiary:
     - Filtering and querying entries
     - Session progression tracking
     """
+
     session_id: str
     participant_name: str
     entries: List[DiaryEntry] = field(default_factory=list)
     session_metadata: Dict[str, Any] = field(default_factory=dict)
 
-    def add_entry(self,
-                 content: str,
-                 entry_type: EntryTypeEnum,
-                 phase: CeremonialPhaseEnum,
-                 metadata: Optional[Dict[str, Any]] = None) -> DiaryEntry:
+    def add_entry(
+        self,
+        content: str,
+        entry_type: EntryTypeEnum,
+        phase: CeremonialPhaseEnum,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> DiaryEntry:
         """Add a new entry to the diary.
 
         Args:
@@ -181,14 +190,13 @@ class CeremonialDiary:
             participant=self.participant_name,
             phase=phase,
             entry_type=entry_type,
-            metadata=metadata
+            metadata=metadata,
         )
 
         self.entries.append(entry)
         return entry
 
-    def get_entries_by_phase(self,
-                            phase: CeremonialPhaseEnum) -> List[DiaryEntry]:
+    def get_entries_by_phase(self, phase: CeremonialPhaseEnum) -> List[DiaryEntry]:
         """Get all entries for a specific phase.
 
         Args:
@@ -199,8 +207,7 @@ class CeremonialDiary:
         """
         return [entry for entry in self.entries if entry.phase == phase]
 
-    def get_entries_by_type(self,
-                           entry_type: EntryTypeEnum) -> List[DiaryEntry]:
+    def get_entries_by_type(self, entry_type: EntryTypeEnum) -> List[DiaryEntry]:
         """Get all entries of a specific type.
 
         Args:
@@ -243,14 +250,14 @@ class CeremonialDiary:
         for entry in self.entries:
             markdown_content += entry.to_markdown() + "\n---\n\n"
 
-        with open(output_path, 'w', encoding='utf-8') as f:
+        with open(output_path, "w", encoding="utf-8") as f:
             f.write(markdown_content)
 
         return output_path
 
-    def export_to_iaip_directory(self,
-                                base_dir: Path,
-                                separate_files: bool = False) -> List[Path]:
+    def export_to_iaip_directory(
+        self, base_dir: Path, separate_files: bool = False
+    ) -> List[Path]:
         """Export diary to IAIP _v0.dev/diaries/ structure.
 
         Args:
@@ -286,27 +293,31 @@ class CeremonialDiary:
                 for entry in phase_entries:
                     markdown_content += entry.to_markdown() + "\n---\n\n"
 
-                with open(phase_file, 'w', encoding='utf-8') as f:
+                with open(phase_file, "w", encoding="utf-8") as f:
                     f.write(markdown_content)
 
                 created_files.append(phase_file)
         else:
             # Single diary file
             diary_file = session_dir / f"{self.participant_name}_diary.md"
-            created_files.append(
-                self.export_to_markdown_file(diary_file)
-            )
+            created_files.append(self.export_to_markdown_file(diary_file))
 
         # Also create session metadata file
         metadata_file = session_dir / "session_metadata.json"
-        with open(metadata_file, 'w', encoding='utf-8') as f:
-            json.dump({
-                "session_id": self.session_id,
-                "participant": self.participant_name,
-                "entry_count": len(self.entries),
-                "phases_covered": [p.value for p in set(e.phase for e in self.entries)],
-                "session_metadata": self.session_metadata
-            }, f, indent=2)
+        with open(metadata_file, "w", encoding="utf-8") as f:
+            json.dump(
+                {
+                    "session_id": self.session_id,
+                    "participant": self.participant_name,
+                    "entry_count": len(self.entries),
+                    "phases_covered": [
+                        p.value for p in {e.phase for e in self.entries}
+                    ],
+                    "session_metadata": self.session_metadata,
+                },
+                f,
+                indent=2,
+            )
 
         created_files.append(metadata_file)
 
@@ -322,7 +333,7 @@ class CeremonialDiary:
         for phase in CeremonialPhaseEnum:
             phase_counts[phase] = len(self.get_entries_by_phase(phase))
 
-        return [(phase, count) for phase, count in phase_counts.items()]
+        return list(phase_counts.items())
 
     def get_session_summary(self) -> Dict[str, Any]:
         """Generate a summary of the diary session.
@@ -347,7 +358,7 @@ class CeremonialDiary:
             "entry_type_distribution": entry_types,
             "first_entry": self.entries[0].timestamp if self.entries else None,
             "last_entry": self.entries[-1].timestamp if self.entries else None,
-            "session_metadata": self.session_metadata
+            "session_metadata": self.session_metadata,
         }
 
 
@@ -371,10 +382,12 @@ class DiaryManager:
         self.base_dir.mkdir(parents=True, exist_ok=True)
         self.active_diaries: Dict[str, CeremonialDiary] = {}
 
-    def create_diary(self,
-                    session_id: str,
-                    participant_name: str,
-                    session_metadata: Optional[Dict[str, Any]] = None) -> CeremonialDiary:
+    def create_diary(
+        self,
+        session_id: str,
+        participant_name: str,
+        session_metadata: Optional[Dict[str, Any]] = None,
+    ) -> CeremonialDiary:
         """Create a new ceremonial diary.
 
         Args:
@@ -388,7 +401,7 @@ class DiaryManager:
         diary = CeremonialDiary(
             session_id=session_id,
             participant_name=participant_name,
-            session_metadata=session_metadata or {}
+            session_metadata=session_metadata or {},
         )
 
         self.active_diaries[session_id] = diary
@@ -405,9 +418,9 @@ class DiaryManager:
         """
         return self.active_diaries.get(session_id)
 
-    def save_diary(self,
-                  session_id: str,
-                  separate_by_phase: bool = False) -> List[Path]:
+    def save_diary(
+        self, session_id: str, separate_by_phase: bool = False
+    ) -> List[Path]:
         """Save a diary to the base directory.
 
         Args:
@@ -422,8 +435,7 @@ class DiaryManager:
             raise ValueError(f"No diary found for session: {session_id}")
 
         return diary.export_to_iaip_directory(
-            self.base_dir,
-            separate_files=separate_by_phase
+            self.base_dir, separate_files=separate_by_phase
         )
 
     def load_diary_from_directory(self, session_id: str) -> Optional[CeremonialDiary]:
@@ -449,7 +461,7 @@ class DiaryManager:
         participant_name = diary_file.stem.replace("_diary", "")
 
         # Parse entries from file
-        with open(diary_file, 'r', encoding='utf-8') as f:
+        with open(diary_file, encoding="utf-8") as f:
             content = f.read()
 
         # Simple parsing - split by entry markers
@@ -468,14 +480,14 @@ class DiaryManager:
         metadata_file = session_dir / "session_metadata.json"
         session_metadata = {}
         if metadata_file.exists():
-            with open(metadata_file, 'r', encoding='utf-8') as f:
+            with open(metadata_file, encoding="utf-8") as f:
                 session_metadata = json.load(f).get("session_metadata", {})
 
         diary = CeremonialDiary(
             session_id=session_id,
             participant_name=participant_name,
             entries=entries,
-            session_metadata=session_metadata
+            session_metadata=session_metadata,
         )
 
         self.active_diaries[session_id] = diary

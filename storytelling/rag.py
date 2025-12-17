@@ -1,8 +1,13 @@
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from typing import TYPE_CHECKING
+
 from langchain_community.document_loaders import DirectoryLoader
 from langchain_community.vectorstores import FAISS
 from langchain_core.vectorstores import VectorStoreRetriever
 from langchain_openai import OpenAIEmbeddings
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+if TYPE_CHECKING:
+    from langchain_huggingface import HuggingFaceEmbeddings
 
 try:
     from langchain_huggingface import HuggingFaceEmbeddings
@@ -127,7 +132,9 @@ def initialize_knowledge_base(
         )
         documents = loader.load()
     except Exception as e:
-        raise ValueError(f"Error loading documents from {knowledge_base_path}: {e}") from e
+        raise ValueError(
+            f"Error loading documents from {knowledge_base_path}: {e}"
+        ) from e
 
     if not documents:
         raise ValueError(

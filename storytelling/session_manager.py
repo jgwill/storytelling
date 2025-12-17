@@ -41,7 +41,7 @@ class SessionInfo:
 class SessionManager:
     """Manages story generation sessions with checkpoint and resume capabilities"""
 
-    def __init__(self, base_logs_dir: str = "Logs"):
+    def __init__(self, base_logs_dir: str = "Logs") -> None:
         self.base_logs_dir = Path(base_logs_dir)
         self.base_logs_dir.mkdir(exist_ok=True)
         self.logger = logging.getLogger(__name__)
@@ -141,7 +141,7 @@ class SessionManager:
         with open(checkpoint_file) as f:
             checkpoint_data = json.load(f)
 
-        return checkpoint_data["state"]
+        return checkpoint_data["state"] as Dict[str, Any]
 
     def list_sessions(self) -> List[SessionInfo]:
         """List all available sessions"""
@@ -272,10 +272,6 @@ def migrate_existing_session(logs_dir: str, session_id: str) -> SessionInfo:
         raise FileNotFoundError(f"Session directory not found: {session_dir}")
 
     # Try to extract information from existing files
-    main_log = session_dir / "Main.log"
-    story_json = session_dir / "Generated_Story.json"
-
-
     # Create basic session info from existing data
     session_info = SessionInfo(
         session_id=session_id,

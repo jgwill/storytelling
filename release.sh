@@ -24,6 +24,10 @@ unset __conda_setup
 
 conda activate storytelling || { echo "Error: Conda environment 'storytelling' not found or failed to activate. Please create it or adjust the script."; exit 1; }
 
+echo "🔧 Installing development dependencies..."
+pip install -e ".[dev,test,docs]"
+
+
 
 # Clean previous builds
 echo "🧹 Cleaning previous builds..."

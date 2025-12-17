@@ -24,67 +24,67 @@ class WillWriteConfig(BaseModel):
     initial_outline_model: str = Field(
         "ollama://qwen3:latest@localhost:11434",
         alias="initial-outline-model",
-        description="Model URI for initial outline generation. Format: google://gemini-2.5-flash, ollama://model@host:port, or openrouter://model"
+        description="Model URI for initial outline generation. Format: google://gemini-2.5-flash, ollama://model@host:port, or openrouter://model",
     )
     chapter_outline_model: str = Field(
         "ollama://qwen3:latest@localhost:11434",
         alias="chapter-outline-model",
-        description="Model URI for chapter outline generation. Format: google://gemini-2.5-flash, ollama://model@host:port, or openrouter://model"
+        description="Model URI for chapter outline generation. Format: google://gemini-2.5-flash, ollama://model@host:port, or openrouter://model",
     )
     chapter_s1_model: str = Field(
         "ollama://qwen3:latest@localhost:11434",
         alias="chapter-s1-model",
-        description="Model URI for chapter scene 1 generation. Format: google://gemini-2.5-flash, ollama://model@host:port, or openrouter://model"
+        description="Model URI for chapter scene 1 generation. Format: google://gemini-2.5-flash, ollama://model@host:port, or openrouter://model",
     )
     chapter_s2_model: str = Field(
         "ollama://qwen3:latest@localhost:11434",
         alias="chapter-s2-model",
-        description="Model URI for chapter scene 2 generation. Format: google://gemini-2.5-flash, ollama://model@host:port, or openrouter://model"
+        description="Model URI for chapter scene 2 generation. Format: google://gemini-2.5-flash, ollama://model@host:port, or openrouter://model",
     )
     chapter_s3_model: str = Field(
         "ollama://qwen3:latest@localhost:11434",
         alias="chapter-s3-model",
-        description="Model URI for chapter scene 3 generation. Format: google://gemini-2.5-flash, ollama://model@host:port, or openrouter://model"
+        description="Model URI for chapter scene 3 generation. Format: google://gemini-2.5-flash, ollama://model@host:port, or openrouter://model",
     )
     chapter_s4_model: str = Field(
         "ollama://qwen3:latest@localhost:11434",
         alias="chapter-s4-model",
-        description="Model URI for chapter scene 4 generation. Format: google://gemini-2.5-flash, ollama://model@host:port, or openrouter://model"
+        description="Model URI for chapter scene 4 generation. Format: google://gemini-2.5-flash, ollama://model@host:port, or openrouter://model",
     )
     chapter_revision_model: str = Field(
         "ollama://qwen3:latest@localhost:11434",
         alias="chapter-revision-model",
-        description="Model URI for chapter-level revision. Format: google://gemini-2.5-flash, ollama://model@host:port, or openrouter://model"
+        description="Model URI for chapter-level revision. Format: google://gemini-2.5-flash, ollama://model@host:port, or openrouter://model",
     )
     revision_model: str = Field(
         "ollama://qwen3:latest@localhost:11434",
         alias="revision-model",
-        description="Model URI for final story-level revision. Format: google://gemini-2.5-flash, ollama://model@host:port, or openrouter://model"
+        description="Model URI for final story-level revision. Format: google://gemini-2.5-flash, ollama://model@host:port, or openrouter://model",
     )
     eval_model: str = Field(
         "ollama://qwen3:latest@localhost:11434",
         alias="eval-model",
-        description="Model URI for evaluation. Format: google://gemini-2.5-flash, ollama://model@host:port, or openrouter://model"
+        description="Model URI for evaluation. Format: google://gemini-2.5-flash, ollama://model@host:port, or openrouter://model",
     )
     info_model: str = Field(
         "ollama://qwen3:latest@localhost:11434",
         alias="info-model",
-        description="Model URI for information extraction. Format: google://gemini-2.5-flash, ollama://model@host:port, or openrouter://model"
+        description="Model URI for information extraction. Format: google://gemini-2.5-flash, ollama://model@host:port, or openrouter://model",
     )
     scrub_model: str = Field(
         "ollama://qwen3:latest@localhost:11434",
         alias="scrub-model",
-        description="Model URI for content scrubbing. Format: google://gemini-2.5-flash, ollama://model@host:port, or openrouter://model"
+        description="Model URI for content scrubbing. Format: google://gemini-2.5-flash, ollama://model@host:port, or openrouter://model",
     )
     checker_model: str = Field(
         "ollama://qwen3:latest@localhost:11434",
         alias="checker-model",
-        description="Model URI for content checking. Format: google://gemini-2.5-flash, ollama://model@host:port, or openrouter://model"
+        description="Model URI for content checking. Format: google://gemini-2.5-flash, ollama://model@host:port, or openrouter://model",
     )
     translator_model: str = Field(
         "ollama://qwen3:latest@localhost:11434",
         alias="translator-model",
-        description="Model URI for translation. Format: google://gemini-2.5-flash, ollama://model@host:port, or openrouter://model"
+        description="Model URI for translation. Format: google://gemini-2.5-flash, ollama://model@host:port, or openrouter://model",
     )
     # Knowledge Base / RAG
     knowledge_base_path: Optional[str] = Field(
