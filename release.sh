@@ -1,78 +1,21 @@
 #!/bin/bash
-# Storytelling Release Script
-# Prepares distribution and publishes to PyPI
+# Storytelling Release Script - Simple & Direct
 
-set -e  # Exit on any error
+set -e
 
-echo "🚀 Storytelling Release Script Starting..."
+echo "📦 Release: storytelling"
 
-# Conda environment activation
-echo "🔬 Finding and activating storytelling conda environment..."
-__conda_setup="$('/opt/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
-else
-    if [ -f "/opt/anaconda3/etc/profile.d/conda.sh" ]; then
-        # shellcheck source=/dev/null
-        source "/opt/anaconda3/etc/profile.d/conda.sh"
-    else
-        echo "Error: Could not find conda.sh to initialize conda at the specified path." >&2
-        exit 1
-    fi
-fi
-unset __conda_setup
+# Install dev dependencies
+echo "🔧 Installing dependencies..."
+pip install -e ".[dev,test]"
 
-conda activate storytelling || { echo "Error: Conda environment 'storytelling' not found or failed to activate. Please create it or adjust the script."; exit 1; }
-
-echo "🔧 Installing development dependencies..."
-pip install -e ".[dev,test,docs]"
-
-
-
-# Clean previous builds
-echo "🧹 Cleaning previous builds..."
-make clean
-
-echo "✨ Formatting code..."
-make format
-
-# Bump version (patch increment)
-echo "📈 Bumping patch version in pyproject.toml..."
-# Get current version
-CURRENT_VERSION=$(grep -E "^\s*version\s*=\s*[\"']" pyproject.toml | sed -E "s/.*[\"']([^\"']+)[\"'].*/\1/")
-echo "Current version: ${CURRENT_VERSION}"
-
-# Split version into parts
-MAJOR=$(echo "${CURRENT_VERSION}" | cut -d. -f1)
-MINOR=$(echo "${CURRENT_VERSION}" | cut -d. -f2)
-PATCH=$(echo "${CURRENT_VERSION}" | cut -d. -f3)
-
-# Increment patch version
-NEW_PATCH=$((PATCH + 1))
-NEW_VERSION="${MAJOR}.${MINOR}.${NEW_PATCH}"
-echo "New version: ${NEW_VERSION}"
-
-# Update pyproject.toml
-sed -i "s/^version = \"${CURRENT_VERSION}\"/version = \"${NEW_VERSION}\"/" pyproject.toml
-
-# Build distribution
-echo "🔨 Building distribution..."
+# Run checks
+echo "🔍 Running checks..."
+make check
 make build
 
 # Upload to PyPI
-echo "📦 Publishing to PyPI..."
-make release
-
-# Get the new version for tagging (already available in NEW_VERSION)
-echo "🏷️ Creating git tag..."
-git add pyproject.toml
-git commit -m "v${NEW_VERSION}" || echo "No changes to commit"
-git tag "v${NEW_VERSION}"
-
-echo "✅ Release complete!"
-echo "📋 Version: v${NEW_VERSION}"
-echo "📋 Next steps:"
-echo "   - Push changes: git push origin main"
-echo "   - Push tag: git push origin v${NEW_VERSION}"
-echo "   - Verify package on PyPI: https://pypi.org/project/storytelling/"
-echo "   - Test installation: pip install storytelling"
+echo "📤 Ready to publish to PyPI"
+echo "   Run: twine upload dist/*"
+echo ""
+echo "   Or for test PyPI: twine upload --repository testpypi dist/*"
