@@ -2,16 +2,26 @@
 # Storytelling Release Script
 # Prepares distribution and publishes to PyPI
 
-. $HOME/.bashrc &> /dev/null
-. /opt/binscritps/load.sh
-
-#set -e  # Exit on any error
+set -e  # Exit on any error
 
 echo "🚀 Storytelling Release Script Starting..."
 
 # Conda environment activation
-echo "🔬 Activating storytelling conda environment..."
-conda activate storytelling || { echo "Error: Conda environment 'storytelling' not found. Please create it or adjust the script."; exit 1; }
+echo "🔬 Finding and activating storytelling conda environment..."
+__conda_setup="$('/usr/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/usr/etc/profile.d/conda.sh" ]; then
+        . "/usr/etc/profile.d/conda.sh"
+    else
+        export PATH="/usr/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+
+conda activate storytelling || { echo "Error: Conda environment 'storytelling' not found or failed to activate. Please create it or adjust the script."; exit 1; }
+
 
 # Clean previous builds
 echo "🧹 Cleaning previous builds..."
@@ -20,7 +30,7 @@ make clean
 # Bump version (patch increment)
 echo "📈 Bumping patch version in pyproject.toml..."
 # Get current version
-CURRENT_VERSION=$(grep -E "^\s*version\s*=\s*["']" pyproject.toml | sed -E "s/.*["']([^"']+)["'].*/\1/")
+CURRENT_VERSION=$(grep -E "^\s*version\s*=\s*[\"']" pyproject.toml | sed -E "s/.*[\"']([^\"']+)[\"'].*/\1/")
 echo "Current version: ${CURRENT_VERSION}"
 
 # Split version into parts
@@ -34,7 +44,7 @@ NEW_VERSION="${MAJOR}.${MINOR}.${NEW_PATCH}"
 echo "New version: ${NEW_VERSION}"
 
 # Update pyproject.toml
-sed -i "s/^version = "${CURRENT_VERSION}"/version = "${NEW_VERSION}"/" pyproject.toml
+sed -i "s/^version = \"${CURRENT_VERSION}\"/version = \"${NEW_VERSION}\"/" pyproject.toml
 
 # Build distribution
 echo "🔨 Building distribution..."
