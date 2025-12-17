@@ -1,12 +1,26 @@
 #!/bin/bash
-# Release: build & publish to PyPI
+# Release: bump version, build & publish to PyPI
 
 set -e
 
-VERSION=$(grep 'version = ' pyproject.toml | head -1 | sed 's/.*version = "\(.*\)".*/\1/')
+# Get current version
+CURRENT=$(grep 'version = ' pyproject.toml | head -1 | sed 's/.*version = "\(.*\)".*/\1/')
 
-echo "🚀 Releasing storytelling v$VERSION"
+# Bump patch version (0.2.2 -> 0.2.3)
+IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+NEW_PATCH=$((PATCH + 1))
+NEW_VERSION="$MAJOR.$MINOR.$NEW_PATCH"
+
+echo "🚀 Releasing storytelling"
+echo "   $CURRENT → $NEW_VERSION"
 echo ""
+
+# Update version in pyproject.toml
+sed -i "s/version = \"$CURRENT\"/version = \"$NEW_VERSION\"/" pyproject.toml
+
+# Commit version bump
+git add pyproject.toml
+git commit -m "chore: bump version to $NEW_VERSION"
 
 # Build
 echo "📦 Building..."
@@ -17,5 +31,9 @@ echo ""
 echo "📤 Publishing to PyPI..."
 twine upload dist/*
 
+# Tag release
+git tag -a "v$NEW_VERSION" -m "Release v$NEW_VERSION"
+
 echo ""
-echo "✅ Published v$VERSION"
+echo "✅ Published v$NEW_VERSION"
+echo "   Don't forget: git push && git push --tags"
