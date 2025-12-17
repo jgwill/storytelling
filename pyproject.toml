@@ -69,14 +69,10 @@ local-ml = [
 google = [
     "langchain-google-genai>=0.0.6",
 ]
-openrouter = [
-    "langchain-openrouter>=0.0.1",
-]
+# openrouter integration removed - langchain-openrouter not available on PyPI
 
 # Performance and deployment options
-gpu = [
-    "faiss-gpu>=1.7.4",
-]
+# gpu extra removed - faiss-gpu not available, use faiss-cpu instead
 cloud = [
     "langfuse>=2.0.0",
     "openai>=1.0.0",
@@ -133,7 +129,7 @@ test = [
 
 # Convenience bundles
 all = [
-    "storytelling[local-ml,google,openrouter,gpu,cloud,enhanced,web,mcp,iaip]",
+    "storytelling[local-ml,google,cloud,enhanced,web,mcp,iaip]",
 ]
 
 # Maximum features bundle
