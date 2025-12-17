@@ -8,14 +8,16 @@ echo "🚀 Storytelling Release Script Starting..."
 
 # Conda environment activation
 echo "🔬 Finding and activating storytelling conda environment..."
-__conda_setup="$('/usr/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+__conda_setup="$('/opt/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
 if [ $? -eq 0 ]; then
     eval "$__conda_setup"
 else
-    if [ -f "/usr/etc/profile.d/conda.sh" ]; then
-        . "/usr/etc/profile.d/conda.sh"
+    if [ -f "/opt/anaconda3/etc/profile.d/conda.sh" ]; then
+        # shellcheck source=/dev/null
+        source "/opt/anaconda3/etc/profile.d/conda.sh"
     else
-        export PATH="/usr/bin:$PATH"
+        echo "Error: Could not find conda.sh to initialize conda at the specified path." >&2
+        exit 1
     fi
 fi
 unset __conda_setup
@@ -26,6 +28,9 @@ conda activate storytelling || { echo "Error: Conda environment 'storytelling' n
 # Clean previous builds
 echo "🧹 Cleaning previous builds..."
 make clean
+
+echo "✨ Formatting code..."
+make format
 
 # Bump version (patch increment)
 echo "📈 Bumping patch version in pyproject.toml..."

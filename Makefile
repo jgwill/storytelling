@@ -101,7 +101,7 @@ clean: ## Clean build artifacts
 	rm -rf htmlcov/
 	rm -rf .mypy_cache/
 	rm -rf .ruff_cache/
-	find . -type d -name __pycache__ -delete
+	find . -type d -name __pycache__ -exec rm -rf {} +
 	find . -type f -name "*.pyc" -delete
 
 .PHONY: clean-all
