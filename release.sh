@@ -22,8 +22,9 @@ sed -i "s/version = \"$CURRENT\"/version = \"$NEW_VERSION\"/" pyproject.toml
 git add pyproject.toml
 git commit -m "chore: bump version to $NEW_VERSION"
 
-# Build
+# Clean old builds and build
 echo "📦 Building..."
+make clean
 python3 -m build
 
 # Publish
