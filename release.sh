@@ -5,7 +5,7 @@
 . $HOME/.bashrc &> /dev/null
 . /opt/binscritps/load.sh
 
-set -e  # Exit on any error
+#set -e  # Exit on any error
 
 echo "🚀 Storytelling Release Script Starting..."
 
