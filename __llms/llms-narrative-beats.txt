@@ -1,0 +1,188 @@
+## When to Use Narrative Beats
+
+**Narrative beats** document complex stories across three archetypal universes simultaneously:
+- **Engineer-world**: Technical/analytical perspective
+- **Ceremony-world**: Relational/spiritual protocol awareness
+- **Story-engine-world**: Narrative/creative progression
+
+Use narrative beats when you need to capture **how a story unfolds across multiple dimensions**—not just what happened technically, but what it means relationally and narratively.
+
+### Chart vs. Narrative Beat
+
+| Aspect | Chart | Narrative Beat |
+|--------|-------|-----------------|
+| **Purpose** | Create a desired outcome from current reality | Document how a complex story unfolds |
+| **Structure** | Outcome + Reality + Actions | Act + Prose + Universes + Lessons |
+| **Scope** | Individual goal/strategy | Incident/milestone across all dimensions |
+| **When to use** | Building toward something | Making sense of what happened |
+| **Output** | Action steps toward goal | Integrated understanding of story |
+
+### Examples: When to Create Narrative Beats
+
+✅ **Create a beat when**:
+- An incident affects technical AND relational AND narrative dimensions
+- You need to document how three perspectives understood the same event differently
+- An action step revealed something about the larger story
+- A transgression becomes wisdom through integration
+
+❌ **Don't use beats for**:
+- Simple task documentation (use charts instead)
+- Linear progress tracking (use action steps)
+- Technical logs (use observations on current_reality)
+
+## The Three Narrative Beat Tools
+
+### 1. `create_narrative_beat`
+
+Creates a new narrative beat documenting a story event across the three universes.
+
+**When to use**: When a significant moment (learning, transgression, discovery, integration) needs multi-universe documentation.
+
+**Parameters**:
+- `parentChartId`: The chart this beat belongs to (required)
+- `title`: Short name of the beat (e.g., "The Sacred Object Violation")
+- `act`: Which act in the narrative sequence (1, 2, 3, 4, 5...)
+- `type_dramatic`: Story function—Crisis/Antagonist Force, Discovery/Learning, Resolution Beginning, New Awareness, Character Development
+- `universes`: List of which archetypal universes this beat involves
+  - "engineer-world" — technical/analytical view
+  - "ceremony-world" — relational/spiritual view
+  - "story-engine-world" — narrative/creative view
+- `description`: Factual summary of what happened (visible in list)
+- `prose`: Full narrative prose showing how all three universes experienced this moment
+- `lessons`: Key insights or learnings from this beat
+- `assessRelationalAlignment` (optional): Boolean—invoke iaip-mcp to assess relational science alignment
+- `initiateFourDirectionsInquiry` (optional): Boolean—invoke iaip-mcp for Four Directions guidance
+
+**Example**:
+```
+Create a narrative beat titled "The Sacred Object Violation"
+Act 2, Crisis/Antagonist Force
+Engineer-world: Technical boundary crossed (direct file editing)
+Ceremony-world: Sacred artifact dishonored
+Story-engine-world: Character reveals flaw through action
+```
+
+**Result**: Beat created with:
+- ID automatically generated
+- Relations created linking beat to parent chart
+- Optional relational alignment assessment
+- Optional Four Directions guidance embedded in the beat
+
+### 2. `telescope_narrative_beat`
+
+Breaks down a narrative beat into detailed sub-beats for deeper exploration.
+
+**When to use**: When a beat is too broad—needs to show the sub-moments that compose it.
+
+**Parameters**:
+- `parentBeatName`: Name of the beat to expand
+- `newCurrentReality`: Updated understanding of what's happening at this level of detail
+- `initialSubBeats` (optional): Array of sub-beats to create:
+  - Each has: title, type_dramatic, description, prose, lessons
+
+**Example**:
+```
+Telescope "The Integrity Test" into:
+  - Sub-beat 1: "Question Asked" (Discovery)
+  - Sub-beat 2: "Truth Avoidance Attempted" (Crisis)
+  - Sub-beat 3: "Direct Admission" (Turning Point)
+```
+
+**Result**: Parent beat now has detailed sub-structure showing how the larger moment unfolds.
+
+### 3. `list_narrative_beats`
+
+Lists all narrative beats, optionally filtered by parent chart.
+
+**When to use**: After creating beats, to verify they're properly stored and to review the narrative arc.
+
+**Parameters**:
+- `parentChartId` (optional): Filter to beats within a specific chart
+
+**Result**: Shows all beats with:
+- Title and act number
+- Dramatic type and universes involved
+- Full description and prose
+- Explicit lessons
+- Relational alignment assessments (if invoked)
+- Four Directions guidance (if invoked)
+
+## Integration with Optional iaip-mcp Tools
+
+When creating narrative beats, you can optionally invoke iaip-mcp tools for relational and directional enrichment. These are NOT required for beats to work, but add depth:
+
+### `assess_relational_alignment` (Optional)
+
+Assesses how well the narrative beat aligns with relational science principles:
+- Does the beat honor the web of relationships?
+- What relational responsibilities emerge?
+- How does this moment affect the relational field?
+
+**Use when**: The beat involves relational harm or breach (transgression, integrity test, apology, repair)
+
+### `get_direction_guidance` (Optional)
+
+Provides guidance from the Four Directions framework (North, East, South, West):
+- **North**: Vision/Dream - what's the larger purpose?
+- **East**: Awakening/Intention - what's the call to action?
+- **South**: Gathering/Emotion - what's the emotional/relational wisdom?
+- **West**: Going-in/Introspection - what's the deeper meaning?
+
+**Use when**: The beat needs ceremonial or spiritual perspective, or to integrate indigenous wisdom frameworks.
+
+### `initiate_holistic_inquiry` (Optional)
+
+Begins a structured four-direction exploration of the beat's themes.
+
+**Use when**: You want to move through North→East→South→West systematically to develop deep understanding.
+
+## Common LLM Mistakes with Narrative Beats
+
+❌ **Creating beats for action steps**
+- Action steps become sub-charts via `add_action_step` and `telescope_action_step`
+- Use beats for story/incident documentation, not for breaking down task work
+
+❌ **Using beats instead of charts for desired outcomes**
+- Beats document what happened; charts create what you want
+- Don't use beats to establish goals
+
+❌ **Ignoring the three universes**
+- A beat with only "engineer-world" perspective isn't complete
+- Each significant beat should engage all three or explicitly explain why only some apply
+
+❌ **Creating too many beats**
+- Each beat should represent a meaningful story moment
+- Not every action step needs a beat; only significant transitions/learnings/transgressions
+
+❌ **Forgetting that beats are first-class entities**
+- Use `list_narrative_beats` to query and verify
+- Don't manually add beat entries to JSONL; use the tool
+- Beats have their own relations and metadata just like charts
+
+## Workflow: From Action to Narrative Beat
+
+**Common pattern**:
+1. **Create chart** with structural tension (outcome + reality)
+2. **Add action steps** as strategic intermediaries
+3. **Complete action steps** as you work
+4. **Recognize significant learning** from an action
+5. **Create narrative beat** documenting that learning across three universes
+6. **Telescope the beat** to show sub-moments if needed
+7. **Use list_narrative_beats** to view your narrative arc
+
+**Result**: Your chart now has:
+- Strategic action structure (action steps)
+- Story structure (narrative beats) showing what the work meant
+- Both technical and relational dimensions visible
+
+## Session Memory: Narrative Beats Guidance
+
+**SAVE THIS**: Add narrative beat guidance to your session memory:
+- Claude Code: Include "Narrative Beats" section in CLAUDE.md
+- Projects: Document narrative beat usage patterns in README.md
+- Session continuity: Save beat names and their relational significance
+
+This ensures future instances understand:
+- Which beats are active in this story
+- What each beat represents
+- How beats integrate optional iaip-mcp tools

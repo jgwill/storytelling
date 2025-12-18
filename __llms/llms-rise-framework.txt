@@ -1,9 +1,9 @@
 # RISE Framework for LLMs
 > A comprehensive framework for creative-oriented reverse engineering, intent extraction, specification creation, and export optimization that transforms how LLMs understand, analyze, and generate code architectures through structural tension dynamics.
 
-**Version**: 1.0  
-**Document ID**: llms-rise-framework-v1.0  
-**Last Updated**: 2025-08-30  
+**Version**: 1.1
+**Document ID**: llms-rise-framework-v1.1
+**Last Updated**: 2025-12-16  
 **Content Source**: Synthesized from speclangportal250529, rise-framework-250713a3b, and creative orientation principles  
 **Attribution**: Built upon SpecLang methodology by Johan Rosenkilde, Russell Horton, Krzysztof Cieślak, and Jonathan Carter at GitHubNext  
 **Composed by**: Guillaume D.Isabelle, 2025
@@ -436,3 +436,424 @@ The RISE framework represents a fundamental shift in how we understand the relat
 **Document Compliance**: LLMS-txt Standard v1.0 Compliant  
 **Usage Guidelines**: This document is designed for LLM training and guidance. Preserve creative orientation principles when implementing or extending these concepts.  
 **License**: Open sharing encouraged with proper attribution to original sources.
+
+
+-----
+END-RESULTS FROM USING THIS
+-----
+
+* a folder 'rispecs' with specs into that folder well separated by components/service/page etc (by features).  (ex.  ./rispecs/llm_prompt_support.spec.md describing how the LLM supports an app.)
+* a file can tell how to use other files.  (ex.   ./rispecs/app.specs.md describing how to use all the other specs to build the app)
+* each spec file is in markdown format with sections like:
+  - Desired Outcome Definition
+  - Natural Language describing the whole functional aspects
+  - If another LLM would take what you wrote, would they implement the functionality adequatly is how you can evaluate your work
+
+
+---
+
+## Phase 4: Rispec Maintenance & Evolution {#phase4-maintenance}
+
+### Purpose
+
+Enable continuous upgrade of existing rispecs as codebases evolve, maintaining specification-implementation alignment through git-log-driven methodology.
+
+### Creative Intent
+
+**Desired Outcome**: LLMs that create living specifications—documents that evolve with code rather than becoming stale artifacts.
+
+**Structural Tension**: Gap between implementation velocity (commits landing daily) and specification updates (manual, infrequent). Phase 4 resolves this through automated gap detection and systematic upgrade workflows.
+
+---
+
+### Git-Log-Driven Upgrade Methodology
+
+#### Step 1: Temporal Gap Analysis
+
+**Purpose**: Quantify specification staleness by comparing last-modified timestamps.
+
+**Commands**:
+
+```bash
+# Identify rispecs last modification times
+ls -ltra ./rispecs/
+
+# Example Output:
+# -rw-r--r-- 1 user group  704 Dec 15 05:05 ui.spec.md
+# -rw-r--r-- 1 user group  452 Dec 15 05:05 tools.spec.md
+# -rw-r--r-- 1 user group  290 Dec 15 05:05 data-models.spec.md
+```
+
+**Analysis Pattern**:
+
+```bash
+# Get commits since last rispec update
+LAST_SPEC_DATE="2025-12-15"  # From ls -ltra output
+git log --since="$LAST_SPEC_DATE" --pretty=format:"%h - %s (%ar)" --no-merges
+
+# Example Output:
+# cc73aec - Responsive Implementation (2 days ago)
+# a247fd8 - Restored Gemini, was not leading anymore (2 days ago)
+# 4859929 - SDK removal (2 days ago)
+```
+
+**What This Reveals**:
+- **Time Gap**: How many days/hours between last spec edit and latest commit
+- **Commit Count**: Number of unrecorded changes (e.g., 12 commits in 2-day gap)
+- **Urgency**: Larger gaps = higher specification debt
+
+---
+
+#### Step 2: Commit Message Mining
+
+**Purpose**: Use commit messages as breadcrumbs to understand what changed and why.
+
+**Command**:
+
+```bash
+# Extract commit messages from gap period
+git log --since="$LAST_SPEC_DATE" --pretty=format:"%h|%s|%an|%ar" --no-merges
+
+# Example Output:
+# cc73aec|Responsive Implementation|Mia|2 days ago
+# a247fd8|Restored Gemini, was not leading anymore|Mia|2 days ago
+# 4859929|SDK removal|Mia|2 days ago
+```
+
+**Analysis Pattern**:
+
+1. **Identify Feature Additions**: Keywords like "Add", "Implement", "Create"
+   - Example: "Add keyboard navigation system" → Update ui.spec.md
+
+2. **Detect Refactors**: Keywords like "Refactor", "Restructure", "Migrate"
+   - Example: "Refactor Gemini SDK → REST API" → Update tools.spec.md + mcp-bridges.spec.md
+
+3. **Spot Bug Fixes with Architectural Impact**: Keywords like "Fix", "Resolve" + technical detail
+   - Example: "Fix White Screen (SDK removal)" → Documents design decision
+
+4. **Extract Developer Intent**: Well-written commits encode "why"
+   - Example: "Restored Gemini, was not leading anymore" → Implies SDK failed, REST succeeded
+
+**Quality Indicator**: Disciplined commit messages = 100% gap traceability. Poor messages = manual code archaeology required.
+
+---
+
+#### Step 3: Differential Analysis
+
+**Purpose**: Identify which files changed and map to corresponding rispec files.
+
+**Commands**:
+
+```bash
+# See all changed files in gap period
+git diff --name-only $LAST_SPEC_DATE..HEAD
+
+# Example Output:
+# src/App.tsx
+# src/components/LatticeVisualizer.tsx
+# services/latticeWeaver.ts
+# components/ShortcutHelp.tsx
+# components/ResonanceMeter.tsx
+# public/manifest.json
+
+# See actual code changes
+git diff $LAST_SPEC_DATE..HEAD -- src/App.tsx
+```
+
+**Mapping Pattern**:
+
+| Changed File(s) | Rispec File to Update | Reason |
+|----------------|----------------------|--------|
+| `src/App.tsx` | `ui.spec.md` | Main component orchestration changes |
+| `services/latticeWeaver.ts` | `tools.spec.md` + `mcp-bridges.spec.md` | New Gemini service layer |
+| `components/*.tsx` | `ui.spec.md` | New UI components (ShortcutHelp, ResonanceMeter) |
+| `public/manifest.json` | `data-models.spec.md` | PWA schema addition |
+| `types.ts` | `data-models.spec.md` | Type definition changes |
+
+**Cross-Repository Tracking**: If rispecs live in separate repository from source code:
+
+```bash
+# In source repo
+cd /path/to/source-code
+git log --since="2025-12-15"
+
+# In rispec repo
+cd /path/to/rispecs-repo
+ls -ltra ./rispecs/
+# Compare timestamps across repos
+```
+
+---
+
+#### Step 4: Specification Update
+
+**Purpose**: Document discovered features using RISE creative orientation principles.
+
+**Update Pattern**:
+
+For each affected rispec file:
+
+1. **Read Implementation**: Use git diff output + file reads to understand exact changes
+2. **Extract Creative Intent**: What does this enable users to create?
+3. **Document with RISE Principles**:
+   - Focus on desired outcomes (not problems solved)
+   - Use structural tension framing (current reality → desired state)
+   - Include implementation-sufficient detail (another LLM can code from spec)
+   - Preserve advancing pattern language (natural progression, not forced effort)
+
+**Example (from Narrative Lattice Weaver upgrade)**:
+
+```markdown
+## Part 8H: Responsive Canvas with ResizeObserver (Iteration 14-15)
+
+**Creative Intent**: Users create lattice explorations on any device—mobile, tablet, desktop—without fixed-size limitations.
+
+**Responsive Implementation**:
+
+\`\`\`typescript
+const containerRef = useRef<HTMLDivElement>(null);
+const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+
+useEffect(() => {
+  const updateDimensions = () => {
+    if (containerRef.current) {
+      const { width, height } = containerRef.current.getBoundingClientRect();
+      setDimensions({ width, height });
+    }
+  };
+
+  const resizeObserver = new ResizeObserver(() => {
+    updateDimensions();
+  });
+
+  if (containerRef.current) {
+    resizeObserver.observe(containerRef.current);
+  }
+
+  return () => resizeObserver.disconnect();
+}, []);
+\`\`\`
+
+**What This Enables**:
+- **Mobile Lattices**: Visualizer works on phones without horizontal scroll
+- **Sidebar Tolerance**: When universe cards collapse, canvas reflows gracefully
+- **Projection Mode**: Fullscreen presentation adjusts to any screen aspect ratio
+
+**Implementation Reference**: Commit cc73aec "Responsive Implementation"
+```
+
+**Key Characteristics**:
+- ✅ Creative orientation: "Users create lattice explorations"
+- ✅ Code snippets: Implementation-sufficient TypeScript
+- ✅ "What This Enables" section: Outcome-focused bullets
+- ✅ Git traceability: Commit reference establishes provenance
+
+---
+
+#### Step 5: Validation
+
+**Purpose**: Ensure upgraded specifications meet RISE quality criteria.
+
+**Quality Checklist**:
+
+✅ **All Gap Commits Analyzed**
+- Every commit from temporal gap period reviewed
+- Commit messages cross-referenced with rispec updates
+- No "mystery commits" left undocumented
+
+✅ **New Features Documented with Desired Outcomes**
+- Each feature framed as "what users create"
+- No reactive language ("this fixes", "this eliminates")
+- Structural tension established (current reality → desired state)
+
+✅ **Creative Orientation Preserved**
+- Language patterns: "enables", "creates", "natural progression"
+- Avoided patterns: "bridges gap", "solves problem", "forces user to"
+- Advancing patterns: Features support inevitable movement toward goals
+
+✅ **Structural Dynamics Maintained**
+- Natural progression described (not forced connections)
+- Tension resolution through organic advancement
+- No dependency on willpower or determination language
+
+✅ **Implementation-Sufficient Detail Added**
+- Another LLM can implement from specs alone
+- Code snippets included where architectural patterns matter
+- TypeScript types/schemas provided for data structures
+- API contracts specified (endpoints, parameters, returns)
+
+✅ **Cross-Reference Coherence**
+- Updated rispec files reference each other correctly
+- Data model changes reflected in tool specifications
+- UI component specs align with architectural diagrams
+
+✅ **Git Provenance Established**
+- Commit hashes cited for major features
+- "Implementation Reference" sections link spec to code history
+- Timeline traceable (Iteration numbers, dates)
+
+**"Black Box" Test**: Can another LLM re-implement the complete system from upgraded specs without accessing source code?
+
+---
+
+### Upgrade Quality Criteria
+
+**✅ Comprehensive Coverage**
+- Specification line count growth proportional to implementation growth
+- No features left undocumented (100% commit coverage)
+
+**✅ Creative Orientation Alignment**
+- RISE language patterns maintained throughout
+- No reactive/problem-solving framing introduced
+- Structural tension dynamics preserved
+
+**✅ Traceability Maintained**
+- Git commit references establish provenance
+- Iteration numbers track feature evolution timeline
+- "Before/After" code snippets show transformation
+
+**✅ Implementation Sufficiency**
+- Type definitions complete (TypeScript/Python schemas)
+- API contracts specified (parameters, returns, error codes)
+- Component hierarchies documented
+- Integration points mapped
+
+---
+
+### Upgrade Anti-Patterns (Avoid These)
+
+❌ **Batch Updates Without Git Analysis**
+- **Wrong**: "I'll just read all the code and update specs manually"
+- **Right**: Start with git log to understand timeline and intent
+
+❌ **Reactive Framing**
+- **Wrong**: "Added export feature to fix users not being able to save sessions"
+- **Right**: "Users create portable lattice artifacts—downloadable JSON preserving complete session state"
+
+❌ **Implementation Details Without Creative Intent**
+- **Wrong**: "Added ResizeObserver to LatticeVisualizer.tsx"
+- **Right**: "Creative Intent: Users create lattice explorations on any device... [then implementation]"
+
+❌ **Missing Git Provenance**
+- **Wrong**: "Gemini integration now uses REST API"
+- **Right**: "Gemini REST API Integration (Commit a247fd8: 'Restored Gemini')"
+
+❌ **Spec-Code Timestamp Inversion**
+- **Wrong**: Updating rispecs months after implementation
+- **Right**: Regular upgrade cycles (weekly/sprint-based) to minimize gaps
+
+---
+
+### Real-World Case Study: Narrative Lattice Weaver (Dec 2025)
+
+**Context**:
+- **Baseline**: 10 rispec files (4,686 lines), last modified Dec 15 05:05 UTC
+- **Implementation**: UI prototype evolved Dec 13-15 (Iterations 10-15, 12 commits)
+- **Gap**: 2 days, 10+ undocumented features
+
+**Step 1: Temporal Gap Analysis**
+
+```bash
+$ ls -ltra /workspace/.../rispecs/
+# All files: Dec 15 05:05
+
+$ git log --since="2025-12-13" --oneline --no-merges
+cc73aec Responsive Implementation
+a247fd8 Restored Gemini, was not leading anymore
+4859929 SDK removal
+[9 more commits...]
+
+# Result: 12 commits in 2-day gap
+```
+
+**Step 2: Commit Message Mining**
+
+Key commits identified:
+- **Iteration 10**: localStorage persistence, keyboard nav, playback, ResonanceMeter
+- **Iteration 11**: In-context editing, session export, resonant arcs
+- **Iteration 12**: Gemini AI weaving (SDK crisis → REST API)
+- **Iteration 13**: PWA manifest, icon.svg
+- **Iteration 14-15**: ResizeObserver responsive canvas
+
+**Step 3: Differential Analysis**
+
+```bash
+$ git diff --name-only 2025-12-13..HEAD
+src/App.tsx  # → ui.spec.md (persistence, keyboard, export)
+services/latticeWeaver.ts  # → tools.spec.md (new tool: lattice_weave_generative)
+components/LatticeVisualizer.tsx  # → ui.spec.md (ResizeObserver responsive)
+components/ShortcutHelp.tsx  # → ui.spec.md (new component)
+components/ResonanceMeter.tsx  # → ui.spec.md (new component)
+public/manifest.json  # → data-models.spec.md (PWA schema)
+```
+
+**Step 4: Specification Update**
+
+Files upgraded:
+1. **ui.spec.md**: 704→1,145 lines (+441 lines, 8 new sections for 7 UI features)
+2. **tools.spec.md**: 452→639 lines (+187 lines, Category 8: Generative Weaving tool)
+3. **data-models.spec.md**: 290→462 lines (+172 lines, 4 new schemas)
+
+**Total**: +800 lines of specification capturing 100% of implementation gap
+
+**Step 5: Validation**
+
+✅ All 12 commits analyzed and mapped to rispec sections
+✅ Creative orientation preserved (every feature has "What This Enables" section)
+✅ Git provenance established (commits cc73aec, a247fd8, 4859929 cited)
+✅ Implementation-sufficient (TypeScript snippets, API contracts, component specs)
+✅ "Black Box" test: Another LLM can implement Gemini integration from tools.spec.md alone
+
+**Lessons**:
+- **Commit Discipline = Upgrade Velocity**: Well-written commits ("Restored Gemini, was not leading anymore") provided instant architectural context
+- **2-Day Gap = Manageable**: Short feedback loops prevent specification debt
+- **Git Log as Archaeological Tool**: Timeline reconstruction took minutes, not hours
+
+---
+
+### Integration with RISE Phases 1-3
+
+Phase 4 completes the RISE cycle:
+
+1. **Phase 1 (Reverse Engineering)**: Extract initial specifications from prototype
+2. **Phase 2 (Intent Refinement)**: Refine specs with creative orientation
+3. **Phase 3 (Export Optimization)**: Generate stakeholder-specific documentation
+4. **Phase 4 (Maintenance & Evolution)**: **Keep specs alive as code evolves**
+
+**Circular Pattern**: Phase 4 feeds back to Phase 1—upgraded specs become new baseline for next iteration.
+
+---
+
+### Tools & Automation Opportunities
+
+**Manual Workflow** (Current):
+1. Developer runs `ls -ltra` + `git log` manually
+2. Developer reads git diffs and updates rispecs
+3. Developer validates against RISE quality checklist
+
+**Automation Potential** (Future):
+1. **Spec Staleness Dashboard**: CI/CD check warns when rispec timestamps lag behind source code >7 days
+2. **Commit-to-Rispec Mapper**: AI agent parses commit messages, suggests which rispecs need updates
+3. **Auto-Generated Upgrade Prompts**: LLM generates draft rispec sections from git diffs for human review
+
+**MCP Tool Integration**:
+- `rise_detect_spec_staleness(rispec_dir, source_dir)` → Returns gap analysis
+- `rise_suggest_upgrades(commit_hash)` → Proposes rispec edits based on commit
+- `rise_validate_spec(rispec_file)` → Runs RISE quality checklist
+
+---
+
+## Summary
+
+Phase 4 transforms RISE from a one-time specification creation framework into a **living documentation methodology**. By leveraging git history as the source of truth, LLMs can maintain specification-implementation alignment with:
+
+- **Temporal Gap Analysis**: Quantify staleness via timestamps
+- **Commit Message Mining**: Extract intent from disciplined git logs
+- **Differential Analysis**: Map code changes to rispec files
+- **RISE-Aligned Updates**: Document features with creative orientation
+- **Validation**: Ensure implementation sufficiency and traceability
+
+The result: Specifications that evolve with code, maintaining their role as **codebase-agnostic blueprints** while honoring the beloved qualities that emerge through iteration.
+
+---
+

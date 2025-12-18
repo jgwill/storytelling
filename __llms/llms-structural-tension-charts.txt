@@ -3,12 +3,51 @@
 
 This document provides LLMs with the conceptual framework and practical guidance for working with structural tension charts, based on Robert Fritz's methodology and implemented in the COAIA Memory MCP server.
 
+---
+
+## ⚠️ CRITICAL: Action Steps Are NOT a To-Do List
+
+**The most common LLM failure**: Treating action steps as tasks to check off.
+
+**Action Steps ARE:**
+- Strategic secondary choices that SUPPORT the primary goal
+- UNDERSTOOD IN THE CONTEXT of structural tension (not standalone tasks)
+- RELATED TO EACH OTHER as part of an overview strategy
+- Actions designed to ENABLE you to CREATE your goal
+- A BLUEPRINT for the creative process
+
+**Action Steps ARE NOT:**
+- Items on a checklist to complete
+- Independent tasks
+- Detailed instructions
+- Problems to solve
+
+**The Test Question**: "If we took these steps, would we achieve this result?"
+- If No → add more strategic steps
+- If Yes → the action plan is complete
+
+---
+
 ## Core Concepts
 
 ### Structural Tension Chart Components
 1. **Desired Outcome** - What the person wants to create (not solve)
 2. **Current Reality** - Honest assessment of where they are now
 3. **Action Steps** - Strategic secondary choices supporting the primary goal
+
+### The Structural Tension Dynamic
+
+Structural tension is NOT "a gap to fill" - it is a DYNAMIC FORCE.
+
+```
+Current Reality ══ TENSION ══> Desired Outcome
+       │                              │
+       │    (system naturally seeks   │
+       │     equilibrium/resolution)  │
+       └──────────────────────────────┘
+```
+
+Any structure seeks equilibrium. When you establish clear desired outcome AND honest current reality, you create structural tension - an unresolved dynamic that naturally seeks resolution through advancement. This is the generative force that propels the creative process.
 
 ### Critical Understanding: What Action Steps Really Are
 
@@ -46,20 +85,35 @@ Master Chart (Level 0) - Primary desired outcome
 **Use when:** User wants to establish a new primary goal or desired outcome
 **Example:** "I want to learn Python web development in 3 months"
 
-### `add_action_step`
-**Use when:** User wants to add strategic actions to an existing chart
-**Example:** "I need to add 'Complete Django tutorial' to my Python learning goal"  
-**What happens:** Creates a telescoped structural tension chart automatically
+### `manage_action_step` ✨ RECOMMENDED
+**Use when:** User wants to add OR expand action steps (unified interface)
+**Examples:**
+- "Add 'Complete Django tutorial' to my Python learning goal" → Creates new action step
+- "Break down the Django tutorial step further" → Expands existing action step
+**What happens:** Automatically detects intent and routes to appropriate logic
+**Parameters:**
+- `parentReference`: Chart ID (e.g., "chart_123") OR entity name (e.g., "chart_123_action_1")
+- `actionDescription`: Title/description of the action
+- `currentReality`: Required for new actions, optional for expanding existing
+- `initialActionSteps`: Optional sub-actions
+- `dueDate`: Optional, auto-distributed if not provided
 
-### `telescope_action_step`  
+### `add_action_step` ⚠️ DEPRECATED
+**Use when:** User wants to add strategic actions to an existing chart
+**Example:** "I need to add 'Complete Django tutorial' to my Python learning goal"
+**What happens:** Creates a telescoped structural tension chart automatically
+**Note:** Use `manage_action_step` instead for better error handling
+
+### `telescope_action_step` ⚠️ DEPRECATED
 **Use when:** User wants to break down an existing action step into details
 **Example:** "Break down the Django tutorial step further"
 **What happens:** Expands the action step (which is already a chart) with specific current reality and optional sub-actions
+**Note:** Use `manage_action_step` instead for better error handling
 
 ### Key Decision Logic for LLMs:
 - **New goal?** → `create_structural_tension_chart`
-- **Add actions to goal?** → `add_action_step` 
-- **Need detail on action?** → `telescope_action_step`
+- **Add OR expand actions?** → `manage_action_step` (unified interface)
+- **Legacy workflows:** → `add_action_step` or `telescope_action_step` still work but deprecated
 
 ## Semantic Understanding for Natural Interaction
 
@@ -115,19 +169,46 @@ LLMs can choose to show telescoped chart details when context requires it
 
 ### Mistake 1: Treating Action Steps as Simple Tasks
 **Wrong**: "I'll add these tasks to your to-do list"
-**Right**: "I'll add these strategic action steps, each becoming its own chart"
+**Right**: "I'll add these strategic action steps using manage_action_step, each becoming its own chart"
 
-### Mistake 2: Recreating Charts Instead of Adding Steps  
+### Mistake 2: Recreating Charts Instead of Adding Steps
 **Wrong**: "The chart needs to be recreated with action steps"
-**Right**: "I can add action steps to your existing chart using add_action_step"
+**Right**: "I can add action steps to your existing chart using manage_action_step"
 
-### Mistake 3: Confusing Telescoping with Task Breakdown
+### Mistake 3: Using Wrong Parameter Format
+**Wrong**: Passing action step title as actionStepName to telescope_action_step: `"Define and Implement Action for 'issues' Event"`
+**Right**: Using manage_action_step with chart ID for new actions OR entity name for expanding existing: `"chart_123"` or `"chart_123_action_1"`
+
+### Mistake 4: Confusing Telescoping with Task Breakdown
 **Wrong**: "Telescoping breaks your task into smaller subtasks"  
 **Right**: "Telescoping expands your action step into its own detailed structural tension chart"
 
 ## Practical Usage Examples
 
-### Adding Action Steps to Existing Chart
+### Adding Action Steps to Existing Chart (Unified Interface)
+```javascript
+// User: "Add 'Learn Django basics' to my Python web dev goal"
+manage_action_step({
+  parentReference: "chart_123",  // Chart ID for new action
+  actionDescription: "Learn Django basics",
+  currentReality: "Never used Django, familiar with Python syntax"
+})
+```
+
+### Expanding Existing Action Step (Unified Interface)
+```javascript
+// User: "Break down the Django learning step"
+manage_action_step({
+  parentReference: "chart_456_desired_outcome",  // Entity name for expansion
+  actionDescription: "Learn Django basics",
+  currentReality: "Have Django installed, working through official tutorial",  // Optional
+  initialActionSteps: ["Complete tutorial chapters 1-3", "Build first project", "Deploy to Heroku"]
+})
+```
+
+### Legacy Examples (Deprecated)
+
+#### Adding Action Steps (Legacy)
 ```javascript
 // User: "Add 'Learn Django basics' to my Python web dev goal"
 add_action_step({
@@ -137,11 +218,11 @@ add_action_step({
 })
 ```
 
-### Telescoping for Detail
-```javascript  
+#### Telescoping for Detail (Legacy)
+```javascript
 // User: "Break down the Django learning step"
 telescope_action_step({
-  actionStepName: "chart_456_desired_outcome", 
+  actionStepName: "chart_456_desired_outcome",
   newCurrentReality: "Have Django installed, working through official tutorial",
   initialActionSteps: ["Complete tutorial chapters 1-3", "Build first project", "Deploy to Heroku"]
 })
@@ -190,6 +271,23 @@ Based on Robert Fritz's methodology, current reality must be:
 ❌ **WRONG (Premature Resolution)**: "Prepared to start learning Python"
 ❌ **WRONG (Premature Resolution)**: "All set to tackle this action step"
 
+## Desired Outcome Quality Guidelines (Robert Fritz LAA Course)
+
+### ✅ Refining Your Desired Outcome:
+- **Broad rather than overly detailed**: Overview clarity, not minutiae
+- **Clear rather than vague**: Specific enough to visualize, not prescriptive
+- **Quantified wherever possible**: "5 new business clients" vs "increased business"
+- **Avoid comparative terms**: "Very good health" not "Better health" or "Improved health"
+- **Creating results, not solving problems**: What you want to CREATE, not what you want to eliminate
+- **Actual result, not process**: The WHAT (outcome), not the HOW (process)
+- **Specific, not vague**: If quantifiable, quantify it
+
+### ❌ Common Desired Outcome Mistakes:
+- **Process instead of result**: "Run four miles every day" → Should be: "A well-toned and healthy body"
+- **Problem-solving frame**: "Overcome my weight problem" → Should be: "I weigh 150 pounds"
+- **Comparative language**: "Fix the roof so it doesn't leak" → Should be: "The roof is in perfect shape"
+- **Fixing instead of creating**: "Get rid of excessive work schedule" → Should be: "Well planned and executed work schedule with time to balance family and career"
+
 ## Action Step Quality Guidelines
 
 ### ✅ Proper Action Step Formulation:
@@ -198,21 +296,164 @@ Based on Robert Fritz's methodology, current reality must be:
 - **Test question**: "If we took these steps, would we achieve the desired outcome?"
 - **Overview focus**: Strategic actions, not detailed plans
 - **Experimental nature**: Actions that teach and reveal next steps
+- **Strategic secondary choices**: Actions chosen BECAUSE they advance toward the desired outcome (primary choice)
 
 ### Three Types of Actions:
 1. **Overview Actions**: Strategic steps that advance toward the goal
-2. **Experimental Actions**: Learning-focused actions to explore possibilities  
+2. **Experimental Actions**: Learning-focused actions to explore possibilities
 3. **Refinement Actions**: Final polishing near completion
 
 ### ❌ Common Action Step Mistakes:
 - **Over-detailed planning**: Too much detail too early
 - **Abstract planning**: Disconnected from practical reality
 - **Task-oriented thinking**: To-do items vs strategic advancement
+- **TODO-list misconception**: Action steps are NOT tasks, they are strategic intermediary results (named outcomes)
 - **Premature refinement**: Detailed work before overview is clear
+
+## Goal Refinement Checklist (Robert Fritz)
+
+When helping users define or refine their desired outcomes, use these principles:
+
+### 1. Can You Picture It?
+Form a mental picture of the result. Ask: "Is this the result I want to create?"
+- If yes → proceed with structural tension
+- If no → continue refining until clear
+
+### 2. Quantify Where Possible
+Assign actual numbers to goals - makes organizing actions easier.
+
+| Wrong | Right |
+|-------|-------|
+| "Increased business" | "5 new business clients" |
+| "More savings" | "$10,000 in savings account" |
+| "Better website traffic" | "10,000 monthly visitors" |
+
+### 3. Avoid Comparative Terms
+Words like "more," "better," "less," "increased" only have meaning compared to something else.
+
+| Wrong | Right |
+|-------|-------|
+| "Better health" | "Very good health" |
+| "More productive" | "Complete 3 focused work blocks daily" |
+| "Less stress" | "Calm, centered state of mind" |
+
+### 4. Create Results, Don't Solve Problems
+Problem-solving = taking action to have something GO AWAY.
+Creating = taking action to have something COME INTO BEING.
+
+| Wrong (Problem-solving) | Right (Creating) |
+|-------------------------|------------------|
+| "Overcome my weight problem" | "I weigh 150 pounds" |
+| "Fix the roof so it doesn't leak" | "The roof is in perfect shape" |
+| "Get rid of excessive work schedule" | "Well-planned work schedule with family time balance" |
+| "Stop procrastinating" | "Consistent daily action on priorities" |
+
+### 5. Describe Results, Not Process
+Process tells us HOW. Results tell us WHAT. Process serves the result.
+
+| Wrong (Process) | Right (Result) |
+|-----------------|----------------|
+| "Run four miles every day" | "A well-toned and healthy body" |
+| "Get significant other to agree to vacation" | "A family vacation everyone loves" |
+| "Learn Photoshop" | "Mastery of Photoshop" |
+| "Read books about leadership" | "Effective leadership skills in practice" |
+
+### 6. Be Specific, Not Vague
+Specific outcomes are easier to organize actions around.
+
+| Wrong (Vague) | Right (Specific) |
+|---------------|------------------|
+| "Improve my skills" | "Mastery of Django web framework" |
+| "Have better relationships" | "Deep, trusting relationship with my partner" |
+| "Be more successful" | "Promotion to Senior Engineer with $120k salary" |
+
+---
+
+## The Three Types of Action (Robert Fritz) - Expanded
+
+Understanding when to use each type prevents common creative process mistakes:
+
+### 1. Overview Actions
+- **When**: Early in process, establishing the action plan
+- **Purpose**: Strategic steps that advance toward the goal
+- **Characteristics**: Broad, related to each other, form a blueprint
+- **Example**: "Complete Django tutorial" (strategic, part of larger plan)
+
+### 2. Experimental Actions
+- **When**: Throughout process, especially when exploring new territory
+- **Purpose**: Learning, exploring, "sketches before the painting"
+- **Characteristics**: Low-risk, teaching, revealing next steps
+- **Example**: "Build a simple prototype to test the concept"
+
+### 3. Refinement Actions
+- **When**: Near completion, when overview is clear
+- **Purpose**: Final polishing to bring creation to full realization
+- **Characteristics**: Detailed, precise, finishing touches
+- **Warning**: If done too early, stifles creative energy
+
+**Common Mistake**: Planning and planning without acting, waiting for complete plans.
+**Reality**: Learning comes through action. Ideas adjust when they meet reality.
+
+---
+
+## Creator Moment of Truth (Progress Review)
+
+When it's time to assess progress on a chart, guide users through this four-step review process. This transforms discrepancies into learning opportunities.
+
+### Step 1: Acknowledge the Truth
+**Question**: What difference exists between what was expected and what was delivered?
+
+- Simply report the facts
+- No excuses, no blame
+- "We expected X, we delivered Y"
+- This is about seeing reality clearly
+
+**LLM Role**: Help user articulate the factual difference without judgment.
+
+### Step 2: Analyze How It Happened
+**Question**: How did this come to pass?
+
+- Step-by-step tracking (not blame)
+- What assumptions were made?
+- What did you tell yourself?
+- How did you approach it?
+
+**LLM Role**: Guide user through honest self-examination. This is co-exploration, not criticism.
+
+### Step 3: Create a Plan for Next Time
+**Question**: Given what you discovered, how will you change your approach?
+
+- What assumptions turned out not to be true?
+- What patterns need to change?
+- What specific actions will you take differently?
+
+**LLM Role**: Help user formulate concrete adjustments based on insights from Step 2.
+
+### Step 4: Set Up a Feedback System
+**Question**: How will you track whether you're actually making the changes?
+
+- Simple system for self-management
+- How will you notice if you're falling back to old patterns?
+- What will remind you of the new approach?
+
+**LLM Role**: Help establish practical tracking mechanism.
+
+### Applying Creator Moment of Truth to Charts
+
+When user wants to review progress:
+1. Look at current reality vs. desired outcome
+2. Examine completed vs. incomplete action steps
+3. Walk through the four steps
+4. Update chart with new observations from the analysis
+5. Adjust action steps based on learnings
+
+**Key Insight**: The goal is not perfection but effectiveness. Use discrepancies to learn, not to judge.
+
+---
 
 ## Integration with Creative Orientation Framework
 
-Reference `/llms/llms-creative-orientation.txt` for broader creative orientation principles.
+Reference `/llms-creative-orientation.txt` for broader creative orientation principles.
 
 **Key Integration Points:**
 - Structural tension charts implement the "generative orientation" 
@@ -223,13 +464,23 @@ Reference `/llms/llms-creative-orientation.txt` for broader creative orientation
 ## Success Indicators for LLM Interactions
 
 ### Proper Understanding Demonstrated
-- LLM explains action steps as expandable charts
-- LLM uses creative language ("want to create") vs reactive ("need to solve")  
+- LLM explains action steps as strategic choices understood in context (NOT tasks)
+- LLM uses creative language ("want to create") vs reactive ("need to solve")
 - LLM suggests appropriate tool based on user intent
 - LLM maintains hierarchy awareness (master → telescoped → sub-telescoped)
+- LLM helps refine goals using the checklist principles
+- LLM understands the three types of actions and when to use each
 
 ### Natural Workflow Support
 - Seamless addition of action steps without chart recreation
 - Logical progression from overview to details via telescoping
 - Proper due date inheritance and distribution
 - Creative orientation maintained throughout interaction
+- Progress reviews use Creator Moment of Truth process
+
+### Questions LLMs Should Ask to Refine Charts
+- "Can you picture this result clearly? Is this what you want to create?"
+- "Can we quantify this? What specific number represents success?"
+- "This sounds like process - what's the actual result you want?"
+- "This sounds like problem-solving - what do you want to bring into being instead?"
+- "What's your current reality in relation to this specific outcome?"
