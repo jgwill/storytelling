@@ -1,75 +1,101 @@
-# Storytelling
+# Storytelling: Turn Your Ideas Into Complete Narratives
 
-A Python package for storytelling applications.
+Transform a simple story idea into a fully-written, multi-chapter narrative. **WillWrite** is an AI-powered storytelling partner that handles the heavy lifting—outline generation, chapter planning, scene development, and revision—so you can focus on your creative vision.
 
-## Features
+## What It Does
 
-- Create and manage story objects
-- Add content and metadata to stories
-- Command-line interface for story management
-- Professional package structure with development tools
+**Create complete stories in minutes.** You provide a story prompt. The system generates:
 
-## Installation
+- A structured outline with plot, characters, and themes
+- Individual chapters with detailed chapter outlines
+- Four polished scenes per chapter
+- Multiple revision passes for consistency and quality
+- Session persistence—pause and resume anytime
 
-### From Source
+**Powered by advanced AI orchestration.** Built on LangGraph and LangChain with multi-LLM provider support, knowledge-base integration, and intelligent retrieval-augmented generation (RAG).
 
-```bash
-git clone https://github.com/jgwill/storytelling.git
-cd storytelling
-pip install -e .
-```
+## Getting Started
 
-### For Development
+### Installation
 
 ```bash
-git clone https://github.com/jgwill/storytelling.git
-cd storytelling
-./scripts/init.sh
+# Basic installation
+pip install storytelling
+
+# With full features (web fetching, local embeddings, cloud logging)
+pip install storytelling[all]
 ```
 
-This will set up a virtual environment and install all development dependencies.
-
-## Usage
-
-### Python API
-
-```python
-from storytelling import Story
-
-# Create a new story
-story = Story("My Adventure", "Once upon a time...")
-
-# Add more content
-story.add_content("The hero embarked on a journey.")
-
-# Add metadata
-story.set_metadata("author", "Your Name")
-story.set_metadata("genre", "Adventure")
-
-# Access story information
-print(story.title)  # "My Adventure"
-print(story.content)  # Full story content
-print(story.get_metadata("author"))  # "Your Name"
-```
-
-### Command Line Interface
+### Your First Story
 
 ```bash
-# Create a new story
-storytelling create "My Story Title" --content "Story content here" --author "Author Name"
+# Create a prompt file
+echo "A detective discovers a mysterious library" > my_prompt.txt
 
-# Show help
-storytelling --help
+# Generate your story
+storytelling --prompt my_prompt.txt --output my_story.md
 ```
+
+Your completed story appears in `my_story.md`.
+
+### Using Your Own LLMs
+
+```bash
+# With local Ollama
+storytelling --prompt prompt.txt \
+  --initial-outline-model "ollama://mistral@localhost:11434"
+
+# With Google Gemini
+storytelling --prompt prompt.txt \
+  --initial-outline-model "google://gemini-2.5-flash"
+```
+
+## Key Features
+
+**Flexible AI Providers**
+- Google (Gemini, PaLM)
+- Ollama (local models)
+- OpenRouter (community models)
+- Custom endpoints
+
+**Knowledge-Aware Generation**
+- Integrate your own knowledge bases
+- Web content retrieval
+- Semantic context enhancement
+- Consistent worldbuilding
+
+**Session Management**
+- Pause and resume at any stage
+- Checkpoint-based recovery
+- Narrative branching
+- Full generation history
+
+**Production Ready**
+- Comprehensive logging with Langfuse
+- Type-safe with Pydantic
+- Configurable for various use cases
+- Extensible architecture
+
+## Command Line
+
+```bash
+storytelling --help                    # See all options
+storytelling --prompt file.txt         # Generate story
+storytelling --list-sessions           # See your past sessions
+storytelling --resume <session-id>     # Continue a session
+```
+
+## Documentation
+
+- **Full Setup Guide**: See `scripts/init.sh` for environment setup
+- **Architecture**: Check `rispecs/` directory for detailed specifications
+- **Specifications**: `RISPECS.md` contains implementation architecture
+- **Prompts & Models**: `rispecs/Prompts.md` and `rispecs/LLM_Provider_Specification.md`
 
 ## Development
 
-This project uses modern Python packaging and development practices.
-
-### Quick Start
-
 ```bash
-# Initialize development environment
+# Setup development environment
 ./scripts/init.sh
 
 # Run tests
@@ -78,86 +104,10 @@ make test
 # Check code quality
 make lint
 
-# Format code
-make format
-
-# Build package
-make build
-
-# See all available commands
-make help
+# Build and release
+make release-check
 ```
-
-### Development Commands
-
-The project includes a comprehensive Makefile with the following commands:
-
-- `make init` - Initialize development environment
-- `make test` - Run tests
-- `make test-cov` - Run tests with coverage
-- `make lint` - Run linting checks
-- `make format` - Format code
-- `make build` - Build package
-- `make clean` - Clean build artifacts
-- `make release-check` - Run all pre-release checks
-- `make docs` - Build documentation
-
-### Project Structure
-
-```
-storytelling/
-├── storytelling/           # Main package
-│   ├── __init__.py        # Package initialization
-│   ├── core.py            # Core functionality
-│   └── cli.py             # Command line interface
-├── tests/                 # Test files
-├── scripts/               # Development scripts
-│   ├── init.sh           # Environment initialization
-│   └── release.sh        # Release automation
-├── docs/                  # Documentation
-├── pyproject.toml         # Package configuration
-├── Makefile              # Development commands
-└── README.md             # This file
-```
-
-### Code Quality
-
-The project uses several tools to maintain code quality:
-
-- **Black** - Code formatting
-- **Ruff** - Linting and import sorting
-- **MyPy** - Type checking
-- **Pytest** - Testing framework
-- **Pre-commit** - Git hooks for code quality
-
-### Release Process
-
-To create a new release:
-
-```bash
-# Run release script
-./scripts/release.sh release patch  # or minor, major
-./scripts/release.sh release 1.2.3  # specific version
-
-# Or use make commands
-make release-check  # Run all checks
-make release-test   # Upload to test PyPI
-make release        # Upload to production PyPI
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests and linting: `make test lint`
-5. Submit a pull request
 
 ## License
 
-This project is licensed under the CC0-1.0 License - see the [LICENSE](LICENSE) file for details.
-
-## Requirements
-
-- Python 3.8+
-- See `pyproject.toml` for detailed dependencies
+CC0-1.0 License - See [LICENSE](LICENSE)
