@@ -288,6 +288,9 @@ def main(argv: Optional[List[str]] = None) -> int:
                 config.ollama_base_url,
             )
             logger.info(f"Initialized knowledge base from {config.knowledge_base_path}")
+        except ImportError as e:
+            logger.error(f"Missing dependency for knowledge base: {e}")
+            return 1
         except Exception as e:
             logger.warning(f"Could not initialize knowledge base: {e}")
 

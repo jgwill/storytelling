@@ -78,9 +78,15 @@ cloud = [
     "openai>=1.0.0",
 ]
 
+# Knowledge base and RAG features
+rag = [
+    "unstructured>=0.13.0",
+    "langchain-text-splitters>=0.0.1",
+]
+
 # Enhanced RAG and multi-source features
 enhanced = [
-    "storytelling[cloud]",
+    "storytelling[cloud,rag]",
     "beautifulsoup4>=4.12.0",
     "html2text>=2020.1.16",
     "requests>=2.31.0",

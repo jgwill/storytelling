@@ -90,7 +90,7 @@ class WillWriteConfig(BaseModel):
     knowledge_base_path: Optional[str] = Field(
         "",
         alias="knowledge-base-path",
-        description="The file path to a directory containing Markdown files that make up the knowledge base.",
+        description="The file path to a directory containing Markdown files that make up the knowledge base. Requires: pip install 'storytelling[rag]'",
     )
     embedding_model: Optional[str] = Field(
         "",

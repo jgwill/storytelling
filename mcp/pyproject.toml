@@ -67,14 +67,10 @@ Documentation = "https://github.com/jgwill/storytelling/blob/main/mcp/README.md"
 Issues = "https://github.com/jgwill/storytelling/issues"
 
 [project.scripts]
-storytelling-mcp = "mcp.server:main"
+storytelling-mcp = "server:main"
 
-[tool.setuptools.packages.find]
-where = [".."]
-include = ["mcp*"]
-
-[tool.setuptools.package-data]
-mcp = ["README.md"]
+[tool.setuptools.py-modules]
+py-modules = ["server"]
 
 [tool.pytest.ini_options]
 minversion = "7.0"

@@ -9,6 +9,37 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 if TYPE_CHECKING:
     from langchain_huggingface import HuggingFaceEmbeddings
 
+# Check for unstructured package (required for document loading)
+def _check_and_install_unstructured() -> bool:
+    """Check if unstructured is installed, attempt to install if missing."""
+    try:
+        import unstructured  # noqa: F401
+        return True
+    except ImportError:
+        try:
+            import subprocess
+            import sys
+            
+            print("Installing required 'unstructured' package...")
+            result = subprocess.run(
+                [sys.executable, "-m", "pip", "install", "-U", "unstructured"],
+                capture_output=True,
+                text=True,
+                timeout=300,
+            )
+            
+            if result.returncode == 0:
+                print("✓ Successfully installed 'unstructured'")
+                return True
+            else:
+                print(f"✗ Failed to install 'unstructured': {result.stderr}")
+                return False
+        except Exception as e:
+            print(f"✗ Could not auto-install 'unstructured': {e}")
+            return False
+
+UNSTRUCTURED_AVAILABLE = _check_and_install_unstructured()
+
 try:
     from langchain_huggingface import HuggingFaceEmbeddings
 
@@ -117,6 +148,13 @@ def initialize_knowledge_base(
     Returns:
         A retriever object for the knowledge base.
     """
+    if not UNSTRUCTURED_AVAILABLE:
+        raise ImportError(
+            "The 'unstructured' package is required for knowledge base functionality. "
+            "Install it with: pip install -U unstructured\n"
+            "Or install storytelling with RAG support: pip install 'storytelling[rag]'"
+        )
+    
     if not knowledge_base_path or not embedding_model:
         raise ValueError(
             "Both knowledge_base_path and embedding_model must be provided"
