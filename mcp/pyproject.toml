@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "storytelling-mcp"
-version = "0.1.0"
+version = "0.1.1"
 description = "Model Context Protocol server for storytelling - AI-powered narrative generation"
 readme = "README.md"
 license = {text = "MIT"}
