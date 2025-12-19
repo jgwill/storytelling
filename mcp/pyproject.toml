@@ -9,7 +9,7 @@ description = "Model Context Protocol server for storytelling - AI-powered narra
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
-    {name = "JGWill", email = "jgwill@example.com"}
+    {name = "JGWill", email = "jgi@jgwill.com"}
 ]
 maintainers = [
     {name = "JGWill"},
