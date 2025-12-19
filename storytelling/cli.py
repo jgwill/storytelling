@@ -286,6 +286,7 @@ def main(argv: Optional[List[str]] = None) -> int:
                 config.knowledge_base_path,
                 config.embedding_model,
                 config.ollama_base_url,
+                config.outline_rag_top_k,  # Pass the configured top_k value
             )
             logger.info(f"Initialized knowledge base from {config.knowledge_base_path}")
         except ImportError as e:

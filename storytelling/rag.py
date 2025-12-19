@@ -136,6 +136,7 @@ def initialize_knowledge_base(
     knowledge_base_path: str,
     embedding_model: str,
     ollama_base_url: str = "http://localhost:11434",
+    default_top_k: int = 5,
 ) -> VectorStoreRetriever:
     """
     Initializes the knowledge base from a directory of Markdown files.
@@ -144,6 +145,7 @@ def initialize_knowledge_base(
         knowledge_base_path: The path to the directory containing the knowledge base files.
         embedding_model: The name of the embedding model to use.
         ollama_base_url: Base URL for Ollama API (default: http://localhost:11434)
+        default_top_k: Default number of documents to retrieve (default: 5)
 
     Returns:
         A retriever object for the knowledge base.
@@ -186,18 +188,19 @@ def initialize_knowledge_base(
     # Get embedding model instance
     embedding_instance = get_embedding_model(embedding_model, ollama_base_url)
 
-    # Create vector store
+    # Create vector store with configurable retriever
     vectorstore = FAISS.from_documents(documents=splits, embedding=embedding_instance)
-    return vectorstore.as_retriever()
+    # Configure retriever with default search parameters (can be overridden at query time)
+    return vectorstore.as_retriever(search_kwargs={"k": default_top_k})
 
 
-def construct_outline_queries(initial_prompt: str, story_elements: dict = None) -> list:
+def construct_outline_queries(initial_prompt: str, story_elements=None) -> list:
     """
     Generate optimized queries for outline-stage knowledge retrieval.
 
     Args:
         initial_prompt: User's story prompt
-        story_elements: Parsed story components (characters, setting, themes)
+        story_elements: Parsed story components (characters, setting, themes) as dict or string
 
     Returns:
         List of targeted queries for knowledge base
@@ -209,18 +212,25 @@ def construct_outline_queries(initial_prompt: str, story_elements: dict = None) 
 
     # Entity-specific queries if story elements are available
     if story_elements:
-        if story_elements.get("characters"):
-            char_list = story_elements["characters"]
-            if isinstance(char_list, list):
-                queries.append(f"Characters: {', '.join(char_list)}")
-            else:
-                queries.append(f"Characters: {char_list}")
+        # Handle story_elements as dict (structured)
+        if isinstance(story_elements, dict):
+            if story_elements.get("characters"):
+                char_list = story_elements["characters"]
+                if isinstance(char_list, list):
+                    queries.append(f"Characters: {', '.join(char_list)}")
+                else:
+                    queries.append(f"Characters: {char_list}")
 
-        if story_elements.get("setting"):
-            queries.append(f"Setting and world: {story_elements['setting']}")
+            if story_elements.get("setting"):
+                queries.append(f"Setting and world: {story_elements['setting']}")
 
-        if story_elements.get("theme"):
-            queries.append(f"Themes and concepts: {story_elements['theme']}")
+            if story_elements.get("theme"):
+                queries.append(f"Themes and concepts: {story_elements['theme']}")
+        
+        # Handle story_elements as string (unstructured LLM output)
+        elif isinstance(story_elements, str) and len(story_elements) > 0:
+            # Use the entire story elements text as a query
+            queries.append(story_elements)
 
     return queries
 
@@ -251,8 +261,12 @@ def retrieve_outline_context(
     # Retrieve documents for each query
     for query in queries:
         try:
-            # Get top-k similar documents
-            docs = retriever.invoke(query, k=top_k)
+            # Get top-k similar documents using search_kwargs
+            # Note: invoke uses the retriever's default search_kwargs if not overridden
+            docs = retriever.invoke(query)
+            
+            # Take only top_k documents from the results
+            docs = docs[:top_k]
 
             # Filter by uniqueness and add
             for doc in docs:

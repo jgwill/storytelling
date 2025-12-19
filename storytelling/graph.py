@@ -4,7 +4,7 @@ from langgraph.graph import END, StateGraph
 
 from . import prompts
 from .llm_providers import get_llm_from_uri
-from .rag import retrieve_outline_context
+from .rag import construct_outline_queries, retrieve_outline_context
 from .session_manager import SessionManager
 
 # Type alias for the story state dictionary
@@ -270,14 +270,48 @@ def generate_initial_outline_node(state: StoryState) -> dict:
             # Add RAG context if available
             if retriever and config.outline_rag_enabled:
                 try:
-                    outline_context = retrieve_outline_context(
-                        retriever, state["initial_prompt"], context
+                    # Construct queries from prompt and story elements
+                    queries = construct_outline_queries(
+                        state["initial_prompt"],
+                        state.get("story_elements")
                     )
+                    
+                    # Retrieve context using the queries
+                    outline_context = retrieve_outline_context(
+                        retriever=retriever,
+                        queries=queries,
+                        max_tokens=config.outline_context_max_tokens,
+                        top_k=config.outline_rag_top_k,
+                        similarity_threshold=config.outline_rag_similarity_threshold
+                    )
+                    
                     if outline_context:
                         context["rag_context"] = outline_context
                         logger.info("Added RAG context to outline generation")
+                    else:
+                        logger.warning("RAG retrieval returned empty context")
+                        
                 except Exception as e:
-                    logger.warning(f"RAG context failed, continuing without: {e}")
+                    error_msg = f"RAG context failed: {e}"
+                    logger.error(error_msg)
+                    
+                    # If knowledge base was explicitly configured, this is a critical error
+                    if config.knowledge_base_path and config.embedding_model:
+                        logger.error("Knowledge base was configured but RAG failed - aborting generation")
+                        return {
+                            "outline": "",
+                            "errors": state.get("errors", []) + [error_msg],
+                            "story_elements": state.get("story_elements", ""),
+                            "base_context": state.get("base_context", ""),
+                            "config": state["config"],
+                            "logger": state["logger"],
+                            "initial_prompt": state["initial_prompt"],
+                            "retriever": state.get("retriever"),
+                            "session_manager": state.get("session_manager"),
+                        }
+                    else:
+                        # If RAG was opportunistic (not explicitly configured), continue without it
+                        logger.warning(f"{error_msg} - continuing without RAG context")
 
             # Generate outline using the correct prompt template
             prompt_template = prompts.INITIAL_OUTLINE_PROMPT
