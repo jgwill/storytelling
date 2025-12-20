@@ -1,12 +1,40 @@
 # Outline-Level RAG Integration Specification
 
-**Status**: ⏳ UNDER REVISION (Basic features implemented, advanced features planned)  
-**Date**: 2025-08-25  
-**Version**: 1.1  
+**Status**: ✅ IMPLEMENTED (Core features complete, advanced features planned)  
+**Date**: 2025-12-20  
+**Version**: 1.2  
 **Dependencies**: RAG_Implementation_Specification.md, ApplicationLogic.md, Unified_Creative_Orientation_Framework.md
 
 ------
-RESERVATION on IMPLEMENTATION by Claude
+## IMPLEMENTATION STATUS (Updated 2025-12-20)
+
+### ✅ COMPLETED IMPLEMENTATIONS
+
+#### Outline-Level RAG
+- `construct_outline_queries()` - Query construction from prompt and story elements
+- `retrieve_outline_context()` - Knowledge retrieval and formatting for outlines
+- Integration in `generate_initial_outline_node()` with configurable parameters
+
+#### Chapter-Level RAG (NEW - 2025-12-20)
+- `construct_chapter_queries()` - Chapter-specific query construction
+- `retrieve_chapter_context()` - Knowledge retrieval for individual chapters
+- Integration in `generate_single_chapter_scene_by_scene_node()` 
+- Integration in `critique_chapter_node()` - RAG-enhanced critique
+- Integration in `revise_chapter_node()` - RAG-enhanced revision
+
+#### Configuration Parameters
+- `outline_rag_enabled` - Enable outline-stage RAG
+- `outline_context_max_tokens` - Token limit for outline context
+- `outline_rag_top_k` - Documents per query for outline
+- `chapter_rag_enabled` - Enable chapter-stage RAG (NEW)
+- `chapter_context_max_tokens` - Token limit for chapter context (NEW)
+- `chapter_rag_top_k` - Documents per query for chapter (NEW)
+
+### ⏳ UNDER DEVELOPMENT
+- Semantic Adaptation Layer
+- RISE-Aware Prioritization
+- Bidirectional Synchronization with coaia-memory
+
 ------
   🎭 Gemini's Enhancement: Creative Orientation Integration
 
@@ -39,7 +67,8 @@ This specification defines the implementation of an **Event-Driven Adaptive RAG 
 
 ### 1.1 Current State
 - ✅ **Scene-Level RAG**: Functional during chapter generation with context injection.
-- ✅ **Outline-Level RAG (Basic)**: Basic implementation completed with `retrieve_outline_context()` function providing static knowledge retrieval during outline generation.
+- ✅ **Outline-Level RAG (Basic)**: Implementation completed with `retrieve_outline_context()` function providing knowledge retrieval during outline generation.
+- ✅ **Chapter-Level RAG**: FULLY IMPLEMENTED (2025-12-20) - Knowledge retrieval at chapter generation, critique, and revision stages.
 - ⏳ **Outline-Level RAG (Advanced)**: Event-Driven Adaptive RAG, semantic adaptation layer, and RISE-aware prioritization features are under development.
 - ✅ **Infrastructure**: Core RAG system (`storytelling/rag.py`) and configuration parameters are in place for advanced integration.
 

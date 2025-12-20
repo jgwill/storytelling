@@ -4,7 +4,7 @@ from langgraph.graph import END, StateGraph
 
 from . import prompts
 from .llm_providers import get_llm_from_uri
-from .rag import construct_outline_queries, retrieve_outline_context
+from .rag import construct_outline_queries, retrieve_outline_context, retrieve_chapter_context
 from .session_manager import SessionManager
 
 # Type alias for the story state dictionary
@@ -14,6 +14,7 @@ StoryState = Dict[str, Any]
 def generate_single_chapter_scene_by_scene_node(state: StoryState) -> dict:
     logger = state.get("logger")
     config = state.get("config")
+    retriever = state.get("retriever")
     index = state.get("current_chapter_index", 0)
 
     if logger:
@@ -27,12 +28,53 @@ def generate_single_chapter_scene_by_scene_node(state: StoryState) -> dict:
             if logger:
                 logger.info(f"Using mock chapter {index + 1}")
         else:
-            # Simplified chapter generation - just generate a basic chapter
             llm = get_llm_from_uri(config.chapter_s4_model)
 
-            # Create a simple chapter prompt
+            # Retrieve chapter-specific RAG context
+            chapter_context = ""
+            if retriever and getattr(config, 'chapter_rag_enabled', True):
+                if logger:
+                    logger.info(f"Retrieving knowledge base context for chapter {index + 1}")
+
+                # Get previous chapter summary for continuity
+                previous_summary = ""
+                chapters = state.get("chapters", [])
+                if chapters and index > 0:
+                    prev_chapter = chapters[index - 1]
+                    previous_summary = prev_chapter.get("summary", prev_chapter.get("content", "")[:300])
+
+                try:
+                    chapter_context = retrieve_chapter_context(
+                        retriever=retriever,
+                        chapter_outline=state.get("outline", ""),
+                        chapter_number=index + 1,
+                        previous_chapter_summary=previous_summary,
+                        story_elements=state.get("story_elements"),
+                        max_tokens=getattr(config, 'chapter_context_max_tokens', 1500),
+                        top_k=getattr(config, 'chapter_rag_top_k', 8),
+                    )
+
+                    if chapter_context and logger:
+                        logger.info(f"Retrieved chapter context: {len(chapter_context)} characters")
+                except Exception as e:
+                    if logger:
+                        logger.warning(f"Failed to retrieve chapter context: {e}")
+
+            # Create a chapter prompt with RAG context
+            rag_instruction = ""
+            if chapter_context:
+                rag_instruction = f"""
+## Knowledge Base Context
+Use the following knowledge base content to ground your narrative in established lore, character details, and world-building. Integrate these elements naturally into the story:
+
+{chapter_context}
+
+---
+"""
+
             chapter_prompt = f"""Generate Chapter {index + 1} for the following story:
 
+{rag_instruction}
 Story Elements: {state.get('story_elements', '')}
 
 Outline: {state.get('outline', '')}
@@ -40,6 +82,7 @@ Outline: {state.get('outline', '')}
 Chapter Requirements:
 - Continue the story from where it left off
 - Include character development and plot progression
+- Integrate knowledge base themes and elements naturally into the narrative
 - Make it engaging and well-written
 - Keep it to a reasonable length (3-5 paragraphs)
 
@@ -147,9 +190,10 @@ def should_use_scene_generation_pipeline(state: StoryState) -> str:
 
 
 def critique_chapter_node(state: StoryState) -> dict:
-    """Critique the current chapter using CRITIC_CHAPTER_PROMPT"""
+    """Critique the current chapter using CRITIC_CHAPTER_PROMPT with optional RAG context"""
     logger = state.get("logger")
     config = state.get("config")
+    retriever = state.get("retriever")
 
     if logger:
         chapter_index = state.get("current_chapter_index", 0)
@@ -172,8 +216,37 @@ def critique_chapter_node(state: StoryState) -> dict:
             if logger:
                 logger.info("Using mock chapter feedback")
         else:
+            # Retrieve RAG context for critique
+            critique_context = ""
+            if retriever and getattr(config, 'chapter_rag_enabled', True):
+                try:
+                    critique_context = retrieve_chapter_context(
+                        retriever=retriever,
+                        chapter_outline=current_chapter[:500],  # Use beginning of chapter
+                        chapter_number=state.get("current_chapter_index", 0) + 1,
+                        story_elements=state.get("story_elements"),
+                        max_tokens=1000,  # Smaller context for critique
+                        top_k=5,
+                    )
+                    if critique_context and logger:
+                        logger.info(f"Retrieved critique context: {len(critique_context)} characters")
+                except Exception as e:
+                    if logger:
+                        logger.warning(f"Failed to retrieve critique context: {e}")
+
             llm = get_llm_from_uri(config.chapter_revision_model)
-            prompt = prompts.CRITIC_CHAPTER_PROMPT.format_messages(_Chapter=current_chapter)
+            
+            # Build critique prompt with RAG context
+            if critique_context:
+                enhanced_chapter = f"""<RAG_REFERENCE>
+{critique_context}
+</RAG_REFERENCE>
+
+{current_chapter}"""
+                prompt = prompts.CRITIC_CHAPTER_PROMPT.format_messages(_Chapter=enhanced_chapter)
+            else:
+                prompt = prompts.CRITIC_CHAPTER_PROMPT.format_messages(_Chapter=current_chapter)
+            
             feedback = llm.invoke(prompt).content
 
             if logger:
@@ -281,9 +354,10 @@ def check_chapter_complete_node(state: StoryState) -> dict:
 
 
 def revise_chapter_node(state: StoryState) -> dict:
-    """Revise the current chapter based on feedback using CHAPTER_REVISION prompt"""
+    """Revise the current chapter based on feedback using CHAPTER_REVISION prompt with optional RAG context"""
     logger = state.get("logger")
     config = state.get("config")
+    retriever = state.get("retriever")
     revision_count = state.get("chapter_revision_count", 0)
 
     if logger:
@@ -307,11 +381,45 @@ def revise_chapter_node(state: StoryState) -> dict:
             if logger:
                 logger.info(f"Using mock chapter revision {revision_count + 1}")
         else:
+            # Retrieve RAG context for revision
+            revision_context = ""
+            if retriever and getattr(config, 'chapter_rag_enabled', True):
+                try:
+                    revision_context = retrieve_chapter_context(
+                        retriever=retriever,
+                        chapter_outline=current_chapter[:500],
+                        chapter_number=state.get("current_chapter_index", 0) + 1,
+                        story_elements=state.get("story_elements"),
+                        max_tokens=1000,
+                        top_k=5,
+                    )
+                    if revision_context and logger:
+                        logger.info(f"Retrieved revision context: {len(revision_context)} characters")
+                except Exception as e:
+                    if logger:
+                        logger.warning(f"Failed to retrieve revision context: {e}")
+
             llm = get_llm_from_uri(config.chapter_revision_model)
-            prompt = prompts.CHAPTER_REVISION.format_messages(
-                _Chapter=current_chapter,
-                _Feedback=feedback
-            )
+            
+            # Build revision prompt with RAG context
+            if revision_context:
+                enhanced_feedback = f"""Reference the following knowledge base content to improve the chapter:
+
+{revision_context}
+
+---
+Original Feedback:
+{feedback}"""
+                prompt = prompts.CHAPTER_REVISION.format_messages(
+                    _Chapter=current_chapter,
+                    _Feedback=enhanced_feedback
+                )
+            else:
+                prompt = prompts.CHAPTER_REVISION.format_messages(
+                    _Chapter=current_chapter,
+                    _Feedback=feedback
+                )
+            
             revised_chapter = llm.invoke(prompt).content
 
             if logger:

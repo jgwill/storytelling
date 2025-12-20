@@ -194,6 +194,152 @@ def initialize_knowledge_base(
     return vectorstore.as_retriever(search_kwargs={"k": default_top_k})
 
 
+def construct_chapter_queries(
+    chapter_outline: str,
+    chapter_number: int,
+    previous_chapter_summary: str = None,
+    story_elements=None,
+) -> list:
+    """
+    Construct queries for chapter-specific knowledge retrieval.
+
+    Args:
+        chapter_outline: Current chapter's planned content
+        chapter_number: Chapter index for context
+        previous_chapter_summary: Summary of previous chapter for continuity
+        story_elements: Characters, themes, setting from story elements
+
+    Returns:
+        List of contextually relevant queries for this chapter
+    """
+    queries = []
+
+    # Primary query: chapter outline content
+    if chapter_outline:
+        queries.append(chapter_outline)
+
+    # Character-specific queries from story elements
+    if story_elements:
+        if isinstance(story_elements, dict):
+            if story_elements.get("characters"):
+                char_list = story_elements["characters"]
+                if isinstance(char_list, list):
+                    for char in char_list[:3]:  # Limit to top 3 characters
+                        queries.append(f"Character {char} in chapter {chapter_number}")
+                else:
+                    queries.append(f"Characters: {char_list}")
+
+            # Setting/location queries
+            if story_elements.get("setting"):
+                queries.append(f"Setting details: {story_elements['setting']}")
+
+            # Theme continuity queries
+            if story_elements.get("theme"):
+                queries.append(f"Thematic elements: {story_elements['theme']}")
+        elif isinstance(story_elements, str) and len(story_elements) > 0:
+            # Use story elements text as a query
+            queries.append(story_elements[:500])
+
+    # Continuity query from previous chapter
+    if previous_chapter_summary:
+        queries.append(f"Context following: {previous_chapter_summary[:300]}")
+
+    return queries
+
+
+def retrieve_chapter_context(
+    retriever: VectorStoreRetriever,
+    chapter_outline: str,
+    chapter_number: int,
+    previous_chapter_summary: str = None,
+    story_elements=None,
+    max_tokens: int = 1500,
+    top_k: int = 8,
+    similarity_threshold: float = 0.7,
+) -> str:
+    """
+    Retrieve and format knowledge base context for chapter generation.
+
+    Similar to retrieve_outline_context but tailored for chapter-level details.
+
+    Args:
+        retriever: Knowledge base retriever
+        chapter_outline: Current chapter's outline
+        chapter_number: Chapter index
+        previous_chapter_summary: Summary of previous chapter
+        story_elements: Story context (characters, themes, setting)
+        max_tokens: Maximum tokens for the combined context
+        top_k: Number of documents to retrieve per query
+        similarity_threshold: Minimum similarity score (not currently used)
+
+    Returns:
+        Formatted context string with RAG content
+    """
+    queries = construct_chapter_queries(
+        chapter_outline,
+        chapter_number,
+        previous_chapter_summary,
+        story_elements,
+    )
+
+    if not queries:
+        return ""
+
+    # Retrieve documents for all queries
+    all_docs = []
+    seen_content = set()
+
+    for query in queries:
+        try:
+            docs = retriever.invoke(query)
+            docs = docs[:top_k]
+
+            for doc in docs:
+                content = doc.page_content.strip()
+                if content and content not in seen_content:
+                    seen_content.add(content)
+                    all_docs.append({
+                        "content": content,
+                        "source": doc.metadata.get("source", "unknown"),
+                        "query": query,
+                    })
+        except Exception as e:
+            print(f"Error retrieving documents for query '{query[:50]}...': {e}")
+            continue
+
+    if not all_docs:
+        return ""
+
+    # Combine and truncate to max_tokens (rough estimate: 4 chars = 1 token)
+    max_chars = max_tokens * 4
+    formatted_chunks = []
+    total_chars = 0
+
+    for doc in all_docs[:12]:  # Limit to top 12 documents
+        chunk = f"**Source:** {doc['source']}\n{doc['content']}"
+        chunk_chars = len(chunk)
+
+        if total_chars + chunk_chars > max_chars:
+            remaining = max_chars - total_chars
+            if remaining > 100:
+                truncated = chunk[:remaining].rsplit(" ", 1)[0]
+                formatted_chunks.append(truncated + "...")
+            break
+
+        formatted_chunks.append(chunk)
+        total_chars += chunk_chars
+
+    if formatted_chunks:
+        context = "\n\n---\n\n".join(formatted_chunks)
+        return f"""<RAG-CHAPTER-CONTEXT>
+# Knowledge Base Context for Chapter {chapter_number}
+
+{context}
+</RAG-CHAPTER-CONTEXT>"""
+
+    return ""
+
+
 def construct_outline_queries(initial_prompt: str, story_elements=None) -> list:
     """
     Generate optimized queries for outline-stage knowledge retrieval.

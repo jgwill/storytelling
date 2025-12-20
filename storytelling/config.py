@@ -123,6 +123,22 @@ class WillWriteConfig(BaseModel):
         alias="outline-rag-similarity-threshold",
         description="Minimum similarity threshold for outline-stage document retrieval.",
     )
+    # Chapter-level RAG configuration
+    chapter_rag_enabled: bool = Field(
+        True,
+        alias="chapter-rag-enabled",
+        description="Enable RAG context injection during chapter generation.",
+    )
+    chapter_context_max_tokens: int = Field(
+        1500,
+        alias="chapter-context-max-tokens",
+        description="Maximum tokens for chapter-stage RAG context.",
+    )
+    chapter_rag_top_k: int = Field(
+        8,
+        alias="chapter-rag-top-k",
+        description="Number of documents to retrieve per query for chapter stage.",
+    )
     # Workflow Control
     expand_outline: bool = Field(True, alias="expand-outline")
     enable_final_edit_pass: bool = Field(False, alias="enable-final-edit-pass")
