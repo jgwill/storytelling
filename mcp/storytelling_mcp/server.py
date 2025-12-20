@@ -18,7 +18,7 @@ from mcp.types import (
     Resource,
     Tool,
     TextContent,
-    ToolResult,
+    CallToolResult,
 )
 
 
