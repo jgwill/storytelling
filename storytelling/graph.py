@@ -163,8 +163,8 @@ def critique_chapter_node(state: StoryState) -> dict:
             if logger:
                 logger.warning("No chapter content to critique")
             return {
+                **_preserve_state(state, exclude=["chapter_feedback"]),
                 "chapter_feedback": "",
-                **_preserve_state(state),
             }
 
         if config and config.mock_mode:
@@ -183,8 +183,8 @@ def critique_chapter_node(state: StoryState) -> dict:
                 )
 
         result = {
+            **_preserve_state(state, exclude=["chapter_feedback"]),
             "chapter_feedback": feedback,
-            **_preserve_state(state),
         }
 
         # Save checkpoint
@@ -210,9 +210,9 @@ def critique_chapter_node(state: StoryState) -> dict:
         if logger:
             logger.error(f"Error critiquing chapter: {e}")
         return {
+            **_preserve_state(state, exclude=["chapter_feedback"]),
             "chapter_feedback": "",
             "errors": state.get("errors", []) + [str(e)],
-            **_preserve_state(state),
         }
 
 
@@ -261,8 +261,8 @@ def check_chapter_complete_node(state: StoryState) -> dict:
                 )
 
         result = {
+            **_preserve_state(state, exclude=["chapter_is_complete"]),
             "chapter_is_complete": is_complete,
-            **_preserve_state(state),
         }
 
         if logger:
@@ -274,9 +274,9 @@ def check_chapter_complete_node(state: StoryState) -> dict:
         if logger:
             logger.error(f"Error checking chapter completion: {e}")
         return {
+            **_preserve_state(state, exclude=["chapter_is_complete"]),
             "chapter_is_complete": True,  # Default to complete on error to prevent infinite loops
             "errors": state.get("errors", []) + [str(e)],
-            **_preserve_state(state),
         }
 
 
@@ -298,8 +298,8 @@ def revise_chapter_node(state: StoryState) -> dict:
             if logger:
                 logger.warning("No feedback provided for revision")
             return {
-                "chapter_revision_count": revision_count,
                 **_preserve_state(state),
+                "chapter_revision_count": revision_count,
             }
 
         if config and config.mock_mode:
@@ -329,11 +329,11 @@ def revise_chapter_node(state: StoryState) -> dict:
             chapters[current_index]["chapter_revision_count"] = revision_count + 1
 
         result = {
+            **_preserve_state(state, exclude=["chapters", "current_chapter_text", "chapter_revision_count", "chapter_feedback"]),
             "chapters": chapters,
             "current_chapter_text": revised_chapter,
             "chapter_revision_count": revision_count + 1,
             "chapter_feedback": "",  # Clear feedback after revision
-            **_preserve_state(state, exclude=["chapters", "current_chapter_text", "chapter_revision_count", "chapter_feedback"]),
         }
 
         # Save checkpoint
@@ -359,8 +359,8 @@ def revise_chapter_node(state: StoryState) -> dict:
         if logger:
             logger.error(f"Error revising chapter: {e}")
         return {
-            "errors": state.get("errors", []) + [str(e)],
             **_preserve_state(state),
+            "errors": state.get("errors", []) + [str(e)],
         }
 
 
