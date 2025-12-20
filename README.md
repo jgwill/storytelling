@@ -2,7 +2,7 @@
 
 Transform a simple story idea into a fully-written, multi-chapter narrative. **WillWrite** is an AI-powered storytelling partner that handles the heavy lifting—outline generation, chapter planning, scene development, and revision—so you can focus on your creative vision.
 
-## What It Does
+## What It Does ?
 
 **Create complete stories in minutes.** You provide a story prompt. The system generates:
 
