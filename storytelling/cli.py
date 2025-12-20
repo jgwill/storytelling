@@ -216,8 +216,8 @@ def main(argv: Optional[List[str]] = None) -> int:
             initial_state = loaded_state if loaded_state else {}
             initial_state["session_id"] = session_args.resume
 
-            # Run the graph
-            final_state = graph.invoke(initial_state)
+            # Run the graph with increased recursion limit for revisions
+            final_state = graph.invoke(initial_state, {"recursion_limit": 200})
 
             # Write the final story to output file if completed
             if final_state.get("status") == "completed" or (
@@ -313,8 +313,10 @@ def main(argv: Optional[List[str]] = None) -> int:
             "retriever": retriever,
         }
 
-        # Run the graph with increased recursion limit for longer stories
-        final_state = graph.invoke(initial_state, {"recursion_limit": 50})
+        # Run the graph with increased recursion limit for longer stories with revisions
+        # Each chapter can have multiple revision cycles (min 3, max 5 by default)
+        # Formula: base_nodes (~15) + (chapters × max_revisions × 4 nodes_per_revision)
+        final_state = graph.invoke(initial_state, {"recursion_limit": 200})
 
         # Write the final story to output file
         if (
