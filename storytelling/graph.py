@@ -146,6 +146,287 @@ def should_use_scene_generation_pipeline(state: StoryState) -> str:
     )
 
 
+def critique_chapter_node(state: StoryState) -> dict:
+    """Critique the current chapter using CRITIC_CHAPTER_PROMPT"""
+    logger = state.get("logger")
+    config = state.get("config")
+
+    if logger:
+        chapter_index = state.get("current_chapter_index", 0)
+        revision_count = state.get("chapter_revision_count", 0)
+        logger.info(f"=== NODE: Critiquing Chapter {chapter_index + 1} (revision {revision_count}) ===")
+
+    try:
+        current_chapter = state.get("current_chapter_text", "")
+
+        if not current_chapter:
+            if logger:
+                logger.warning("No chapter content to critique")
+            return {
+                "chapter_feedback": "",
+                **_preserve_state(state),
+            }
+
+        if config and config.mock_mode:
+            feedback = "Mock feedback: The chapter is well-written with good pacing."
+            if logger:
+                logger.info("Using mock chapter feedback")
+        else:
+            llm = get_llm_from_uri(config.chapter_revision_model)
+            prompt = prompts.CRITIC_CHAPTER_PROMPT.format_messages(_Chapter=current_chapter)
+            feedback = llm.invoke(prompt).content
+
+            if logger:
+                logger.save_interaction(
+                    f"Chapter_{state.get('current_chapter_index', 0) + 1}_Critique_Rev{state.get('chapter_revision_count', 0)}",
+                    [p.dict() for p in prompt] + [{"content": feedback}],
+                )
+
+        result = {
+            "chapter_feedback": feedback,
+            **_preserve_state(state),
+        }
+
+        # Save checkpoint
+        session_manager = state.get("session_manager")
+        session_id = state.get("session_id")
+        if session_manager and session_id and logger:
+            session_manager.save_checkpoint(
+                session_id,
+                "critique_chapter",
+                result,
+                metadata={
+                    "node_type": "chapter_critique",
+                    "success": True,
+                    "chapter_index": state.get("current_chapter_index", 0),
+                    "revision_count": state.get("chapter_revision_count", 0),
+                },
+            )
+            logger.info(f"Checkpoint saved: chapter critique")
+
+        return result
+
+    except Exception as e:
+        if logger:
+            logger.error(f"Error critiquing chapter: {e}")
+        return {
+            "chapter_feedback": "",
+            "errors": state.get("errors", []) + [str(e)],
+            **_preserve_state(state),
+        }
+
+
+def check_chapter_complete_node(state: StoryState) -> dict:
+    """Check if chapter meets completion criteria using CHAPTER_COMPLETE_PROMPT"""
+    logger = state.get("logger")
+    config = state.get("config")
+
+    if logger:
+        logger.info("=== NODE: Checking chapter completion ===")
+
+    try:
+        current_chapter = state.get("current_chapter_text", "")
+
+        if config and config.mock_mode:
+            is_complete = True
+            if logger:
+                logger.info("Mock mode: chapter marked complete")
+        else:
+            import json
+            llm = get_llm_from_uri(config.chapter_revision_model)
+            prompt = prompts.CHAPTER_COMPLETE_PROMPT.format_messages(_Chapter=current_chapter)
+            response = llm.invoke(prompt).content
+
+            # Parse JSON response
+            try:
+                # Handle potential markdown code blocks
+                response_clean = response.strip()
+                if response_clean.startswith("```"):
+                    response_clean = response_clean.split("```")[1]
+                    if response_clean.startswith("json"):
+                        response_clean = response_clean[4:]
+                    response_clean = response_clean.strip()
+
+                result_json = json.loads(response_clean)
+                is_complete = result_json.get("is_complete", False)
+            except json.JSONDecodeError:
+                if logger:
+                    logger.warning(f"Failed to parse completion response: {response}")
+                is_complete = False
+
+            if logger:
+                logger.save_interaction(
+                    f"Chapter_{state.get('current_chapter_index', 0) + 1}_Complete_Check",
+                    [p.dict() for p in prompt] + [{"content": response}],
+                )
+
+        result = {
+            "chapter_is_complete": is_complete,
+            **_preserve_state(state),
+        }
+
+        if logger:
+            logger.info(f"Chapter completion check: {is_complete}")
+
+        return result
+
+    except Exception as e:
+        if logger:
+            logger.error(f"Error checking chapter completion: {e}")
+        return {
+            "chapter_is_complete": True,  # Default to complete on error to prevent infinite loops
+            "errors": state.get("errors", []) + [str(e)],
+            **_preserve_state(state),
+        }
+
+
+def revise_chapter_node(state: StoryState) -> dict:
+    """Revise the current chapter based on feedback using CHAPTER_REVISION prompt"""
+    logger = state.get("logger")
+    config = state.get("config")
+    revision_count = state.get("chapter_revision_count", 0)
+
+    if logger:
+        chapter_index = state.get("current_chapter_index", 0)
+        logger.info(f"=== NODE: Revising Chapter {chapter_index + 1} (revision {revision_count + 1}) ===")
+
+    try:
+        current_chapter = state.get("current_chapter_text", "")
+        feedback = state.get("chapter_feedback", "")
+
+        if not feedback:
+            if logger:
+                logger.warning("No feedback provided for revision")
+            return {
+                "chapter_revision_count": revision_count,
+                **_preserve_state(state),
+            }
+
+        if config and config.mock_mode:
+            revised_chapter = f"{current_chapter}\n\n[Mock revision {revision_count + 1} applied based on feedback]"
+            if logger:
+                logger.info(f"Using mock chapter revision {revision_count + 1}")
+        else:
+            llm = get_llm_from_uri(config.chapter_revision_model)
+            prompt = prompts.CHAPTER_REVISION.format_messages(
+                _Chapter=current_chapter,
+                _Feedback=feedback
+            )
+            revised_chapter = llm.invoke(prompt).content
+
+            if logger:
+                logger.save_interaction(
+                    f"Chapter_{state.get('current_chapter_index', 0) + 1}_Revision_{revision_count + 1}",
+                    [p.dict() for p in prompt] + [{"content": revised_chapter}],
+                )
+
+        # Update the chapter in the chapters list
+        chapters = state.get("chapters", [])
+        current_index = state.get("current_chapter_index", 0)
+        if chapters and current_index < len(chapters):
+            chapters[current_index]["content"] = revised_chapter
+            chapters[current_index]["current_chapter_text"] = revised_chapter
+            chapters[current_index]["chapter_revision_count"] = revision_count + 1
+
+        result = {
+            "chapters": chapters,
+            "current_chapter_text": revised_chapter,
+            "chapter_revision_count": revision_count + 1,
+            "chapter_feedback": "",  # Clear feedback after revision
+            **_preserve_state(state, exclude=["chapters", "current_chapter_text", "chapter_revision_count", "chapter_feedback"]),
+        }
+
+        # Save checkpoint
+        session_manager = state.get("session_manager")
+        session_id = state.get("session_id")
+        if session_manager and session_id and logger:
+            session_manager.save_checkpoint(
+                session_id,
+                "revise_chapter",
+                result,
+                metadata={
+                    "node_type": "chapter_revision",
+                    "success": True,
+                    "chapter_index": current_index,
+                    "revision_count": revision_count + 1,
+                },
+            )
+            logger.info(f"Checkpoint saved: chapter revision {revision_count + 1}")
+
+        return result
+
+    except Exception as e:
+        if logger:
+            logger.error(f"Error revising chapter: {e}")
+        return {
+            "errors": state.get("errors", []) + [str(e)],
+            **_preserve_state(state),
+        }
+
+
+def should_revise_chapter(state: StoryState) -> str:
+    """Determine if chapter needs more revisions based on min/max revisions and completion check"""
+    config = state.get("config")
+    logger = state.get("logger")
+    revision_count = state.get("chapter_revision_count", 0)
+    is_complete = state.get("chapter_is_complete", False)
+
+    # Get revision limits from config
+    min_revisions = getattr(config, "chapter_min_revisions", 1) if config else 1
+    max_revisions = getattr(config, "chapter_max_revisions", 3) if config else 3
+
+    if logger:
+        logger.info(
+            f"Revision check: count={revision_count}, min={min_revisions}, max={max_revisions}, is_complete={is_complete}"
+        )
+
+    # Always revise if below minimum
+    if revision_count < min_revisions:
+        if logger:
+            logger.info(f"Below minimum revisions ({revision_count} < {min_revisions}), revising")
+        return "revise"
+
+    # Stop if at maximum
+    if revision_count >= max_revisions:
+        if logger:
+            logger.info(f"Reached maximum revisions ({revision_count} >= {max_revisions}), moving on")
+        return "increment"
+
+    # Between min and max: revise if not complete
+    if not is_complete:
+        if logger:
+            logger.info(f"Chapter not complete and below max revisions, revising")
+        return "revise"
+
+    if logger:
+        logger.info(f"Chapter complete after {revision_count} revisions, moving on")
+    return "increment"
+
+
+def _preserve_state(state: StoryState, exclude: list = None) -> dict:
+    """Helper to preserve all essential state fields"""
+    exclude = exclude or []
+    preserved = {
+        "story_elements": state.get("story_elements", ""),
+        "base_context": state.get("base_context", ""),
+        "outline": state.get("outline", ""),
+        "total_chapters": state.get("total_chapters", 1),
+        "current_chapter_index": state.get("current_chapter_index", 0),
+        "chapters": state.get("chapters", []),
+        "current_chapter_text": state.get("current_chapter_text", ""),
+        "chapter_revision_count": state.get("chapter_revision_count", 0),
+        "chapter_feedback": state.get("chapter_feedback", ""),
+        "chapter_is_complete": state.get("chapter_is_complete", False),
+        "session_manager": state.get("session_manager"),
+        "session_id": state.get("session_id"),
+        "config": state.get("config"),
+        "logger": state.get("logger"),
+        "initial_prompt": state.get("initial_prompt"),
+        "retriever": state.get("retriever"),
+    }
+    return {k: v for k, v in preserved.items() if k not in exclude}
+
+
 def get_chapter_context(state: StoryState) -> dict:
     """Helper function to get context for chapter generation"""
     chapters = state.get("chapters", [])
@@ -602,6 +883,10 @@ def create_graph(config=None, session_id=None, session_manager=None, retriever=N
         "generate_single_chapter_scene_by_scene",
         generate_single_chapter_scene_by_scene_node,
     )
+    # Chapter revision loop nodes
+    workflow.add_node("critique_chapter", critique_chapter_node)
+    workflow.add_node("check_chapter_complete", check_chapter_complete_node)
+    workflow.add_node("revise_chapter", revise_chapter_node)
     workflow.add_node("increment_chapter_index", increment_chapter_index_node)
     workflow.add_node("generate_final_story", generate_final_story_node)
 
@@ -614,11 +899,28 @@ def create_graph(config=None, session_id=None, session_manager=None, retriever=N
     workflow.add_edge(
         "determine_chapter_count", "generate_single_chapter_scene_by_scene"
     )
+
+    # Chapter revision loop:
+    # generate_chapter → critique → check_complete → [revise → critique] OR increment
     workflow.add_edge(
-        "generate_single_chapter_scene_by_scene", "increment_chapter_index"
+        "generate_single_chapter_scene_by_scene", "critique_chapter"
+    )
+    workflow.add_edge("critique_chapter", "check_chapter_complete")
+
+    # Conditional: should we revise or move to next chapter?
+    workflow.add_conditional_edges(
+        "check_chapter_complete",
+        should_revise_chapter,
+        {
+            "revise": "revise_chapter",
+            "increment": "increment_chapter_index",
+        },
     )
 
-    # Add conditional edge for chapter generation
+    # After revision, go back to critique for another round
+    workflow.add_edge("revise_chapter", "critique_chapter")
+
+    # Add conditional edge for chapter generation loop
     workflow.add_conditional_edges(
         "increment_chapter_index",
         check_if_more_chapters_needed,
@@ -652,6 +954,10 @@ def create_resume_graph(
         "generate_single_chapter_scene_by_scene",
         generate_single_chapter_scene_by_scene_node,
     )
+    # Chapter revision loop nodes
+    workflow.add_node("critique_chapter", critique_chapter_node)
+    workflow.add_node("check_chapter_complete", check_chapter_complete_node)
+    workflow.add_node("revise_chapter", revise_chapter_node)
     workflow.add_node("increment_chapter_index", increment_chapter_index_node)
     workflow.add_node("generate_final_story", generate_final_story_node)
 
@@ -672,14 +978,29 @@ def create_resume_graph(
         workflow.add_edge(
             "determine_chapter_count", "generate_single_chapter_scene_by_scene"
         )
-    elif resume_from_node in [
+
+    # Chapter revision loop edges (needed for all chapter-related resume points)
+    if resume_from_node in [
+        "determine_chapter_count",
         "generate_single_chapter_scene_by_scene",
+        "critique_chapter",
+        "check_chapter_complete",
+        "revise_chapter",
         "increment_chapter_index",
     ]:
-        # Resume from chapter generation
         workflow.add_edge(
-            "generate_single_chapter_scene_by_scene", "increment_chapter_index"
+            "generate_single_chapter_scene_by_scene", "critique_chapter"
         )
+        workflow.add_edge("critique_chapter", "check_chapter_complete")
+        workflow.add_conditional_edges(
+            "check_chapter_complete",
+            should_revise_chapter,
+            {
+                "revise": "revise_chapter",
+                "increment": "increment_chapter_index",
+            },
+        )
+        workflow.add_edge("revise_chapter", "critique_chapter")
         workflow.add_conditional_edges(
             "increment_chapter_index",
             check_if_more_chapters_needed,
@@ -689,8 +1010,6 @@ def create_resume_graph(
             },
         )
 
-    # Always add edge to final story generation
-    workflow.add_edge("increment_chapter_index", "generate_final_story")
     workflow.add_edge("generate_final_story", END)
 
     return workflow.compile()
