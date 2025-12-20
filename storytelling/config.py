@@ -10,10 +10,10 @@ class WillWriteConfig(BaseModel):
     """
 
     # Core Parameters
-    prompt_file: str = Field(
-        ...,
+    prompt_file: Optional[str] = Field(
+        None,
         alias="prompt",
-        description="The file path to the initial user prompt for the story.",
+        description="The file path to the initial user prompt for the story. Optional when resuming.",
     )
     output_file: Optional[str] = Field(
         "",
@@ -164,9 +164,12 @@ class WillWriteConfig(BaseModel):
     )
 
 
-def load_config() -> WillWriteConfig:
+def load_config(argv=None) -> WillWriteConfig:
     """
     Parses command-line arguments and loads them into a WillWriteConfig object.
+
+    Args:
+        argv: Optional list of arguments to parse. If None, uses sys.argv.
     """
     parser = argparse.ArgumentParser(
         description="WillWrite: A RISE-Based Story Generation Application",
@@ -204,7 +207,7 @@ Examples:
                 help=model_field.description,
                 required=model_field.is_required(),
             )
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     args_dict = vars(args)
     # Pydantic V2 requires aliases to be used when instantiating a model from a dictionary
     config_dict = {}

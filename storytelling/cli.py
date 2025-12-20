@@ -175,8 +175,13 @@ def main(argv: Optional[List[str]] = None) -> int:
             # Load session info and state
             session_info = session_manager.load_session_info(session_args.resume)
 
-            # Parse the remaining config arguments with the original argv
-            config = load_config()
+            # Parse the remaining config arguments (excluding already-parsed session args)
+            config = load_config(remaining_args)
+
+            # If prompt not provided on command line, load from session
+            if config.prompt_file is None:
+                config.prompt_file = session_info.prompt_file
+                print(f"Using prompt from session: {session_info.prompt_file}")
 
             print(f"Resuming session {session_args.resume}...")
             print(f"Original prompt: {session_info.prompt_file}")

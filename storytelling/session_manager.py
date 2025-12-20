@@ -211,7 +211,10 @@ class SessionManager:
             "generate_story_elements": "generate_initial_outline",
             "generate_initial_outline": "determine_chapter_count",
             "determine_chapter_count": "generate_single_chapter_scene_by_scene",
-            "generate_single_chapter_scene_by_scene": "increment_chapter_index",
+            "generate_single_chapter_scene_by_scene": "critique_chapter",
+            "critique_chapter": "check_chapter_complete",
+            "check_chapter_complete": "revise_chapter",  # Will be handled by conditional
+            "revise_chapter": "critique_chapter",
             "increment_chapter_index": "generate_single_chapter_scene_by_scene",  # or finalize based on chapter count
         }
 
