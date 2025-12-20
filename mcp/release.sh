@@ -6,6 +6,7 @@ set -e
 # Ensure we're in the mcp directory
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
+rm -rf dist build storytelling_mcp.egg-info
 
 # Get current version from pyproject.toml in parent (storytelling package)
 # For storytelling-mcp, we'll manage version independently here
