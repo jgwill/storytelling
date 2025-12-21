@@ -225,7 +225,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             final_state = graph.invoke(initial_state, {"recursion_limit": 200})
 
             # Write the final story to output file if completed
-            if final_state.get("status") == "completed" or (
+            if final_state.get("is_complete") or (
                 session_info.status == "completed"
             ):
                 if (
@@ -237,6 +237,7 @@ def main(argv: Optional[List[str]] = None) -> int:
                         with open(output_path, "w", encoding="utf-8") as f:
                             f.write(final_state["final_story_markdown"])
                         print(f"Story written to: {output_path}")
+                        session_manager.update_session_status(session_args.resume, "completed")
                     except Exception as e:
                         print(f"Error writing output file: {e}")
                         return 1
@@ -244,7 +245,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             print("\nSession resumed successfully!")
             print(
                 "Final status: Session completed"
-                if final_state.get("status") == "completed"
+                if final_state.get("is_complete")
                 else "Session in progress"
             )
 

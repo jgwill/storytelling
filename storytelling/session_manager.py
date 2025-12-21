@@ -206,6 +206,18 @@ class SessionManager:
         # Determine next node based on last completed checkpoint
         last_checkpoint = checkpoints[-1]
 
+        # Special case: check if we need more chapters after increment_chapter_index
+        if last_checkpoint.node_name == "increment_chapter_index":
+            current_index = last_checkpoint.state.get("current_chapter_index", 0)
+            total_chapters = last_checkpoint.state.get("total_chapters", 1)
+
+            if current_index >= total_chapters:
+                # All chapters generated, finalize
+                return "generate_final_story"
+            else:
+                # More chapters needed
+                return "generate_single_chapter_scene_by_scene"
+
         # Mapping of completed nodes to next nodes
         resume_mapping = {
             "generate_story_elements": "generate_initial_outline",
@@ -215,7 +227,6 @@ class SessionManager:
             "critique_chapter": "check_chapter_complete",
             "check_chapter_complete": "revise_chapter",  # Will be handled by conditional
             "revise_chapter": "critique_chapter",
-            "increment_chapter_index": "generate_single_chapter_scene_by_scene",  # or finalize based on chapter count
         }
 
         return resume_mapping.get(last_checkpoint.node_name, "generate_story_elements")
