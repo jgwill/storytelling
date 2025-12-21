@@ -67,7 +67,7 @@ Documentation = "https://github.com/jgwill/storytelling/blob/main/mcp/README.md"
 Issues = "https://github.com/jgwill/storytelling/issues"
 
 [project.scripts]
-storytelling-mcp-new = "storytelling_mcp.server:main"
+storytelling-mcp = "storytelling_mcp.server:main"
 
 [tool.setuptools]
 packages = ["storytelling_mcp"]
