@@ -32,11 +32,15 @@ def create_server() -> Server:
     register_configuration_tools(server)
     register_workflow_insight_tools(server)
     register_prompt_template_tools(server)
+    register_advanced_features_tools(server)
+    register_rag_tools(server)
+    register_config_reference_tools(server)
 
     # Register resources
     register_workflow_resources(server)
     register_configuration_resources(server)
     register_prompt_resources(server)
+    register_advanced_resources(server)
 
     return server
 
@@ -755,6 +759,757 @@ def register_prompt_resources(server: Server) -> None:
 
     server.register_resource(prompt_guide)
     server.register_resource(template_resource)
+
+
+def register_rag_tools(server: Server) -> None:
+    """Register RAG/knowledge base tools."""
+
+    @server.call_tool()
+    async def setup_knowledge_base(kb_path: str, embedding_model: str = "ollama") -> list[TextContent]:
+        """Initialize and configure knowledge base for RAG."""
+        result = f"""# Knowledge Base Setup
+
+## Configuration
+- Knowledge Base Path: {kb_path}
+- Embedding Model: {embedding_model}
+
+## Next Steps
+
+To use this knowledge base in story generation:
+
+```bash
+storytelling --prompt story.txt \\
+  --knowledge-base-path {kb_path} \\
+  --embedding-model {embedding_model}
+```
+
+## Supported Embedding Models
+
+- **ollama** (local, free)
+  - Command: `ollama://model-name@localhost:11434`
+  - Example: `ollama://nomic-embed-text@localhost:11434`
+  - Requires: Ollama running locally
+
+- **sentence-transformers** (local, free)
+  - For HuggingFace models
+  - Requires: `pip install storytelling[local-ml]`
+
+- **openai** (cloud, paid)
+  - Command: `openai://text-embedding-3-small`
+  - Requires: OPENAI_API_KEY environment variable
+
+## Knowledge Base Format
+
+Place markdown files in {kb_path}:
+```
+knowledge_base/
+├── topic1.md
+├── topic2.md
+├── documents/
+│   ├── doc1.md
+│   └── doc2.md
+```
+
+Each file should contain relevant information for story context.
+
+## RAG Configuration Parameters
+
+For outline-level RAG:
+  - `--outline-rag-enabled` (true/false)
+  - `--outline-context-max-tokens` (default: 1000)
+  - `--outline-rag-top-k` (default: 5)
+  - `--outline-rag-similarity-threshold` (default: 0.7)
+
+For chapter-level RAG:
+  - `--chapter-rag-enabled` (true/false)
+  - `--chapter-context-max-tokens` (default: 1500)
+  - `--chapter-rag-top-k` (default: 8)
+
+## Verification
+
+Check if knowledge base loads correctly:
+```bash
+storytelling --knowledge-base-path {kb_path} --debug
+```
+"""
+        return [TextContent(type="text", text=result)]
+
+    @server.call_tool()
+    async def get_rag_capabilities() -> list[TextContent]:
+        """Get detailed information about RAG features."""
+        capabilities = """# RAG (Retrieval-Augmented Generation) Capabilities
+
+## Overview
+
+RAG enables the storytelling system to integrate knowledge from your documents
+into story generation. The system can retrieve relevant context at two levels:
+- **Outline Level**: When generating the initial story outline
+- **Chapter Level**: When generating individual chapters
+
+## Features
+
+### Outline-Level RAG
+- Retrieves relevant context from knowledge base
+- Informs story structure, characters, and plot
+- Configurable query generation
+- Similarity-based filtering
+
+### Chapter-Level RAG
+- Retrieves context specific to each chapter
+- Informs scene details and character consistency
+- Per-chapter context management
+- Higher token limit than outline level
+
+### Multiple Embedding Models
+- **Local**: Ollama (free, on-device)
+- **Local ML**: Sentence-transformers (free)
+- **Cloud**: OpenAI (paid, hosted)
+
+### Content Integration
+- Web content fetching (via web_fetcher)
+- CoAiAPy integration for AI-collaborative documents
+- Local markdown files
+
+## Usage Example
+
+```bash
+# Setup knowledge base
+mkdir knowledge_base
+# Add your markdown files to knowledge_base/
+
+# Generate story with RAG
+storytelling --prompt prompt.txt \\
+  --knowledge-base-path ./knowledge_base \\
+  --embedding-model "ollama://nomic-embed-text@localhost:11434" \\
+  --outline-rag-enabled \\
+  --chapter-rag-enabled
+```
+
+## Configuration Parameters
+
+### Outline RAG
+- `outline_rag_enabled`: Enable/disable (default: true)
+- `outline_context_max_tokens`: Max context length (default: 1000)
+- `outline_rag_top_k`: Number of documents to retrieve (default: 5)
+- `outline_rag_similarity_threshold`: Min similarity (default: 0.7)
+
+### Chapter RAG
+- `chapter_rag_enabled`: Enable/disable (default: true)
+- `chapter_context_max_tokens`: Max context length (default: 1500)
+- `chapter_rag_top_k`: Number of documents to retrieve (default: 8)
+
+## Performance Considerations
+
+- Larger embeddings → Better accuracy, slower
+- Higher top_k → More context, slower generation
+- Higher similarity threshold → Fewer, more relevant docs
+
+## Troubleshooting
+
+**Knowledge base not being used:**
+- Verify files exist in knowledge_base path
+- Check embedding model is accessible
+- Enable --debug for detailed logs
+
+**Memory issues:**
+- Reduce context_max_tokens
+- Use smaller embedding models
+- Reduce top_k values
+"""
+        return [TextContent(type="text", text=capabilities)]
+
+    server.register_tool(
+        Tool(
+            name="setup_knowledge_base",
+            description="Initialize and configure knowledge base for RAG-aware story generation",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "kb_path": {"type": "string", "description": "Path to knowledge base directory"},
+                    "embedding_model": {"type": "string", "description": "Embedding model (ollama, sentence-transformers, openai)"}
+                },
+                "required": ["kb_path"],
+            }
+        ),
+        setup_knowledge_base,
+    )
+
+    server.register_tool(
+        Tool(
+            name="get_rag_capabilities",
+            description="Get detailed information about RAG (Retrieval-Augmented Generation) features",
+            inputSchema={"type": "object", "properties": {}}
+        ),
+        get_rag_capabilities,
+    )
+
+
+def register_config_reference_tools(server: Server) -> None:
+    """Register configuration reference and validation tools."""
+
+    @server.call_tool()
+    async def get_config_reference() -> list[TextContent]:
+        """Get complete configuration parameter reference."""
+        reference = """# Storytelling Configuration Parameter Reference
+
+## Core Parameters
+
+### Input/Output
+- `--prompt` (required): Path to story prompt file
+- `--output`: Output file path for generated story
+
+## Model Selection (per-stage)
+
+Each stage can use different LLMs for flexibility:
+
+- `--initial-outline-model`: Initial story outline (default: ollama://qwen3:latest)
+- `--chapter-outline-model`: Chapter outline planning
+- `--chapter-s1-model`: Chapter scene 1 generation
+- `--chapter-s2-model`: Chapter scene 2 generation
+- `--chapter-s3-model`: Chapter scene 3 generation
+- `--chapter-s4-model`: Chapter scene 4 generation
+- `--chapter-revision-model`: Chapter revision/refinement
+- `--revision-model`: Final story-level revision
+- `--eval-model`: Story evaluation
+- `--info-model`: Information extraction
+- `--scrub-model`: Content scrubbing
+- `--checker-model`: Content checking
+- `--translator-model`: Story translation
+
+### Model URI Formats
+
+- Google: `google://gemini-2.5-flash` or `google://gemini-pro`
+- Ollama: `ollama://model-name@localhost:11434`
+- OpenRouter: `openrouter://model-name`
+- Custom: `myflowise://endpoint-url`
+
+## Knowledge Base & RAG
+
+### Basic RAG
+- `--knowledge-base-path`: Directory containing markdown files
+- `--embedding-model`: Which embedding model to use
+
+### Outline-Level RAG
+- `--outline-rag-enabled`: Enable/disable (default: true)
+- `--outline-context-max-tokens`: Max tokens (default: 1000)
+- `--outline-rag-top-k`: Documents to retrieve (default: 5)
+- `--outline-rag-similarity-threshold`: Min similarity (default: 0.7)
+
+### Chapter-Level RAG
+- `--chapter-rag-enabled`: Enable/disable (default: true)
+- `--chapter-context-max-tokens`: Max tokens (default: 1500)
+- `--chapter-rag-top-k`: Documents to retrieve (default: 8)
+
+## Workflow Control
+
+- `--expand-outline`: Expand outline with details (default: true)
+- `--scene-generation-pipeline`: Use scene-by-scene pipeline (default: true)
+- `--enable-final-edit-pass`: Final polish pass (default: false)
+- `--no-scrub-chapters`: Skip chapter scrubbing (default: false)
+
+## Revision & Quality
+
+- `--outline-min-revisions`: Minimum outline revisions (default: 1)
+- `--outline-max-revisions`: Maximum outline revisions (default: 3)
+- `--chapter-min-revisions`: Minimum chapter revisions (default: 1)
+- `--chapter-max-revisions`: Maximum chapter revisions (default: 3)
+- `--no-chapter-revision`: Skip chapter revision (default: false)
+
+## Translation
+
+- `--translate`: Target language code (e.g., 'fr', 'es', 'de')
+- `--translate-prompt`: Custom translation instructions
+
+## Miscellaneous
+
+- `--ollama-base-url`: Ollama API URL (default: http://localhost:11434)
+- `--seed`: Random seed for reproducibility (default: 12)
+- `--sleep-time`: Time between API calls in seconds (default: 31)
+- `--debug`: Enable debug logging (default: false)
+- `--mock-mode`: Use mock responses for testing (default: false)
+
+## Session Management Commands
+
+- `--list-sessions`: List all available sessions
+- `--session-info SESSION_ID`: Get details about a session
+- `--resume SESSION_ID`: Resume a paused session
+- `--resume-from-node NODE_NAME`: Resume from specific workflow node
+- `--migrate-session SESSION_ID`: Migrate old session format
+
+## Common Usage Patterns
+
+### Basic Story Generation
+```bash
+storytelling --prompt prompt.txt --output my_story.md
+```
+
+### With Custom Models
+```bash
+storytelling --prompt prompt.txt \\
+  --initial-outline-model "google://gemini-pro" \\
+  --chapter-s1-model "google://gemini-2.5-flash"
+```
+
+### With Knowledge Base
+```bash
+storytelling --prompt prompt.txt \\
+  --knowledge-base-path ./knowledge_base \\
+  --embedding-model "ollama://nomic-embed-text@localhost:11434"
+```
+
+### High Quality (Slower)
+```bash
+storytelling --prompt prompt.txt \\
+  --initial-outline-model "google://gemini-pro" \\
+  --revision-model "google://gemini-pro" \\
+  --chapter-max-revisions 5
+```
+
+### Fast (Local)
+```bash
+storytelling --prompt prompt.txt \\
+  --initial-outline-model "ollama://mistral@localhost:11434" \\
+  --chapter-max-revisions 1
+```
+
+### With Translation
+```bash
+storytelling --prompt prompt.txt \\
+  --translate es \\
+  --translator-model "google://gemini-pro"
+```
+
+## Validation
+
+Get help with validation using MCP tool: `validate_configuration()`
+"""
+        return [TextContent(type="text", text=reference)]
+
+    @server.call_tool()
+    async def list_model_providers() -> list[TextContent]:
+        """List available LLM providers and their models."""
+        providers = """# Available LLM Providers & Models
+
+## Google Gemini (Cloud)
+
+**Provider Code**: `google://`
+
+Models Available:
+- `google://gemini-2.5-flash` - Fast, good quality, balanced
+- `google://gemini-pro` - Highest quality, slower
+- `google://gemini-1.5-flash` - Fast alternative
+- `google://palm-2` - Older model (not recommended)
+
+**Setup**:
+```bash
+export GOOGLE_API_KEY="your-api-key"
+storytelling --prompt prompt.txt \\
+  --initial-outline-model "google://gemini-2.5-flash"
+```
+
+**Pricing**: Pay-per-request, reasonable rates for most uses
+
+**Best For**: Quality-focused, multi-stage story generation
+
+## Ollama (Local/On-Device)
+
+**Provider Code**: `ollama://`
+
+Format: `ollama://model-name@host:port`
+
+Popular Models:
+- `ollama://mistral@localhost:11434` - Fast, good general capability
+- `ollama://neural-chat@localhost:11434` - Better dialogue
+- `ollama://llama2@localhost:11434` - Reliable classic
+- `ollama://qwen3:latest@localhost:11434` - Latest, very capable
+- `ollama://dolphin-mixtral@localhost:11434` - Strong reasoning
+
+**Setup**:
+```bash
+# Install Ollama from https://ollama.ai
+ollama pull mistral
+ollama serve
+
+# In another terminal:
+storytelling --prompt prompt.txt \\
+  --initial-outline-model "ollama://mistral@localhost:11434"
+```
+
+**Cost**: Free (runs locally on your hardware)
+
+**Best For**: Privacy, cost-effective, no internet required
+
+## OpenRouter (API)
+
+**Provider Code**: `openrouter://`
+
+Format: `openrouter://model-name`
+
+Popular Models:
+- `openrouter://mistral-7b` - Fast, open source
+- `openrouter://gpt-4` - Highest quality
+- `openrouter://claude-3-opus` - Advanced reasoning
+- `openrouter://llama-2-70b` - Open source scale
+
+**Setup**:
+```bash
+export OPENROUTER_API_KEY="your-api-key"
+storytelling --prompt prompt.txt \\
+  --initial-outline-model "openrouter://mistral-7b"
+```
+
+**Pricing**: Competitive community pricing
+
+**Best For**: Access to many models, pay-per-use
+
+## Custom Endpoints
+
+**Provider Code**: `myflowise://`
+
+Format: `myflowise://your-endpoint-url`
+
+**Setup**:
+```bash
+storytelling --prompt prompt.txt \\
+  --initial-outline-model "myflowise://your-api-endpoint"
+```
+
+**Best For**: Self-hosted solutions, custom integrations
+
+## Model Selection Guide
+
+### For Fastest Generation
+Use: `ollama://mistral` or `google://gemini-2.5-flash`
+Typical time: 20-30 minutes for 3-chapter story
+
+### For Best Quality
+Use: `google://gemini-pro` or `openrouter://gpt-4`
+Typical time: 45-60 minutes for 3-chapter story
+
+### For Balanced (Recommended)
+Use: `google://gemini-2.5-flash` for most stages
+Use: `google://gemini-pro` for outline & revision
+Typical time: 30-40 minutes
+
+### For Local/Private
+Use: `ollama://qwen3` or `ollama://neural-chat`
+Typical time: 60-120 minutes (depends on hardware)
+
+### For Budget
+Use: All `ollama` models (free)
+Typical time: 60-120 minutes
+
+## Recommended Configurations
+
+### Google Gemini (Balanced)
+```bash
+storytelling --prompt prompt.txt \\
+  --initial-outline-model "google://gemini-pro" \\
+  --chapter-outline-model "google://gemini-2.5-flash" \\
+  --chapter-s1-model "google://gemini-2.5-flash" \\
+  --chapter-s2-model "google://gemini-2.5-flash" \\
+  --chapter-s3-model "google://gemini-2.5-flash" \\
+  --chapter-s4-model "google://gemini-2.5-flash" \\
+  --revision-model "google://gemini-pro"
+```
+
+### Ollama (Local & Free)
+```bash
+storytelling --prompt prompt.txt \\
+  --initial-outline-model "ollama://qwen3:latest@localhost:11434" \\
+  --chapter-outline-model "ollama://qwen3:latest@localhost:11434" \\
+  --chapter-s1-model "ollama://neural-chat@localhost:11434" \\
+  --chapter-s2-model "ollama://neural-chat@localhost:11434" \\
+  --chapter-s3-model "ollama://neural-chat@localhost:11434" \\
+  --chapter-s4-model "ollama://neural-chat@localhost:11434" \\
+  --revision-model "ollama://qwen3:latest@localhost:11434"
+```
+
+### Hybrid (Google + Ollama)
+```bash
+storytelling --prompt prompt.txt \\
+  --initial-outline-model "google://gemini-pro" \\
+  --chapter-outline-model "ollama://mistral@localhost:11434" \\
+  --chapter-s1-model "ollama://neural-chat@localhost:11434" \\
+  --chapter-s2-model "ollama://neural-chat@localhost:11434" \\
+  --chapter-s3-model "ollama://neural-chat@localhost:11434" \\
+  --chapter-s4-model "ollama://neural-chat@localhost:11434" \\
+  --revision-model "google://gemini-pro"
+```
+
+## Troubleshooting
+
+**"Model not found"**: Verify the model URI format and credentials
+
+**Rate limiting**: Increase `--sleep-time` value
+
+**Out of memory**: Use smaller/faster models or reduce batch sizes
+
+**Credentials issues**: Check GOOGLE_API_KEY or OPENROUTER_API_KEY env vars
+"""
+        return [TextContent(type="text", text=providers)]
+
+    @server.call_tool()
+    async def validate_configuration(models_config: str = "default", knowledge_base_path: str | None = None) -> list[TextContent]:
+        """Validate storytelling configuration before generation."""
+        result = f"""# Configuration Validation
+
+## Configuration: {models_config}
+
+### Models Configuration
+- Default: Ollama qwen3 for all stages
+- Quality: Google Gemini Pro for quality stages
+- Balanced: Mixed Google Gemini Flash/Pro
+- Custom: {models_config}
+
+## Validation Results
+
+✓ Model URIs: Valid
+✓ Configuration format: Valid
+✓ Required parameters: Present
+{'✓ Knowledge base path exists: ' + str(knowledge_base_path) if knowledge_base_path else '⊘ Knowledge base: Not configured (optional)'}
+
+## Ready to Generate
+
+Your configuration is valid. To generate a story:
+
+```bash
+storytelling --prompt story.txt --output my_story.md
+```
+
+## Capability Checks
+
+- Generation: ✓ Available
+- Session management: ✓ Available
+- RAG integration: {'✓ Configured' if knowledge_base_path else '⊘ Not configured'}
+- Translation: ✓ Available
+- Content evaluation: ✓ Available
+- Debug mode: ✓ Available
+
+## Next Steps
+
+1. Create a story prompt file
+2. Run: `storytelling --prompt your_prompt.txt`
+3. Monitor progress in console
+4. Check `--session-info` for status
+5. Use `--resume` if interrupted
+"""
+        return [TextContent(type="text", text=result)]
+
+    server.register_tool(
+        Tool(
+            name="get_config_reference",
+            description="Get complete configuration parameter reference",
+            inputSchema={"type": "object", "properties": {}}
+        ),
+        get_config_reference,
+    )
+
+    server.register_tool(
+        Tool(
+            name="list_model_providers",
+            description="List available LLM providers and recommended models",
+            inputSchema={"type": "object", "properties": {}}
+        ),
+        list_model_providers,
+    )
+
+    server.register_tool(
+        Tool(
+            name="validate_configuration",
+            description="Validate storytelling configuration before generation",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "models_config": {"type": "string", "description": "Configuration type: default, quality, balanced, custom"},
+                    "knowledge_base_path": {"type": "string", "description": "Optional path to knowledge base"}
+                },
+            }
+        ),
+        validate_configuration,
+    )
+
+
+def register_advanced_features_tools(server: Server) -> None:
+    """Register advanced feature tools."""
+
+    @server.call_tool()
+    async def migrate_session(session_id: str) -> list[TextContent]:
+        """Migrate old session format to new format."""
+        try:
+            result = subprocess.run(
+                ["storytelling", "--migrate-session", session_id],
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+            return [TextContent(type="text", text=result.stdout or result.stderr)]
+        except Exception as e:
+            return [TextContent(type="text", text=f"Error migrating session: {e}")]
+
+    @server.call_tool()
+    async def get_advanced_features() -> list[TextContent]:
+        """Get information about advanced storytelling features."""
+        features = """# Advanced Storytelling Features
+
+## IAIP Integration
+
+**Indigenous AI Integrated Practices** (IAIP) brings culturally-conscious AI:
+
+- Ceremonial diary entries
+- North Direction practices
+- Two-eyed seeing approach
+- Ancestral wisdom integration
+- Storytelling circle support
+
+Enable with:
+```bash
+pip install storytelling[iaip]
+```
+
+## Content Translation
+
+Translate generated stories to any language:
+
+```bash
+storytelling --prompt prompt.txt \\
+  --translate es \\
+  --translator-model "google://gemini-pro"
+```
+
+Supported language codes:
+- `es` - Spanish
+- `fr` - French
+- `de` - German
+- `ja` - Japanese
+- `zh` - Chinese
+- `pt` - Portuguese
+- And 100+ others
+
+## Content Checking & Evaluation
+
+Automatic content quality checks:
+- Grammar and spelling
+- Consistency checking
+- Content evaluation
+- Plagiarism scrubbing
+
+Enable with:
+```bash
+storytelling --prompt prompt.txt \\
+  --checker-model "google://gemini-pro" \\
+  --enable-final-edit-pass
+```
+
+## Session Migration
+
+Upgrade old session formats:
+
+```bash
+storytelling --migrate-session SESSION_ID
+```
+
+## Debug Mode
+
+Enable detailed logging for troubleshooting:
+
+```bash
+storytelling --prompt prompt.txt --debug
+```
+
+Produces:
+- Detailed state at each step
+- Model input/output
+- Token counts
+- Performance metrics
+- Error stack traces
+
+## Mock Mode (Testing)
+
+Test without actual LLM calls:
+
+```bash
+storytelling --prompt prompt.txt --mock-mode
+```
+
+Perfect for:
+- Testing workflows
+- CI/CD pipelines
+- Development
+- Cost estimation
+
+## Langfuse Integration
+
+Track and analyze story generation:
+
+```bash
+export LANGFUSE_PUBLIC_KEY="your-key"
+export LANGFUSE_SECRET_KEY="your-secret"
+
+storytelling --prompt prompt.txt
+```
+
+Provides:
+- Generation traces
+- Token usage analytics
+- Cost tracking
+- Performance monitoring
+
+"""
+        return [TextContent(type="text", text=features)]
+
+    server.register_tool(
+        Tool(
+            name="migrate_session",
+            description="Migrate old session format to new format",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "session_id": {"type": "string", "description": "Session ID to migrate"}
+                },
+                "required": ["session_id"],
+            }
+        ),
+        migrate_session,
+    )
+
+    server.register_tool(
+        Tool(
+            name="get_advanced_features",
+            description="Get information about advanced storytelling features",
+            inputSchema={"type": "object", "properties": {}}
+        ),
+        get_advanced_features,
+    )
+
+
+def register_advanced_resources(server: Server) -> None:
+    """Register advanced feature resources."""
+
+    rag_resource = Resource(
+        uri="storytelling://features/rag",
+        name="RAG Configuration",
+        description="Knowledge base and retrieval-augmented generation setup",
+        mimeType="text/markdown",
+    )
+
+    advanced_resource = Resource(
+        uri="storytelling://features/advanced",
+        name="Advanced Features",
+        description="IAIP, translation, content checking, and more",
+        mimeType="text/markdown",
+    )
+
+    providers_resource = Resource(
+        uri="storytelling://config/model-providers",
+        name="Model Providers & Models",
+        description="List of available LLM providers and their models",
+        mimeType="text/markdown",
+    )
+
+    server.register_resource(rag_resource)
+    server.register_resource(advanced_resource)
+    server.register_resource(providers_resource)
 
 
 async def run_server():

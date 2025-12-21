@@ -7,17 +7,22 @@ Model Context Protocol (MCP) integration for the Storytelling package. Exposes A
 The Storytelling MCP Server enables LLM agents and CLI assistants (like Claude, ChatGPT, or GitHub Copilot) to:
 
 - **Generate complete stories** from prompts using advanced orchestration
-- **Manage sessions** - list, retrieve info, resume interrupted generations
-- **Configure models** - validate URIs and work with multiple LLM providers
+- **Manage sessions** - list, retrieve info, resume, migrate interrupted generations
+- **Configure & validate** - comprehensive configuration reference and validation
+- **Setup knowledge bases** - RAG-aware story generation with your documents
+- **Choose models wisely** - provider listing and model recommendations
 - **Access workflow resources** - understand each stage of story generation
-- **Leverage creative templates** - patterns for different story types
+- **Explore advanced features** - translation, IAIP, content checking, debugging
 
 ## Installation
 
 ### As MCP Server
 
 ```bash
-# Install storytelling with all extras
+# Install storytelling-mcp from PyPI
+pip install storytelling-mcp
+
+# Or with all storytelling features
 pip install storytelling[all]
 ```
 
@@ -30,7 +35,7 @@ Add to `~/.config/claude_app/claude_desktop_config.json`:
   "mcpServers": {
     "storytelling": {
       "command": "python",
-      "args": ["-m", "storytelling.mcp"]
+      "args": ["-m", "storytelling_mcp"]
     }
   }
 }
@@ -40,12 +45,12 @@ Add to `~/.config/claude_app/claude_desktop_config.json`:
 
 ```bash
 # Make the server available as a tool
-export MCP_STORYTELLING=python://storytelling.mcp.server
+export MCP_STORYTELLING=python://storytelling_mcp.server
 ```
 
-## Available Tools
+## Available Tools (16 Total)
 
-### Story Generation
+### Story Generation (1 tool)
 
 #### `generate_story`
 
@@ -76,7 +81,7 @@ generate_story(
 )
 ```
 
-### Session Management
+### Session Management (5 tools)
 
 #### `list_sessions`
 
@@ -103,7 +108,16 @@ Resume an interrupted story generation session.
 
 **Returns:** Continuation result and updated story content
 
-### Configuration & Validation
+#### `migrate_session` (NEW)
+
+Migrate old session format to new format for compatibility.
+
+**Parameters:**
+- `session_id` (required): Session ID to migrate
+
+**Returns:** Migration result and success status
+
+### Configuration & Validation (3 tools)
 
 #### `validate_model_uri`
 
@@ -120,7 +134,46 @@ Validate and provide guidance for model URI formats.
 - `openrouter://` - OpenRouter community models
 - `myflowise://` - Custom Flowise endpoints
 
-### Workflow Understanding
+#### `validate_configuration` (NEW)
+
+Validate storytelling configuration before generation.
+
+**Parameters:**
+- `models_config`: Configuration type (default, quality, balanced, custom)
+- `knowledge_base_path` (optional): Path to knowledge base directory
+
+**Returns:** Validation results and capability checks
+
+#### `get_config_reference` (NEW)
+
+Get complete configuration parameter reference with examples.
+
+**Returns:** Comprehensive guide to all 30+ configuration parameters with usage examples
+
+### Configuration & Model Selection (2 tools)
+
+#### `list_model_providers` (NEW)
+
+List available LLM providers and their recommended models.
+
+**Returns:** 
+- Google Gemini (cloud)
+- Ollama (local)
+- OpenRouter (community)
+- Custom endpoints
+Plus model recommendations by use case
+
+#### `suggest_model_combination` (NEW)
+
+Get recommended LLM model combinations for different story types.
+
+**Parameters:**
+- `story_type`: Type of story (general, fantasy, scifi, mystery, romance)
+- `speed_priority` (boolean): Prioritize speed over quality
+
+**Returns:** Recommended models for each workflow stage with rationale
+
+### Workflow Understanding (2 tools)
 
 #### `describe_workflow`
 
@@ -145,13 +198,13 @@ Get detailed information about a specific workflow stage.
 - `chapter_revision` - Polish chapters for consistency
 - `final_revision` - Final story-level polish
 
-### Prompt Guidance & Examples
+### Prompt Guidance & Examples (2 tools)
 
 #### `get_prompt_examples`
 
 Get example story prompts for different genres and best practices.
 
-**Returns:** 4 example prompts (fantasy, sci-fi, historical, thriller) with guidelines on what works well
+**Returns:** 4+ example prompts (fantasy, sci-fi, historical, thriller) with guidelines on what works well
 
 **Example Use:**
 ```
@@ -160,27 +213,55 @@ Claude uses: get_prompt_examples()
 Claude shows examples and recommends structure
 ```
 
-#### `suggest_model_combination`
+### RAG & Knowledge Base (2 tools)
 
-Get recommended LLM model combinations optimized for different story types.
+#### `setup_knowledge_base` (NEW)
+
+Initialize and configure knowledge base for RAG-aware story generation.
 
 **Parameters:**
-- `story_type` (optional): One of `general`, `fantasy`, `scifi`, `mystery`, `romance` (default: `general`)
-- `speed_priority` (boolean): Prioritize generation speed over quality (default: false)
+- `kb_path` (required): Path to knowledge base directory
+- `embedding_model` (optional): Embedding model type (ollama, sentence-transformers, openai)
 
-**Returns:** Recommended model URIs for each workflow stage, with rationale
+**Returns:** Setup guide with configuration examples and next steps
 
-**Example:**
+**Example Use:**
 ```
-suggest_model_combination(story_type="fantasy", speed_priority=false)
-# Returns: Gemini Pro for outline (quality), Flash for scenes (speed)
+You: "How do I use my own knowledge base for stories?"
+Claude uses: setup_knowledge_base(kb_path="./knowledge_base")
+Claude provides setup instructions and configuration examples
 ```
 
-## Available Resources
+#### `get_rag_capabilities` (NEW)
+
+Get detailed information about RAG (Retrieval-Augmented Generation) features.
+
+**Returns:**
+- Feature overview
+- Embedding model options
+- Configuration parameters
+- Performance considerations
+- Troubleshooting guide
+
+### Advanced Features (1 tool)
+
+#### `get_advanced_features` (NEW)
+
+Get information about advanced storytelling features.
+
+**Returns:**
+- IAIP (Indigenous AI Integrated Practices) integration
+- Content translation capabilities
+- Content checking & evaluation
+- Debug mode setup
+- Mock mode for testing
+- Langfuse integration for analytics
+
+## Available Resources (10 total)
 
 Resources provide context and documentation for the storytelling workflow.
 
-### Workflow Stages
+### Workflow Stages (5 resources)
 
 #### `storytelling://workflow/initial-outline`
 Overview of the initial outline generation stage—the first step transforming a prompt into structured narrative foundation.
@@ -197,10 +278,24 @@ How the system revises completed chapters for internal consistency and narrative
 #### `storytelling://workflow/final-revision`
 The final story-level revision stage ensuring global coherence and polish.
 
-### Configuration Resources
+### Configuration Resources (3 resources)
 
 #### `storytelling://config/model-uris`
 Complete guide to specifying model URIs for all supported LLM providers with examples.
+
+#### `storytelling://config/model-providers` (NEW)
+List of available LLM providers (Google, Ollama, OpenRouter, custom) with model details and recommendations.
+
+#### `storytelling://prompts/guide` (NEW)
+Guidelines and best practices for writing effective story prompts.
+
+### Advanced Features Resources (2 resources)
+
+#### `storytelling://features/rag` (NEW)
+Knowledge base and retrieval-augmented generation setup guide.
+
+#### `storytelling://features/advanced` (NEW)
+Documentation on IAIP, translation, content checking, debugging, and logging features.
 
 ## Usage Examples
 
