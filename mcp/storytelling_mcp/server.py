@@ -757,7 +757,7 @@ def register_prompt_resources(server: Server) -> None:
     server.register_resource(template_resource)
 
 
-async def main():
+async def run_server():
     """Main entry point for the MCP server."""
     server = create_server()
 
@@ -769,5 +769,10 @@ async def main():
             print("Shutting down...")
 
 
+def main():
+    """Synchronous entry point for console_scripts."""
+    asyncio.run(run_server())
+
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
