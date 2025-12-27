@@ -199,8 +199,9 @@ def main(argv: Optional[List[str]] = None) -> int:
 
             # Load session state
             try:
-                # Initialize logger for resume
-                logger = Logger(config)
+                # Initialize logger for resume, using the existing session directory
+                session_dir = os.path.join(session_manager.base_logs_dir, f"Generation_{session_args.resume}")
+                logger = Logger(config, session_base_dir=session_dir)
                 loaded_state = load_state_from_session(
                     session_manager, session_args.resume, config, logger
                 )
@@ -222,7 +223,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             initial_state["session_id"] = session_args.resume
 
             # Run the graph with increased recursion limit for revisions
-            final_state = graph.invoke(initial_state, {"recursion_limit": 200})
+            final_state = graph.invoke(initial_state, {"recursion_limit": 500})
 
             # Write the final story to output file if completed
             if final_state.get("is_complete") or (
@@ -271,16 +272,17 @@ def main(argv: Optional[List[str]] = None) -> int:
         print(f"Error: Prompt file '{config.prompt_file}' not found")
         return 1
 
-    # Initialize logger
-    logger = Logger(config)
-    logger.info("Starting story generation...")
-
-    # Create new session
+    # Create new session FIRST, to get the session directory
     session_id = session_manager.create_session(
         prompt_file=config.prompt_file,
         output_file=config.output_file or f"story_output_{int(time.time())}",
         config=config.model_dump(),
     )
+
+    # Now, initialize the logger with the session's directory
+    session_dir = os.path.join(session_manager.base_logs_dir, f"Generation_{session_id}")
+    logger = Logger(config, session_base_dir=session_dir)
+    logger.info("Starting story generation...")
 
     logger.info(f"Created session: {session_id}")
 
@@ -322,7 +324,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         # Run the graph with increased recursion limit for longer stories with revisions
         # Each chapter can have multiple revision cycles (min 3, max 5 by default)
         # Formula: base_nodes (~15) + (chapters × max_revisions × 4 nodes_per_revision)
-        final_state = graph.invoke(initial_state, {"recursion_limit": 200})
+        final_state = graph.invoke(initial_state, {"recursion_limit": 500})
 
         # Write the final story to output file
         if (
