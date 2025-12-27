@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "storytelling"
-version = "0.2.19"
+version = "0.2.20"
 description = "AI-powered narrative generation system implementing Software 3.0 methodology - The Soul of Your Story's Blueprint"
 readme = "README.md"
 license = {text = "MIT"}
