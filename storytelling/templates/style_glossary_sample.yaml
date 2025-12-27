@@ -1,0 +1,110 @@
+# Style Glossary for Storytelling
+# This file defines terms to avoid, preferred alternatives, and tone guidance.
+# Use with: storytelling --style-glossary path/to/this/file.yaml
+
+# Terms to avoid - these will be flagged and replaced during revision
+avoid_terms:
+  # Overused abstract nouns
+  - gap
+  - journey
+  - leverage
+  - synergy
+  - paradigm
+  - ecosystem
+  - landscape
+  - space  # as in "the tech space"
+  - bandwidth
+  - pivot
+  
+  # Cliché phrases
+  - at the end of the day
+  - moving forward
+  - low-hanging fruit
+  - think outside the box
+  - circle back
+  - deep dive
+  - touch base
+  - game changer
+  - value add
+  - best practice
+  
+  # Weak/vague words
+  - very
+  - really
+  - just
+  - quite
+  - somewhat
+  - basically
+  - actually
+  - literally  # when used for emphasis
+  - amazing
+  - incredible
+
+# Preferred alternatives - suggestions for common replacements
+preferred_alternatives:
+  gap: 
+    - distance
+    - divide
+    - separation
+    - difference
+    - disparity
+  journey:
+    - path
+    - progression
+    - evolution
+    - transformation
+    - experience
+  leverage:
+    - use
+    - employ
+    - apply
+    - harness
+    - utilize
+  synergy:
+    - collaboration
+    - cooperation
+    - combined effort
+    - partnership
+  very:
+    - extremely
+    - remarkably
+    - exceptionally
+    - "(remove and use stronger adjective)"
+  amazing:
+    - remarkable
+    - extraordinary
+    - striking
+    - astonishing
+
+# Custom phrases specific to your project
+# Add project-specific clichés or overused expressions here
+custom_avoid_phrases:
+  - "it was then that"
+  - "suddenly realized"
+  - "heart pounded"
+  - "let out a breath"
+  - "didn't know what to say"
+  - "eyes widened"
+  - "nodded slowly"
+
+# Tone guidance - words that match your desired voice
+tone_words:
+  # Words that enhance your narrative voice
+  preferred:
+    - precise
+    - deliberate
+    - resonant
+    - evocative
+  
+  # Words to use sparingly
+  use_sparingly:
+    - whispered
+    - murmured
+    - sighed
+    - gasped
+
+# Severity levels for enforcement
+# strict: Always replace, fail revision if found
+# moderate: Flag for replacement, suggest alternatives
+# light: Note in feedback, optional replacement
+enforcement_level: moderate

@@ -689,3 +689,74 @@ Let this temporal awareness deepen your storytelling,
 creating narratives that honor all relations across time.
 """
 )
+
+# 6. Style and Language Quality Prompts
+
+BUZZ_TERM_REVISION_PROMPT = ChatPromptTemplate.from_template(
+    """Please review and revise the following chapter to eliminate overused, cliché, or "buzz" terms.
+
+<CHAPTER>
+{_Chapter}
+</CHAPTER>
+
+## Terms to Avoid
+The following words and phrases are overused and should be replaced with fresher, more specific alternatives:
+
+<AVOID_TERMS>
+{_AvoidTerms}
+</AVOID_TERMS>
+
+## Custom Phrases to Avoid
+These specific phrases should be rewritten:
+
+<AVOID_PHRASES>
+{_AvoidPhrases}
+</AVOID_PHRASES>
+
+## Preferred Alternatives
+When possible, consider these replacements:
+
+<ALTERNATIVES>
+{_Alternatives}
+</ALTERNATIVES>
+
+## Instructions
+1. Identify any instances of the terms or phrases listed above
+2. Replace them with more specific, vivid, or contextually appropriate alternatives
+3. Maintain the original meaning, tone, and flow of the narrative
+4. Do NOT add new content or change the plot
+5. Preserve character voices and dialogue authenticity
+6. If a term is used appropriately in context (e.g., "journey" when actually describing travel), it may remain
+
+Output ONLY the revised chapter with no commentary or explanations.
+Do not introduce or conclude your response - just output the improved chapter text."""
+)
+
+DETECT_BUZZ_TERMS_PROMPT = ChatPromptTemplate.from_template(
+    """Analyze the following chapter and identify any overused, cliché, or "buzz" terms.
+
+<CHAPTER>
+{_Chapter}
+</CHAPTER>
+
+## Terms to Flag
+{_AvoidTerms}
+
+## Custom Phrases to Flag
+{_AvoidPhrases}
+
+## Output Format
+Provide a JSON response with the following structure:
+{{
+    "found_terms": ["list", "of", "found", "terms"],
+    "found_phrases": ["list of found phrases"],
+    "total_issues": <number>,
+    "severity": "none" | "low" | "moderate" | "high",
+    "suggestions": [
+        {{"original": "term", "context": "...surrounding text...", "suggestion": "alternative"}}
+    ]
+}}
+
+Only flag terms that are actually used in cliché or overused ways.
+Do not flag terms used appropriately in their literal meaning."""
+)
