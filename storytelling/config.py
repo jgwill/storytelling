@@ -1,7 +1,50 @@
 import argparse
-from typing import Optional
+import os
+import sys
+from typing import Any, Dict, List, Optional
 
+import yaml
 from pydantic import BaseModel, Field
+
+
+class StyleGlossary(BaseModel):
+    """Style glossary configuration for buzz term detection and replacement."""
+    avoid_terms: List[str] = Field(default_factory=list)
+    preferred_alternatives: Dict[str, List[str]] = Field(default_factory=dict)
+    custom_avoid_phrases: List[str] = Field(default_factory=list)
+    tone_words: Dict[str, List[str]] = Field(default_factory=dict)
+    enforcement_level: str = Field(default="moderate")
+
+
+def load_style_glossary(path: str) -> StyleGlossary:
+    """Load style glossary from YAML file."""
+    with open(path, 'r', encoding='utf-8') as f:
+        data = yaml.safe_load(f)
+    return StyleGlossary(**data)
+
+
+def get_default_glossary() -> StyleGlossary:
+    """Return default style glossary with common buzz terms."""
+    return StyleGlossary(
+        avoid_terms=[
+            "gap", "journey", "leverage", "synergy", "paradigm",
+            "ecosystem", "landscape", "bandwidth", "pivot",
+            "very", "really", "just", "basically", "actually",
+            "amazing", "incredible", "literally"
+        ],
+        preferred_alternatives={
+            "gap": ["distance", "divide", "separation", "difference"],
+            "journey": ["path", "progression", "evolution", "experience"],
+            "leverage": ["use", "employ", "apply", "harness"],
+            "very": ["extremely", "remarkably", "exceptionally"],
+            "amazing": ["remarkable", "extraordinary", "striking"],
+        },
+        custom_avoid_phrases=[
+            "at the end of the day", "moving forward", "low-hanging fruit",
+            "it was then that", "suddenly realized", "heart pounded"
+        ],
+        enforcement_level="moderate"
+    )
 
 
 class WillWriteConfig(BaseModel):
@@ -153,6 +196,21 @@ class WillWriteConfig(BaseModel):
     # Translation
     translate: Optional[str] = Field("", alias="translate")
     translate_prompt: Optional[str] = Field("", alias="translate-prompt")
+    # Style Glossary for buzz term revision
+    style_glossary_path: Optional[str] = Field(
+        "",
+        alias="style-glossary",
+        description="Path to YAML file defining terms to avoid, preferred alternatives, and tone guidance.",
+    )
+    style_glossary: Optional[StyleGlossary] = Field(
+        default=None,
+        description="Loaded style glossary configuration (internal use).",
+    )
+    enable_buzz_term_revision: bool = Field(
+        True,
+        alias="enable-buzz-term-revision",
+        description="Enable automatic detection and replacement of overused/cliché terms.",
+    )
     # Miscellaneous
     seed: int = Field(12, alias="seed")
     sleep_time: int = Field(31, alias="sleep-time")
@@ -179,14 +237,34 @@ def load_config(argv=None) -> WillWriteConfig:
   --resume SESSION_ID       Resume from session ID
   --resume-from-node NODE   Resume from specific node
   --migrate-session ID      Migrate existing session to new format
+
+Style Glossary Commands:
+  --init-style-glossary [PATH]  Create a sample style glossary file
+  --style-glossary PATH         Use custom style glossary for buzz term revision
+
 Examples:
   storytelling --prompt story.txt --output my_story
+  storytelling --init-style-glossary my_glossary.yaml
+  storytelling --prompt story.txt --style-glossary my_glossary.yaml
   storytelling --list-sessions
   storytelling --resume 2025-08-30_07-01-28-679308""",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
+    
+    # Add special command for initializing style glossary
+    parser.add_argument(
+        "--init-style-glossary",
+        nargs="?",
+        const="style_glossary.yaml",
+        metavar="PATH",
+        help="Create a sample style glossary file at the specified path (default: style_glossary.yaml)",
+    )
+    
     # Add arguments from the Pydantic model
     for field_name, model_field in WillWriteConfig.model_fields.items():
+        # Skip internal fields that shouldn't be CLI args
+        if field_name == "style_glossary":
+            continue
         alias = model_field.alias
         field_type = model_field.annotation
         default = model_field.default
@@ -208,15 +286,97 @@ Examples:
                 required=model_field.is_required(),
             )
     args = parser.parse_args(argv)
+    
+    # Handle --init-style-glossary command
+    if args.init_style_glossary:
+        _create_sample_glossary(args.init_style_glossary)
+        sys.exit(0)
+    
     args_dict = vars(args)
     # Pydantic V2 requires aliases to be used when instantiating a model from a dictionary
     config_dict = {}
     for field_name, model_field in WillWriteConfig.model_fields.items():
+        if field_name == "style_glossary":
+            continue
         if field_name in args_dict:
             config_dict[model_field.alias] = args_dict[field_name]
     # Create the config object, which will handle type conversion and validation
     config = WillWriteConfig(**config_dict)
+    
+    # Load style glossary if path provided
+    if config.style_glossary_path:
+        try:
+            config.style_glossary = load_style_glossary(config.style_glossary_path)
+            print(f"Loaded style glossary from: {config.style_glossary_path}")
+            print(f"  - {len(config.style_glossary.avoid_terms)} terms to avoid")
+            print(f"  - {len(config.style_glossary.custom_avoid_phrases)} custom phrases to avoid")
+        except Exception as e:
+            print(f"Warning: Could not load style glossary: {e}")
+            config.style_glossary = get_default_glossary()
+    elif config.enable_buzz_term_revision:
+        # Use default glossary if buzz term revision is enabled but no custom glossary
+        config.style_glossary = get_default_glossary()
+    
     return config
+
+
+def _create_sample_glossary(output_path: str) -> None:
+    """Create a sample style glossary file."""
+    # Get the template path
+    template_path = os.path.join(
+        os.path.dirname(__file__), "templates", "style_glossary_sample.yaml"
+    )
+    
+    if os.path.exists(template_path):
+        # Copy from template
+        with open(template_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+    else:
+        # Generate default content
+        content = """# Style Glossary for Storytelling
+# Use with: storytelling --style-glossary path/to/this/file.yaml
+
+avoid_terms:
+  - gap
+  - journey
+  - leverage
+  - synergy
+  - very
+  - really
+  - just
+  - basically
+  - amazing
+  - incredible
+
+preferred_alternatives:
+  gap:
+    - distance
+    - divide
+    - separation
+  journey:
+    - path
+    - progression
+    - evolution
+  very:
+    - extremely
+    - remarkably
+
+custom_avoid_phrases:
+  - "at the end of the day"
+  - "moving forward"
+  - "it was then that"
+  - "suddenly realized"
+
+enforcement_level: moderate
+"""
+    
+    # Write to output path
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write(content)
+    
+    print(f"✓ Created sample style glossary: {output_path}")
+    print("  Edit this file to customize terms to avoid and preferred alternatives.")
+    print(f"  Usage: storytelling --prompt your_story.txt --style-glossary {output_path}")
 
 
 if __name__ == "__main__":
