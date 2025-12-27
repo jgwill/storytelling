@@ -1,6 +1,7 @@
 from typing import Any, Dict
 
 from langgraph.graph import END, StateGraph
+from langchain_core.output_parsers import StrOutputParser
 
 from . import prompts
 from .llm_providers import get_llm_from_uri
@@ -9,6 +10,83 @@ from .session_manager import SessionManager
 
 # Type alias for the story state dictionary
 StoryState = Dict[str, Any]
+
+
+def extract_base_context_node(state: StoryState) -> dict:
+    """
+    Extract meta-instructions from the user prompt.
+
+    Captures guidance about chapter length, tone, formatting preferences,
+    and overall creative vision that should guide all generation stages.
+    """
+    logger = state.get("logger")
+    config = state.get("config")
+    user_prompt = state.get("initial_prompt", "")
+
+    if logger:
+        logger.info("=== NODE: Extracting BaseContext from user prompt ===")
+
+    try:
+        if config and config.mock_mode:
+            base_context = "# Important Additional Context\n- Mock mode: No specific meta-instructions extracted"
+            if logger:
+                logger.info("Using mock base_context")
+        else:
+            llm = get_llm_from_uri(config.initial_outline_model)
+
+            # Create the chain using GET_IMPORTANT_BASE_PROMPT_INFO prompt
+            chain = prompts.GET_IMPORTANT_BASE_PROMPT_INFO | llm | StrOutputParser()
+
+            # Extract base context
+            base_context = chain.invoke({"_Prompt": user_prompt})
+
+            if logger:
+                logger.info(f"Extracted BaseContext: {base_context[:200]}..." if len(base_context) > 200 else f"Extracted BaseContext: {base_context}")
+                logger.save_interaction(
+                    "00_BaseContext",
+                    [{"prompt": user_prompt[:500]}, {"content": base_context}],
+                )
+
+        result = {
+            "base_context": base_context,
+            # Preserve essential state for next nodes
+            "config": state.get("config"),
+            "logger": state.get("logger"),
+            "initial_prompt": state.get("initial_prompt"),
+            "retriever": state.get("retriever"),
+            "errors": state.get("errors", []),
+            "session_manager": state.get("session_manager"),
+            "session_id": state.get("session_id"),
+        }
+
+        # Save checkpoint after successful completion
+        session_manager = state.get("session_manager")
+        session_id = state.get("session_id")
+        if session_manager and session_id and logger:
+            session_manager.save_checkpoint(
+                session_id,
+                "extract_base_context",
+                result,
+                metadata={"node_type": "meta_extraction", "success": True},
+            )
+            logger.info("Checkpoint saved: extract_base_context")
+
+        return result
+
+    except Exception as e:
+        error_msg = f"Error extracting base context: {e}"
+        if logger:
+            logger.error(error_msg)
+        return {
+            "base_context": "",
+            "errors": state.get("errors", []) + [str(e)],
+            "config": state.get("config"),
+            "logger": state.get("logger"),
+            "initial_prompt": state.get("initial_prompt"),
+            "retriever": state.get("retriever"),
+            "session_manager": state.get("session_manager"),
+            "session_id": state.get("session_id"),
+        }
 
 
 def generate_single_chapter_scene_by_scene_node(state: StoryState) -> dict:
@@ -72,8 +150,19 @@ Use the following knowledge base content to ground your narrative in established
 ---
 """
 
-            chapter_prompt = f"""Generate Chapter {index + 1} for the following story:
+            # Get BaseContext for meta-instructions (chapter length, tone, formatting)
+            base_context = state.get('base_context', '')
+            base_context_section = ""
+            if base_context:
+                base_context_section = f"""
+## Author Instructions (IMPORTANT - Follow these meta-instructions carefully)
+{base_context}
 
+---
+"""
+
+            chapter_prompt = f"""Generate Chapter {index + 1} for the following story:
+{base_context_section}
 {rag_instruction}
 Story Elements: {state.get('story_elements', '')}
 
@@ -84,7 +173,7 @@ Chapter Requirements:
 - Include character development and plot progression
 - Integrate knowledge base themes and elements naturally into the narrative
 - Make it engaging and well-written
-- Keep it to a reasonable length (3-5 paragraphs)
+- Follow any specific instructions in the Author Instructions section above
 
 Generate the chapter content now:"""
 
@@ -869,6 +958,7 @@ def generate_final_story_node(state: StoryState) -> dict:
         chapters = state.get("chapters", [])
         story_elements = state.get("story_elements", "")
         outline = state.get("outline", "")
+        base_context = state.get("base_context", "")
 
         # Combine all chapters
         final_story = f"# Story\n\n{story_elements}\n\n## Outline\n{outline}\n\n"
@@ -880,17 +970,19 @@ def generate_final_story_node(state: StoryState) -> dict:
             )
             final_story += chapter_content + "\n\n"
 
-        # Generate story metadata
+        # Generate story metadata - include base_context
         story_info = {
             "title": "Generated Story",
             "summary": "A story generated by WillWrite",
             "tags": "fiction, generated",
             "overall_rating": 7,
+            "base_context": base_context,
         }
 
         return {
             "final_story_markdown": final_story,
             "story_info": story_info,
+            "base_context": base_context,
             "is_complete": True,
         }
     except Exception as e:
@@ -983,7 +1075,8 @@ def create_graph(config=None, session_id=None, session_manager=None, retriever=N
 
     workflow = StateGraph(dict)
 
-    # Add nodes
+    # Add nodes - BaseContext extraction is FIRST to capture meta-instructions
+    workflow.add_node("extract_base_context", extract_base_context_node)
     workflow.add_node("generate_story_elements", generate_story_elements_node)
     workflow.add_node("generate_initial_outline", generate_initial_outline_node)
     workflow.add_node("determine_chapter_count", determine_chapter_count_node)
@@ -998,10 +1091,11 @@ def create_graph(config=None, session_id=None, session_manager=None, retriever=N
     workflow.add_node("increment_chapter_index", increment_chapter_index_node)
     workflow.add_node("generate_final_story", generate_final_story_node)
 
-    # Set entry point
-    workflow.set_entry_point("generate_story_elements")
+    # Set entry point - Start with BaseContext extraction
+    workflow.set_entry_point("extract_base_context")
 
-    # Add edges
+    # Add edges - BaseContext flows into story elements
+    workflow.add_edge("extract_base_context", "generate_story_elements")
     workflow.add_edge("generate_story_elements", "generate_initial_outline")
     workflow.add_edge("generate_initial_outline", "determine_chapter_count")
     workflow.add_edge(
@@ -1054,7 +1148,8 @@ def create_resume_graph(
 
     workflow = StateGraph(dict)
 
-    # Add all nodes
+    # Add all nodes - including BaseContext extraction
+    workflow.add_node("extract_base_context", extract_base_context_node)
     workflow.add_node("generate_story_elements", generate_story_elements_node)
     workflow.add_node("generate_initial_outline", generate_initial_outline_node)
     workflow.add_node("determine_chapter_count", determine_chapter_count_node)
@@ -1074,12 +1169,15 @@ def create_resume_graph(
 
     # Add conditional edges based on entry point
     if resume_from_node in [
+        "extract_base_context",
         "generate_story_elements",
         "generate_initial_outline",
         "determine_chapter_count",
     ]:
         # Standard workflow from the resume point
-        if resume_from_node != "generate_initial_outline":
+        if resume_from_node == "extract_base_context":
+            workflow.add_edge("extract_base_context", "generate_story_elements")
+        if resume_from_node not in ["generate_initial_outline", "determine_chapter_count"]:
             workflow.add_edge("generate_story_elements", "generate_initial_outline")
         if resume_from_node != "determine_chapter_count":
             workflow.add_edge("generate_initial_outline", "determine_chapter_count")

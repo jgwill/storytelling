@@ -14,12 +14,12 @@ This document describes the high-level logical workflow of the Storytelling pack
 **Currently Implemented**: The core single-pass workflow (story elements → outline → chapters → final story) is fully operational.
 
 **Specified but Not Yet Implemented**: Several enhancement features exist in specifications and prompts but are not yet integrated into the workflow:
-- Prompt Analysis step using `GET_IMPORTANT_BASE_PROMPT_INFO`
+- **Prompt Analysis step using `GET_IMPORTANT_BASE_PROMPT_INFO`**: Extracts meta-instructions (chapter length, tone, formatting) from user prompts to guide generation. Currently missing from the workflow, causing user instructions about chapter length, formatting preferences, and creative vision to be ignored.
 - Outline critique and revision loop using `CRITIC_OUTLINE_PROMPT` and `OUTLINE_REVISION_PROMPT`
 - Chapter critique and revision loop using `CRITIC_CHAPTER_PROMPT` and `CHAPTER_REVISION`
 - Configuration parameters for revision counts (`outline_min_revisions`, `outline_max_revisions`, `chapter_min_revisions`, `chapter_max_revisions`) are defined but not utilized
 
-**Path Forward**: These iterative refinement features represent advancing patterns that would enhance story quality through feedback loops. Implementation would require adding critique/revision nodes to the LangGraph workflow.
+**Path Forward**: These iterative refinement features represent advancing patterns that would enhance story quality through feedback loops. Implementation would require adding critique/revision nodes to the LangGraph workflow. The BaseContext extraction is the highest priority as it affects all subsequent generation stages.
 
 ## 1. Initialization and Configuration
 
@@ -35,18 +35,24 @@ The application establishes the narrative foundation through advancing patterns 
 
 **LangGraph Implementation**: These stages are implemented as nodes in `storytelling/graph.py`
 
-1.  **Story Element Generation** (`generate_story_elements_node`): 
+1.  **Prompt Analysis** (⚠️ **NOT YET IMPLEMENTED**):
+    - Extracts meta-instructions and constraints from the user's prompt using `GET_IMPORTANT_BASE_PROMPT_INFO`
+    - Captures guidance about chapter length, tone, formatting preferences, overall creative vision
+    - Returns `BaseContext` that gets injected into all subsequent generation stages
+    - **Critical**: Without this step, user instructions about chapter length, style preferences, and formatting are currently ignored
+
+2.  **Story Element Generation** (`generate_story_elements_node`):
     - Creates the foundational narrative components: characters, setting, plot, theme, and conflict
     - Uses `STORY_ELEMENTS_PROMPT` to manifest the creative building blocks
     - Enables RAG context injection when knowledge base is configured
 
-2.  **Initial Outline Creation** (`generate_initial_outline_node`):
+3.  **Initial Outline Creation** (`generate_initial_outline_node`):
     - Manifests a chapter-by-chapter outline from the story elements
     - Integrates knowledge base context when `outline_rag_enabled` is true
     - Uses `retrieve_outline_context()` to enhance outline with relevant knowledge
     - Applies `INITIAL_OUTLINE_PROMPT` to create the narrative structure
 
-3.  **Outline Refinement Loop**: The outline advances through iterative enhancement:
+4.  **Outline Refinement Loop** (⚠️ **NOT YET IMPLEMENTED**): The outline advances through iterative enhancement:
     - The `CRITIC_OUTLINE_PROMPT` surfaces opportunities to strengthen the narrative
     - The `OUTLINE_COMPLETE_PROMPT` evaluates structural completeness
     - When refinement is needed, `OUTLINE_REVISION_PROMPT` advances the outline toward the desired outcome
