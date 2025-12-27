@@ -2,7 +2,7 @@ import json
 import logging
 import os
 from datetime import datetime
-from typing import Any, List
+from typing import Any, List, Optional
 
 from termcolor import colored
 
@@ -13,21 +13,25 @@ class Logger:
     directory creation, console logging, file logging, and LLM interaction tracing.
     """
 
-    def __init__(self, config: Any) -> None:
+    def __init__(self, config: Any, session_base_dir: Optional[str] = None) -> None:
         self.config = config
         self.session_dir = ""
         self.debug_dir = ""
-        self._setup_directories()
+        self._setup_directories(session_base_dir)
         self._setup_logger()
 
-    def _setup_directories(self) -> None:
+    def _setup_directories(self, session_base_dir: Optional[str] = None) -> None:
         """Creates the logging directories for the current session."""
-        base_log_dir = "Logs"
-        if not os.path.exists(base_log_dir):
-            os.makedirs(base_log_dir)
+        if session_base_dir:
+            self.session_dir = session_base_dir
+        else:
+            base_log_dir = "Logs"
+            if not os.path.exists(base_log_dir):
+                os.makedirs(base_log_dir)
 
-        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S-%f")
-        self.session_dir = os.path.join(base_log_dir, f"Generation_{timestamp}")
+            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S-%f")
+            self.session_dir = os.path.join(base_log_dir, f"Generation_{timestamp}")
+
         os.makedirs(self.session_dir, exist_ok=True)
 
         self.debug_dir = os.path.join(self.session_dir, "LangchainDebug")
