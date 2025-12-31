@@ -4,7 +4,31 @@
 
 ## Your Role in the Stack
 
-The Storytelling System is the **narrative generation engine** that produces the raw stories. Your job is to make it narrative-intelligent: aware of NCP structures, responsive to analytical feedback, and open to agent enrichment.
+The Storytelling System is the **narrative generation engine** that produces stories. Your job is to make it narrative-intelligent: aware of NCP structures, responsive to analytical feedback, and open to agent enrichment.
+
+**NEW**: You now integrate with the **three-universe vision**:
+- Your story generation represents **Ceremony World (Ava8)** perspective
+- Indigenous-inspired prompts embody ceremonial storytelling
+- COAIA fusion connects ceremonial diary to narrative structure
+- Stories feed back to unified state for three-universe processing
+
+## Relationship to the Three Universes
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    CEREMONY WORLD (Ava8 - The Keeper)                  │
+│  "Each story beat becomes an opportunity for sacred pause."            │
+│                                                                         │
+│  Your System's Focus:                                                   │
+│  - Indigenous-inspired prompts (Spiral of Memory, Two-Eyed Seeing)    │
+│  - Ceremonial diary integration                                        │
+│  - IAIP bridge for relational science                                  │
+│  - K'é relationship tracking in narratives                             │
+│  - Seven-generation thinking in story themes                           │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+When Miadi-46 sends events classified as "Ceremony World lead", your system processes them with ceremonial awareness.
 
 ## Current Status
 
