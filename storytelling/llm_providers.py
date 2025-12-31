@@ -1,4 +1,11 @@
+import os
 from urllib.parse import parse_qs, urlparse
+
+# Prioritize GEMINI_API_KEY if both are set, and suppress warning.
+# This must be done before importing langchain_google_genai if it implicitly checks env vars.
+if os.getenv("GEMINI_API_KEY") and os.getenv("GOOGLE_API_KEY"):
+    # Temporarily remove GOOGLE_API_KEY to ensure GEMINI_API_KEY is used and silence the warning
+    del os.environ["GOOGLE_API_KEY"]
 
 from langchain_core.language_models.chat_models import BaseChatModel
 
