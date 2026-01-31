@@ -368,6 +368,8 @@ class NarrativeAwareStoryGraph:
     3. Analyze for quality gaps
     4. Apply enrichments
     5. Continue or output
+    
+    Includes optional Langfuse tracing when narrative_tracing is available.
     """
     
     def __init__(
@@ -375,6 +377,7 @@ class NarrativeAwareStoryGraph:
         generator: NCPAwareStoryGenerator,
         feedback_loop: AnalyticalFeedbackLoop,
         config: Optional[Dict[str, Any]] = None,
+        tracer: Optional[Any] = None,
     ):
         """
         Initialize the story graph.
@@ -383,10 +386,12 @@ class NarrativeAwareStoryGraph:
             generator: NCP-aware story generator
             feedback_loop: Analytical feedback loop
             config: Graph configuration
+            tracer: Optional StorytellingTracer for Langfuse integration
         """
         self.generator = generator
         self.feedback_loop = feedback_loop
         self.config = config or {}
+        self.tracer = tracer
         
         # Initialize nodes
         self.nodes: Dict[str, GraphNode] = {
@@ -432,19 +437,59 @@ class NarrativeAwareStoryGraph:
         if 'min_quality' not in state.context:
             state.context['min_quality'] = self.config.get('min_quality', 0.6)
         
-        # Start at entry node
-        current_node = self.entry_node
+        # Start tracing if tracer available
+        trace_context = None
+        if self.tracer:
+            try:
+                from .narrative_tracing import TraceContext
+                trace_context = self.tracer.trace_story_generation(
+                    story_id=state.context.get('story_id', state.graph_id),
+                    metadata={'prompt_length': len(prompt)},
+                )
+                trace_context.__enter__()
+            except Exception as e:
+                logger.debug(f"Tracing not available: {e}")
         
-        # Execute graph
-        while state.should_continue and current_node:
-            node = self.nodes.get(current_node)
-            if not node:
-                logger.error(f"Unknown node: {current_node}")
-                break
+        try:
+            # Start at entry node
+            current_node = self.entry_node
             
-            logger.debug(f"Executing node: {current_node}")
-            state = await node.execute(state)
-            current_node = state.next_node
+            # Execute graph
+            while state.should_continue and current_node:
+                node = self.nodes.get(current_node)
+                if not node:
+                    logger.error(f"Unknown node: {current_node}")
+                    break
+                
+                # Log node execution if tracing
+                if self.tracer:
+                    self.tracer._log_event(
+                        "storytelling.graph.node_started",
+                        {"node": current_node},
+                    )
+                
+                logger.debug(f"Executing node: {current_node}")
+                state = await node.execute(state)
+                
+                # Log node completion if tracing
+                if self.tracer:
+                    node_result = state.node_results[-1] if state.node_results else None
+                    self.tracer._log_event(
+                        "storytelling.graph.node_completed",
+                        {
+                            "node": current_node,
+                            "success": node_result.status == NodeStatus.COMPLETED if node_result else False,
+                        },
+                    )
+                
+                current_node = state.next_node
+        finally:
+            # End tracing
+            if trace_context:
+                try:
+                    trace_context.__exit__(None, None, None)
+                except Exception:
+                    pass
         
         return state
     
@@ -510,6 +555,7 @@ class NarrativeAwareStoryGraph:
 def create_narrative_story_graph(
     llm_provider: Any,
     config: Optional[Dict[str, Any]] = None,
+    session_id: Optional[str] = None,
 ) -> NarrativeAwareStoryGraph:
     """
     Factory function to create a configured NarrativeAwareStoryGraph.
@@ -517,9 +563,10 @@ def create_narrative_story_graph(
     Args:
         llm_provider: LLM provider for generation
         config: Configuration options
+        session_id: Optional session ID for tracing
     
     Returns:
-        Configured story graph
+        Configured story graph with optional Langfuse tracing
     """
     config = config or {}
     
@@ -528,8 +575,17 @@ def create_narrative_story_graph(
     enricher = EmotionalBeatEnricher(llm_provider, config)
     feedback_loop = AnalyticalFeedbackLoop(enricher, llm_provider, config)
     
+    # Create tracer if session_id provided
+    tracer = None
+    if session_id:
+        try:
+            from .narrative_tracing import get_tracer
+            tracer = get_tracer(session_id=session_id)
+        except ImportError:
+            logger.debug("narrative_tracing not available")
+    
     # Create graph
-    return NarrativeAwareStoryGraph(generator, feedback_loop, config)
+    return NarrativeAwareStoryGraph(generator, feedback_loop, config, tracer)
 
 
 # ============================================================================

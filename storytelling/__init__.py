@@ -272,3 +272,32 @@ if ROLE_TOOLING_AVAILABLE:
             "ROLE_TOOLING_AVAILABLE",
         ]
     )
+
+# Narrative Tracing (Langfuse integration)
+try:
+    from .narrative_tracing import (
+        StorytellingTracer,
+        TraceContext,
+        STORYTELLING_EVENT_TYPES,
+        get_tracer,
+        reset_tracer,
+        HAS_NARRATIVE_TRACING,
+    )
+
+    TRACING_AVAILABLE = True
+except ImportError:
+    TRACING_AVAILABLE = False
+    HAS_NARRATIVE_TRACING = False
+
+if TRACING_AVAILABLE:
+    __all__.extend(
+        [
+            "StorytellingTracer",
+            "TraceContext",
+            "STORYTELLING_EVENT_TYPES",
+            "get_tracer",
+            "reset_tracer",
+            "TRACING_AVAILABLE",
+            "HAS_NARRATIVE_TRACING",
+        ]
+    )
