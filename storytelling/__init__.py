@@ -1,6 +1,6 @@
 """Storytelling - AI-powered narrative generation system implementing Software 3.0 methodology."""
 
-__version__ = "0.2.0"
+__version__ = "1.0.0"
 __author__ = "JGWill"
 __email__ = "jgwill@example.com"
 __description__ = "AI-powered narrative generation system implementing Software 3.0 methodology - The Soul of Your Story's Blueprint"
