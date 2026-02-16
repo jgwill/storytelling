@@ -1,6 +1,6 @@
 {
   "name": "storytelling",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "TypeScript story generation library with CLI and MCP server - parity with Python storytelling package",
   "type": "module",
   "main": "dist/index.js",
@@ -66,6 +66,6 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/jgwill/storytellingjs.git"
+    "url": "https://github.com/jgwill/storytelling.git"
   }
 }
