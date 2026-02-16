@@ -1,0 +1,71 @@
+{
+  "name": "storytellingjs",
+  "version": "0.1.0",
+  "description": "TypeScript story generation library with CLI and MCP server - parity with Python storytelling package",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "storytellingjs": "dist/cli/index.js",
+    "storyjs": "dist/cli/index.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./cli": {
+      "types": "./dist/cli/index.d.ts",
+      "import": "./dist/cli/index.js"
+    },
+    "./mcp": {
+      "types": "./dist/mcp/server.d.ts",
+      "import": "./dist/mcp/server.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/cli/index.js",
+    "start:mcp": "node dist/mcp/server.js",
+    "clean": "rm -rf dist",
+    "test": "node --test dist/**/*.test.js"
+  },
+  "keywords": [
+    "storytelling",
+    "narrative",
+    "mcp",
+    "model-context-protocol",
+    "story-generation",
+    "ncp",
+    "rise-framework",
+    "narintel"
+  ],
+  "author": "Guillaume D.-Isabelle <jgi@jgwill.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.25.1",
+    "chalk": "^5.3.0",
+    "commander": "^12.0.0",
+    "uuid": "^10.0.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/uuid": "^10.0.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.6.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jgwill/storytellingjs.git"
+  }
+}
