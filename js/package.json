@@ -1,6 +1,6 @@
 {
   "name": "storytelling",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "TypeScript story generation library with CLI and MCP server - parity with Python storytelling package",
   "type": "module",
   "main": "dist/index.js",
