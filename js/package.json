@@ -1,5 +1,5 @@
 {
-  "name": "storytellingjs",
+  "name": "storytelling",
   "version": "0.1.0",
   "description": "TypeScript story generation library with CLI and MCP server - parity with Python storytelling package",
   "type": "module",
