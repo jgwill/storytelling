@@ -34,6 +34,8 @@
   "keywords": [
     "storytelling",
     "narrative",
+    "mcp",
+    "model-context-protocol",
     "story-generation",
     "ncp",
     "narintel"
@@ -65,5 +67,6 @@
     "type": "git",
     "url": "https://github.com/jgwill/storytelling.git",
     "directory": "js"
-  }
+  },
+  "homepage": "https://github.com/jgwill/storytelling/tree/main/js#readme"
 }
