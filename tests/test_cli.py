@@ -64,7 +64,13 @@ def test_create_story_with_metadata():
 
 
 def test_main_create_story():
-    """Test main function with create command."""
+    """Test main function with create command (simple mode only)."""
+    # In advanced mode, there's no 'create' subcommand - it expects a prompt file
+    # Skip this test if in advanced mode
+    from storytelling.cli import ADVANCED_MODE
+    if ADVANCED_MODE:
+        pytest.skip("Create command only available in simple mode")
+    
     with patch("storytelling.cli.create_story") as mock_create:
         result = main(["create", "Test Title"])
         assert result == 0
@@ -72,7 +78,12 @@ def test_main_create_story():
 
 
 def test_main_create_story_with_options():
-    """Test main function with create command and options."""
+    """Test main function with create command and options (simple mode only)."""
+    # In advanced mode, there's no 'create' subcommand - it expects a prompt file
+    from storytelling.cli import ADVANCED_MODE
+    if ADVANCED_MODE:
+        pytest.skip("Create command only available in simple mode")
+    
     with patch("storytelling.cli.create_story") as mock_create:
         result = main(
             ["create", "Test Title", "--content", "Test content", "--author", "Author"]

@@ -93,3 +93,46 @@ The final generated story and its associated JSON data are the ultimate artifact
 -   **Story File (`.md`):** The final, polished story.
 -   **Story Data File (`.json`):** The structured JSON object containing the outline, story elements, raw chapters, and final metadata.
 -   **Location:** These files should be saved both in the session directory and, optionally, to a user-specified output path.
+
+## 5. Narrative Intelligence Tracing ⏳ PLANNED
+
+When Narrative Intelligence features are enabled (see `Narrative_Aware_Story_Graph_Specification.md`), additional tracing captures the narrative-aware generation process:
+
+### 5.1 NarrativeTracingHandler
+
+**Purpose**: Handle Langfuse tracing for narrative-aware generation.
+
+**Trace Structure**:
+```
+Story Generation Trace
+├── setup_story
+│   ├── character_initialization (per character)
+│   └── theme_setup
+├── generate_beat (repeated)
+│   ├── context_building
+│   ├── llm_generation
+│   └── beat_parsing
+├── analyze_beat (repeated)
+│   ├── character_analysis
+│   ├── emotional_analysis
+│   ├── thematic_analysis
+│   └── enrichment (if triggered)
+├── track_character (repeated)
+│   └── arc_point_recording
+└── finalize_story
+    ├── metrics_calculation
+    └── story_compilation
+```
+
+### 5.2 Narrative Metrics Captured
+
+- **Beat Quality History**: Quality scores for each generated beat
+- **Enrichment Events**: When and how beats were enriched
+- **Character Arc Progress**: Arc points recorded per character
+- **Gap Analysis Results**: Quality gaps identified and addressed
+- **Phase Transitions**: Dramatic phase changes through narrative
+
+See related specifications:
+- `Narrative_Intelligence_Integration_Specification.md`
+- `Analytical_Feedback_Loop_Specification.md`
+- `Character_Arc_Tracking_Specification.md`

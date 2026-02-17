@@ -154,3 +154,85 @@ A JSON array of strings, where each string is the detailed outline for a single 
     "Scene 3: Anya is confronted by a mysterious stranger who seems to know about the device. The tone is tense and suspicious. Resolution: The stranger warns her to stop using the device, leading into the next chapter."
 ]
 ```
+
+## Narrative Intelligence Schemas ⏳ PLANNED
+
+The following schemas are planned for the Narrative Intelligence Integration (see respective specification files for complete details):
+
+### StoryBeat
+**Purpose**: Structured representation of a narrative moment with full metadata  
+**Specification**: `Narrative_Intelligence_Integration_Specification.md`
+
+**Schema**:
+```python
+@dataclass
+class StoryBeat:
+    beat_id: str                    # Unique identifier
+    beat_index: int                 # Position in sequence
+    character_id: str               # Primary character perspective
+    dialogue: Optional[str]         # Character speech
+    action: Optional[str]           # Character/scene action
+    emotional_tone: str             # Detected/intended emotion
+    theme_resonance: str            # Connection to active theme
+    raw_text: str                   # Full generated content
+```
+
+### CharacterArcState
+**Purpose**: Comprehensive state container for character's narrative journey  
+**Specification**: `Character_Arc_Tracking_Specification.md`
+
+**Schema**:
+```python
+@dataclass
+class CharacterArcState:
+    player: Player                  # Character reference
+    initial_state: CharacterState   # Starting point
+    current_state: CharacterState   # Present moment
+    arc_points: List[ArcPoint]      # Journey milestones
+    growth_trajectory: str          # Direction of change
+```
+
+### EmotionalAnalysis
+**Purpose**: Emotional assessment result for story beat  
+**Specification**: `Emotional_Beat_Enrichment_Specification.md`
+
+**Schema**:
+```python
+@dataclass
+class EmotionalAnalysis:
+    primary_emotion: str            # Dominant emotion detected
+    confidence: float               # Classification confidence (0-1)
+    emotional_quality: float        # Overall quality score (0-1)
+    improvement_areas: List[str]    # Specific areas to strengthen
+```
+
+### Gap
+**Purpose**: Quality deficiency identified in analysis  
+**Specification**: `Analytical_Feedback_Loop_Specification.md`
+
+**Schema**:
+```python
+@dataclass
+class Gap:
+    gap_type: str                   # Category of gap
+    dimension: str                  # Analysis dimension
+    score: float                    # Quality score (0-1)
+    severity: str                   # "critical" | "major" | "minor"
+    suggested_flows: List[str]      # Recommended enrichment flows
+```
+
+### NCPState
+**Purpose**: Complete narrative state for graph orchestration  
+**Specification**: `Narrative_Aware_Story_Graph_Specification.md`
+
+**Schema**:
+```python
+@dataclass
+class NCPState:
+    story_id: str
+    beats: List[StoryBeat]
+    active_perspective: Perspective
+    active_theme: str
+    dramatic_phase: str
+    character_states: Dict[str, CharacterArcState]
+```

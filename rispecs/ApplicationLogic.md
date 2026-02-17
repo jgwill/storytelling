@@ -108,3 +108,21 @@ The final stage creates the deliverable artifacts that manifest the complete cre
     - **Markdown File**: Contains the complete polished narrative with statistics and outline
     - **JSON File**: Preserves the complete creative history including outline, story elements, and all generated chapters
     - **Session Checkpoint**: Captures the final creative state for future reference or continuation
+
+## 6. Narrative Intelligence Integration (Planned)
+
+**Status**: ⏳ PLANNED (Phase 1-3)
+
+When enabled, the story generation workflow advances through NCP-aware (Narrative Cognition Protocol) generation, enabling:
+
+1. **NCP-Aware Generation**: Story beats produced with full narrative context, character arc awareness, and thematic intent. See `Narrative_Intelligence_Integration_Specification.md`.
+
+2. **Character Arc Tracking**: Persistent character state across beats, ensuring consistent behavior, cumulative development, and arc-aware generation. See `Character_Arc_Tracking_Specification.md`.
+
+3. **Emotional Beat Enrichment**: Automatic analysis and enhancement of emotionally weak beats through iterative quality improvement. See `Emotional_Beat_Enrichment_Specification.md`.
+
+4. **Analytical Feedback Loop**: Closed-loop system where multi-dimensional analysis identifies quality gaps and routes to appropriate enrichment flows. See `Analytical_Feedback_Loop_Specification.md`.
+
+5. **Orchestration**: Unified workflow via `NarrativeAwareStoryGraph` that integrates all components while maintaining backward compatibility. See `Narrative_Aware_Story_Graph_Specification.md`.
+
+**Ceremony World Integration**: When ceremonial mode is enabled, these features incorporate indigenous-inspired storytelling principles, K'é relationship tracking, and seven-generation thematic awareness.
