@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "storytellingjs": {
+      "command": "node",
+      "args": ["/a/src/storytellingjs/dist/mcp/server.js"],
+      "env": {
+        "STORYTELLING_LOGS_DIR": "./Logs"
+      }
+    }
+  }
+}

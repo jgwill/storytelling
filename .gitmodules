@@ -1,0 +1,3 @@
+[submodule "llms"]
+	path = llms
+	url = git@github.com:jgwill/llms-txt.git

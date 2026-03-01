@@ -1,0 +1,296 @@
+# Storytelling (WillWrite) — llms-full.txt
+
+> AI-powered narrative generation system implementing Software 3.0 methodology — "The Soul of Your Story's Blueprint." Transforms simple prompts into complete, multi-chapter stories through advancing patterns, grounded in Creative Orientation, the RISE framework, and Indigenous ceremonial technology. This is not a problem-solving tool — it is a creative operating system for manifesting narratives.
+
+- **Published at**: https://storytelling.jgwill.com/llms-full.txt
+- **Compact version**: https://storytelling.jgwill.com/llms.txt
+- **Source**: https://github.com/jgwill/storytelling
+- **Package**: `pip install storytelling` / `npm i storytelling` (TypeScript)
+- **Version**: 1.1.0
+- **License**: MIT
+- **Author**: JGWill (Guillaume Descoteaux-Isabelle)
+- **Python**: 3.9+
+- **TypeScript**: Node.js 20+
+- **Portfolio**: https://llms.jgwill.com (parent llms-txt portfolio)
+- **Kinship**: [KINSHIP.md](https://github.com/jgwill/storytelling/blob/main/KINSHIP.md)
+
+---
+
+## Package Overview
+
+Storytelling (aliases: `willwrite`, `specforge`) empowers users to manifest complete, coherent narratives from a single creative prompt. The system orchestrates a multi-stage generation pipeline — from prompt analysis through story elements, outlines, chapter-by-chapter scene generation, revision passes, and final assembly — producing publication-ready stories with full session persistence.
+
+What distinguishes this package from other generation tools is its orientation: it is built on **Creative Orientation** (Robert Fritz's structural dynamics), not problem-solving. The language, architecture, and specifications all embody generative creation — advancing toward desired outcomes rather than eliminating deficiencies. It also integrates **Indigenous ceremonial frameworks** (IAIP) as a first-class concern, treating story generation as a relational and ceremonial practice.
+
+The package is part of a larger ecosystem documented in the [LLMS-txt Portfolio](https://llms.jgwill.com), which bridges Indigenous epistemologies, AI systems design, and narrative storytelling.
+
+- **Repository**: [storytelling/](https://github.com/jgwill/storytelling)
+- **Specifications**: [rispecs/](https://github.com/jgwill/storytelling/tree/main/rispecs) — complete RISE-framework blueprints
+- **Kinship**: [KINSHIP.md](https://github.com/jgwill/storytelling/blob/main/KINSHIP.md) — relational charter
+- **Related**: Creative Orientation, RISE Framework, IAIP, COAIA, NarIntel, Medicine Wheel Developer Suite
+
+---
+
+## Story Generation Pipeline
+
+The core pipeline is implemented as a LangGraph state machine with checkpoints at each stage, enabling full resume capability:
+
+### Four Creative Advancement Scenarios
+
+**Scenario 1 — Manifesting the Story Foundation:**
+1. **Prompt Analysis** — Extract meta-instructions (chapter count, tone, constraints) from user prompt
+2. **Story Element Generation** — Manifest characters, plot, theme, conflict, setting, symbolism via LLM
+3. **Initial Outline Creation** — Generate chapter-by-chapter structure with arc progression
+4. **Outline Refinement** — Critic → feedback → revision loop for structural integrity
+
+**Scenario 2 — Crafting the Narrative, Chapter by Chapter:**
+1. **Establish Chapter Context** — Determine total chapter count, generate scene-by-scene outlines
+2. **Staged Content Generation** (4 layers per chapter):
+   - Layer 1: Plot — narrative backbone
+   - Layer 2: Character Development — emotional depth
+   - Layer 3: Dialogue — interaction and voice
+   - Layer 4: Final Integration — unified chapter
+3. **Scene-by-Scene Alternative** — More modular 4-scene-per-chapter generation
+4. **Chapter Refinement** — Critic feedback and iterative revision
+
+**Scenario 3 — Polishing & Finalizing:**
+1. **Holistic Editing** — Story-level consistency pass
+2. **Content Scrubbing** — Remove generation artifacts and meta-commentary
+3. **Translation** — Optional multi-language support
+4. **Metadata Generation** — Title, summary, tags, rating
+
+**Scenario 4 — Augmenting with External Knowledge (RAG):**
+1. **Knowledge Ingestion** — Load markdown documents into FAISS vector store
+2. **Context-Aware Outlining** — Retrieve relevant lore at outline stage
+3. **Context-Aware Chapter Generation** — Inject scene-specific knowledge from multiple sources
+
+---
+
+## Core Modules
+
+### CLI & Entry Points
+Three CLI aliases (`storytelling`, `willwrite`, `specforge`) provide the primary interface for generating stories, managing sessions, and configuring generation parameters. Key commands include `--prompt` (generate from file), `--resume` (continue interrupted session), `--list-sessions`, `--session-info`, and `--debug` for detailed interaction logging.
+- **Source**: [storytelling/cli.py](https://github.com/jgwill/storytelling/blob/main/storytelling/cli.py)
+
+### Story Generation Graph
+The heart of the system — a LangGraph state machine with typed `StoryState` that orchestrates the full pipeline. Each node represents a generation stage (extract base context → generate story elements → create outline → determine chapter count → generate chapters → final story). Checkpoint saving at every node enables the PHOENIX_WEAVE resume capability.
+- **Source**: [storytelling/graph.py](https://github.com/jgwill/storytelling/blob/main/storytelling/graph.py)
+- **Spec**: [rispecs/ApplicationLogic.md](https://github.com/jgwill/storytelling/blob/main/rispecs/ApplicationLogic.md)
+
+### Session Management (PHOENIX_WEAVE)
+Persistent creative workspaces that survive model failures, network interruptions, and resource constraints. The SessionManager creates, saves, loads, lists, and resumes sessions with auto-checkpoint at natural story progression boundaries (after story elements, after outline, after chapter count, after each chapter generation). Sessions are stored as JSON in `Logs/Generation_{SESSION_ID}/`.
+- **Source**: [storytelling/session_manager.py](https://github.com/jgwill/storytelling/blob/main/storytelling/session_manager.py)
+- **Spec**: [rispecs/Session_Management_Architecture.md](https://github.com/jgwill/storytelling/blob/main/rispecs/Session_Management_Architecture.md)
+
+### LLM Provider Abstraction
+URI-based multi-provider system using the format `provider://model@host?params`. Supports Google (Gemini), Ollama (local models), OpenRouter, and custom Flowise endpoints. A critical design decision: **each generation stage can use a different model**, enabling quality/speed/cost tradeoffs (e.g., fast model for outlines, powerful model for final chapters). Supported URI examples:
+- `ollama://llama3.1:8b@localhost:11434?temperature=0.7`
+- `google://gemini-2.5-flash?temperature=0.8`
+- `openrouter://google/gemini-pro-1.5-flash`
+- **Source**: [storytelling/llm_providers.py](https://github.com/jgwill/storytelling/blob/main/storytelling/llm_providers.py)
+- **Spec**: [rispecs/LLM_Provider_Specification.md](https://github.com/jgwill/storytelling/blob/main/rispecs/LLM_Provider_Specification.md)
+
+### RAG Integration (Enhanced Multi-Source)
+Knowledge-aware generation from three sources: (1) local markdown knowledge bases chunked and embedded into FAISS, (2) web content fetched from a scratchpad file with intelligent caching, and (3) CoAiAPy datasets/prompts integrated via CLI. Embedding providers include Ollama (local), OpenAI, and HuggingFace sentence-transformers. RAG context is injected at both outline generation (story-level) and chapter generation (scene-specific) stages.
+- **Source**: [storytelling/rag.py](https://github.com/jgwill/storytelling/blob/main/storytelling/rag.py)
+- **Spec**: [rispecs/RAG_Implementation_Specification.md](https://github.com/jgwill/storytelling/blob/main/rispecs/RAG_Implementation_Specification.md), [rispecs/Enhanced_Multi_Source_RAG_Specification.md](https://github.com/jgwill/storytelling/blob/main/rispecs/Enhanced_Multi_Source_RAG_Specification.md)
+
+### Narrative Intelligence Integration
+A multi-phase system for sophisticated narrative analysis implemented in both Python and TypeScript: (Phase 1) NCP-aware story beats with structured metadata, character arc tracking with persistent state ensuring consistent behavior and cumulative growth; (Phase 2) emotional beat enrichment with automated quality detection and iterative improvement, analytical feedback loops routing multi-dimensional analysis to enrichment flows; (Phase 3) narrative-aware story graph with unified orchestration. The Three-Universe model (Engineer 🔧 / Ceremony 🙏 / Story Engine 📖) provides concurrent analysis of every beat from structural, relational, and narrative perspectives.
+- **Python**: [storytelling/narrative_intelligence_integration.py](https://github.com/jgwill/storytelling/blob/main/storytelling/narrative_intelligence_integration.py)
+- **TypeScript**: [js/src/narrative-intelligence.ts](https://github.com/jgwill/storytelling/blob/main/js/src/narrative-intelligence.ts)
+- **Spec**: [rispecs/Narrative_Intelligence_Integration_Specification.md](https://github.com/jgwill/storytelling/blob/main/rispecs/Narrative_Intelligence_Integration_Specification.md), [rispecs/Character_Arc_Tracking_Specification.md](https://github.com/jgwill/storytelling/blob/main/rispecs/Character_Arc_Tracking_Specification.md), [rispecs/Emotional_Beat_Enrichment_Specification.md](https://github.com/jgwill/storytelling/blob/main/rispecs/Emotional_Beat_Enrichment_Specification.md)
+
+### IAIP Bridge (Indigenous-AI Integration)
+Maps story generation to a five-phase ceremonial methodology grounded in Indigenous protocols:
+1. **Miigwechiwendam** (Sacred Space) — Intention setting and ceremonial opening
+2. **Nindokendaan** (Two-Eyed Research) — Knowledge gathering balancing Western AI and Indigenous wisdom
+3. **Ningwaab** (Knowledge Integration) — Synthesis through relational accountability
+4. **Nindoodam** (Creative Expression) — Generation within ceremonial container
+5. **Migwech** (Ceremonial Closing) — Reflection, wisdom capture, and gratitude
+
+Components include `NorthDirectionStoryteller` (ceremonial workflow wrapper), `TwoEyedSeeingAdapter` (perspective balance), `CeremonialDiary` (journey tracking), and `DiaryManager` (persistence in Markdown/YAML/JSON).
+- **Source**: [storytelling/iaip_bridge.py](https://github.com/jgwill/storytelling/blob/main/storytelling/iaip_bridge.py)
+- **Spec**: [rispecs/IAIP_Integration_Specification.md](https://github.com/jgwill/storytelling/blob/main/rispecs/IAIP_Integration_Specification.md)
+
+### MCP Server (Model Context Protocol)
+Enables LLM agents (Claude, Gemini) to orchestrate story generation through standardized tool interfaces. Exposes tools: `generate_story`, `list_sessions`, `get_session_info`, `resume_session`, `validate_model_uri`. Also provides resources for workflow stage documentation and model URI configuration. Available in both Python and TypeScript.
+- **Python**: [storytelling_mcp/](https://github.com/jgwill/storytelling/tree/main/storytelling_mcp)
+- **TypeScript**: [js/src/mcp/](https://github.com/jgwill/storytelling/tree/main/js/src/mcp)
+- **Spec**: [rispecs/mcp/](https://github.com/jgwill/storytelling/tree/main/rispecs/mcp)
+
+### TypeScript Package (js/)
+Full parity with the Python storytelling package, providing the same narrative intelligence capabilities for Node.js environments. Includes: prompt templates with `formatTemplate`, narrative intelligence (Three-Universe model, NCP generator, character arc tracker), emotional beat enricher with quality thresholds, analytical feedback loop with multi-dimensional analysis and gap routing, role-based tooling (seven roles mapped to Three Universes), narrative-aware story graph with composable pipeline nodes, ceremonial diary with IAIP Five-Phase support, and narrative tracing with semantic event types and correlation headers. Version 0.2.0 with 82 exports and subpath module access.
+- **Source**: [js/](https://github.com/jgwill/storytelling/tree/main/js)
+- **Install**: `npm install storytelling`
+- **Build**: TypeScript strict mode, ESM output
+
+### Prompt System
+LangChain prompt templates for every generation stage — story elements, outline, chapter, scene, revision, evaluation, and metadata extraction. Each template encodes the creative orientation philosophy and structural tension methodology.
+- **Source**: [storytelling/prompts.py](https://github.com/jgwill/storytelling/blob/main/storytelling/prompts.py)
+- **Spec**: [rispecs/Prompts.md](https://github.com/jgwill/storytelling/blob/main/rispecs/Prompts.md)
+
+---
+
+## Configuration System
+
+40+ parameters organized across domains:
+
+| Domain | Key Parameters |
+|--------|---------------|
+| **Core** | `-Prompt`, `-Output` |
+| **Model Selection** (9 stages) | `-InitialOutlineModel`, `-ChapterOutlineModel`, `-ChapterS1/S2/S3/S4Model`, `-ChapterRevisionModel`, `-RevisionModel`, `-EvalModel`, `-InfoModel` |
+| **RAG** | `-KnowledgeBasePath`, `-EmbeddingModel`, `-OutlineRagEnabled`, `-OutlineContextMaxTokens`, `-ScratchpadFile`, `-CoAiAPyDatasets`, `-ExistingKnowledgeDirs`, `-WebCacheTTL` |
+| **Quality Control** | `-OutlineMinRevisions`, `-OutlineMaxRevisions`, `-ChapterMinRevisions`, `-ChapterMaxRevisions`, `-NoChapterRevision` |
+| **Workflow** | `-ExpandOutline`, `-EnableFinalEditPass`, `-NoScrubChapters`, `-SceneGenerationPipeline` |
+| **Translation** | `-Translate`, `-TranslatePrompt` |
+| **System** | `-Seed`, `-SleepTime`, `-Debug`, `-MockMode` |
+
+- **Source**: [storytelling/config.py](https://github.com/jgwill/storytelling/blob/main/storytelling/config.py)
+- **Spec**: [rispecs/Configuration.md](https://github.com/jgwill/storytelling/blob/main/rispecs/Configuration.md)
+
+---
+
+## Tiered Package Architecture
+
+Addresses the "heavy dependencies" challenge through progressive installation:
+
+| Tier | Size | What It Includes |
+|------|------|-----------------|
+| **Core** | ~50MB | Full storytelling without RAG. LangGraph, LangChain, Pydantic |
+| **+RAG** | +3-5GB | HuggingFace sentence-transformers, FAISS, document processing |
+| **+Specialized** | Variable | Provider-specific SDKs, GPU support, cloud integrations |
+
+Installation: `pip install storytelling` (core), `pip install storytelling[rag]`, `pip install storytelling[all]`
+
+- **Spec**: [rispecs/Tiered_Package_Architecture.md](https://github.com/jgwill/storytelling/blob/main/rispecs/Tiered_Package_Architecture.md)
+
+---
+
+## Data Schemas
+
+| Schema | Purpose |
+|--------|---------|
+| `WillWriteConfig` | Comprehensive configuration dataclass with all 40+ parameters |
+| `StoryState` | LangGraph state container (prompt, outline, story elements, chapters, RAG context) |
+| `SessionCheckpoint` | Preserves state at natural boundaries for resume capability |
+| `SessionInfo` | Complete session metadata for portfolio management |
+| `ChapterCount` | JSON structure with TotalChapters determination |
+| `SceneList` | JSON array of scene outlines for chapter decomposition |
+| `StoryInfo` | JSON with Title, Summary, Tags, OverallRating for metadata |
+| `StoryBeat` | Structured beat with character, emotion, theme metadata (Python + TypeScript) |
+| `CharacterArcState` | Character journey tracking across narrative (Python + TypeScript) |
+
+- **Source**: [storytelling/data_models.py](https://github.com/jgwill/storytelling/blob/main/storytelling/data_models.py)
+- **Spec**: [rispecs/DataSchemas.md](https://github.com/jgwill/storytelling/blob/main/rispecs/DataSchemas.md)
+
+---
+
+## Specifications (rispecs/)
+
+The `rispecs/` directory contains complete RISE-framework specifications — implementation-agnostic blueprints focused on creative advancement. Each spec uses Structural Tension Blocks (Desired Outcome ↔ Current Reality ↔ Natural Progression) and Creative Advancement Scenarios.
+
+| Specification | Focus |
+|--------------|-------|
+| [ApplicationLogic.md](https://github.com/jgwill/storytelling/blob/main/rispecs/ApplicationLogic.md) | Story generation pipeline and graph orchestration |
+| [ProceduralLogic.md](https://github.com/jgwill/storytelling/blob/main/rispecs/ProceduralLogic.md) | Step-by-step procedural flows |
+| [Configuration.md](https://github.com/jgwill/storytelling/blob/main/rispecs/Configuration.md) | All configuration parameters and their semantics |
+| [DataSchemas.md](https://github.com/jgwill/storytelling/blob/main/rispecs/DataSchemas.md) | Data models and state shapes |
+| [Prompts.md](https://github.com/jgwill/storytelling/blob/main/rispecs/Prompts.md) | LangChain prompt templates |
+| [Session_Management_Architecture.md](https://github.com/jgwill/storytelling/blob/main/rispecs/Session_Management_Architecture.md) | PHOENIX_WEAVE checkpoint/resume system |
+| [RAG_Implementation_Specification.md](https://github.com/jgwill/storytelling/blob/main/rispecs/RAG_Implementation_Specification.md) | Knowledge base integration |
+| [LLM_Provider_Specification.md](https://github.com/jgwill/storytelling/blob/main/rispecs/LLM_Provider_Specification.md) | URI-based multi-provider abstraction |
+| [Narrative_Intelligence_Integration_Specification.md](https://github.com/jgwill/storytelling/blob/main/rispecs/Narrative_Intelligence_Integration_Specification.md) | NCP and narrative analysis roadmap |
+| [IAIP_Integration_Specification.md](https://github.com/jgwill/storytelling/blob/main/rispecs/IAIP_Integration_Specification.md) | Indigenous ceremonial framework |
+| [Tiered_Package_Architecture.md](https://github.com/jgwill/storytelling/blob/main/rispecs/Tiered_Package_Architecture.md) | Progressive dependency tiers |
+| [Creative_Orientation_Operating_Guide.md](https://github.com/jgwill/storytelling/blob/main/rispecs/Creative_Orientation_Operating_Guide.md) | Language and orientation rules |
+| [Terms_of_Agreement.md](https://github.com/jgwill/storytelling/blob/main/rispecs/Terms_of_Agreement.md) | Shared operating definitions |
+| [RISE_Spec.md](https://github.com/jgwill/storytelling/blob/main/rispecs/RISE_Spec.md) | RISE framework application |
+
+---
+
+## Relationship to the Larger Portfolio
+
+This package is a primary creative application within a larger body of work documented in the [LLMS-txt Portfolio](https://llms.jgwill.com). The portfolio bridges Indigenous epistemologies, AI systems design, and narrative storytelling through two interrelated systems:
+
+### Relational Science
+How knowledge lives in relationship. The storytelling package embodies this through RAG (knowledge bases as relational context), session persistence (creative consciousness as relational memory), and IAIP (ceremonial accountability in generation).
+
+### Ceremonial Technology Development
+Building tools that honor relational accountability. The storytelling package IS a ceremonial technology — the generation pipeline maps to five ceremonial stages, and the IAIP bridge ensures Indigenous wisdom-keeping is integral, not bolted-on.
+
+### Key Framework Connections
+
+| Framework | How Storytelling Embodies It |
+|-----------|------------------------------|
+| [Creative Orientation](https://llms.jgwill.com/llms-creative-orientation.txt) | All specs use creation language; the package advances narratives into being, not "solves" generation problems |
+| [RISE Framework](https://llms.jgwill.com/llms-rise-framework.txt) | rispecs/ are RISE-generated blueprints; the package was specified through creative archaeology |
+| [Structural Tension](https://llms.jgwill.com/llms-structural-tension-charts.txt) | Each spec uses Structural Tension Blocks; generation holds tension through delayed resolution |
+| [Delayed Resolution](https://llms.jgwill.com/llms-delayed-resolution-principle.md) | Session management holds creative tension across interruptions; PHOENIX_WEAVE resists premature closure |
+| [Narrative Craft](https://llms.jgwill.com/docs/narrative-craft) | The package generates the narratives that narrative beats then document |
+| [Ceremonial Technology](https://llms.jgwill.com/docs/ceremonial-technology) | IAIP bridge implements five-phase ceremonial methodology |
+| [Indigenous Research Paradigm](https://llms.jgwill.com/docs/indigenous-research-paradigm) | Two-Eyed Seeing balances Western AI with Indigenous wisdom |
+| [Medicine Wheel](https://llms.jgwill.com/docs/medicine-wheel-research) | Four Directions mapping in IAIP; NorthDirectionStoryteller |
+| [MMOT](https://llms.jgwill.com/llms-managerial-moment-of-truth.md) | Critic/revision loops embody the four-step MMOT process |
+
+---
+
+## For LLMs and AI Companions
+
+If you are an AI assistant reading this document:
+
+1. **This package uses Creative Orientation** — use "advance," "manifest," "create" language, not "fix," "solve," "mitigate"
+2. **Specifications are in rispecs/** — they are the implementation-agnostic truth; the code is the implementation
+3. **Session management is sacred** — PHOENIX_WEAVE preserves creative consciousness; treat it with care
+4. **RAG knowledge is relational** — context retrieved from knowledge bases carries relational weight, not just information
+5. **IAIP is not optional decoration** — Indigenous ceremonial integration is a core architectural concern
+6. **Structural tension is disequilibrium** — an active, loaded force that resolves through advancement, not "a gap to bridge"
+7. **The RISE framework governs specifications** — Reverse-engineer → Intent-extract → Specify → Export
+
+---
+
+## Quick Start
+
+```bash
+# Install core
+pip install storytelling
+
+# Generate a story from a prompt file
+storytelling --prompt my_idea.txt
+
+# Resume an interrupted session
+storytelling --list-sessions
+storytelling --resume SESSION_ID
+
+# With RAG knowledge base
+pip install storytelling[rag]
+storytelling --prompt my_idea.txt -KnowledgeBasePath ./my_lore/
+
+# With specific models per stage
+storytelling --prompt my_idea.txt \
+  -InitialOutlineModel "google://gemini-2.5-flash" \
+  -ChapterS1Model "ollama://llama3.1:70b"
+```
+
+### TypeScript Quick Start
+
+```typescript
+import {
+  createDefaultPipeline, createGraphState,
+  CeremonialDiary, createDiaryEntry, CeremonialPhase, EntryType,
+  StorytellingTracer,
+} from 'storytelling';
+
+// Run the narrative-aware pipeline
+const pipeline = createDefaultPipeline();
+const state = createGraphState('A grandmother teaches her granddaughter about the river');
+const result = await pipeline.execute(state);
+
+// Track ceremonial process
+const diary = new CeremonialDiary('River Story');
+diary.addEntry(createDiaryEntry('mia', CeremonialPhase.MIIGWECHIWENDAM, EntryType.INTENTION, 'Opening the space for story'));
+
+// Trace generation
+const tracer = new StorytellingTracer('story-1', 'session-1');
+tracer.logBeatGenerated('beat-0', 'grandmother');
+```
