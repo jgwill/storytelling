@@ -1,8 +1,9 @@
-# Plan: KINSHIP Hub + NARINTEL Upgrade + JS Parity
+# Plan: KINSHIP Hub + NARINTEL Consolidation + JS Parity
 
 **Issues**: #21 (NarIntel PR), #22 (JS Parity), #23 (LLMS-txt)
 **Branch**: `20-narintel`
 **Session**: 2603011406
+**Revised**: Post human review — ambiguities resolved
 
 ---
 
@@ -19,7 +20,7 @@ Following `llms/llms-kinship-hub-system.md` protocol:
    - Ancestors: `/workspace/ava-*` (legacy paths)
    - Siblings: `/workspace/repos/avadisabelle/ava-lang{chain,graph,chainjs,graphjs}`, `/a/src/IAIP/rispecs`
    - Descendants: `rispecs/` (38 specs), `js/` (TypeScript parity), `storytelling/` (Python core)
-   - Related hubs: `llms/docs` submodule (portfolio), IAIP apps (ceremonial-tech, relational-science)
+   - Related hubs: `llms/docs` submodule (portfolio), IAIP apps (ceremonial-tech, relational-science) — future integration target
 3. **Human and More-than-Human Accountabilities** — Communities, relational science, ceremony
 4. **Responsibilities and Boundaries** — What storytelling must tend, reciprocity, NOs
 5. **Accountability and Change Log** — Stewards, review rhythm
@@ -28,36 +29,43 @@ Following `llms/llms-kinship-hub-system.md` protocol:
 
 ---
 
-## Phase B: NARINTEL Documentation Upgrade
+## Phase B: NARINTEL Consolidation (Single File)
 
-### B1. Consolidate NARINTEL_OVERVIEW.txt into NARINTEL_README.md
-The .txt is a structural summary; merge valuable content into README.
+**Human decision**: ALL NARINTEL_* files consolidate into **one file**: NARINTEL_README.md.
 
-### B2. Upgrade NARINTEL_README.md
-Substantive quality improvement — kinship-aligned framing, ceremonial-technology grounding, accurate ecosystem description. Replace shallow marketing language with structural precision.
+### B1. Consolidate all NARINTEL content into NARINTEL_README.md
+Merge valuable content from:
+- NARINTEL_OVERVIEW.txt
+- NARINTEL_QUICK_START.md
+- NARINTEL_USER_SCENARIOS.md
+- NARINTEL_FILES_SUMMARY.txt
 
-### B3. Upgrade NARINTEL_USER_SCENARIOS.md
-Deepen ceremonial-technology alignment. Add scenarios that reflect Indigenous epistemological foundations — not just Western writer personas.
+### B2. Rewrite NARINTEL_README.md
+Substantive quality improvement — kinship-aligned framing, ceremonial-technology grounding, accurate ecosystem description. Single authoritative file.
 
-### B4. Clean up redundant files
-- Remove NARINTEL_OVERVIEW.txt (consolidated)
-- Remove NARINTEL_FILES_SUMMARY.txt (redundant)
-- Keep NARINTEL_QUICK_START.md if it serves as distinct entry point
+### B3. Remove all redundant NARINTEL files
+- Delete NARINTEL_OVERVIEW.txt
+- Delete NARINTEL_QUICK_START.md
+- Delete NARINTEL_USER_SCENARIOS.md
+- Delete NARINTEL_FILES_SUMMARY.txt
 
-### B5. Commit documentation upgrades
+### B4. Commit NARINTEL consolidation
 
 ---
 
 ## Phase C: JavaScript/TypeScript Parity (Issue #22)
 
-### C1. Analyze Python modules for port scope
-Many Python modules may be stubs vs. real implementations. Port what's real.
+**Human decision**: Python storytelling/ modules are the only reference. Inspect `/workspace/repos/avadisabelle/ava-langchain` and `ava-langgraph` for patterns. Also `/workspace/jgwill/medicine-wheel/src/*` for Four Directions reference.
 
-### C2. Create foundation modules
+### C1. Inspect ava-langchain, ava-langgraph, medicine-wheel for patterns
+
+### C2. Analyze Python modules for actual implementation vs. stubs
+
+### C3. Create foundation modules
 - `js/src/data-models.ts` — Full NCP type system
 - `js/src/prompts.ts` — Kinship-aware narrative prompts
 
-### C3. Create narrative intelligence modules
+### C4. Create narrative intelligence modules
 - `js/src/graph.ts` — Story generation graph execution
 - `js/src/rag.ts` — RAG integration
 - `js/src/narrative-intelligence-integration.ts` — NCP-aware generator
@@ -68,11 +76,11 @@ Many Python modules may be stubs vs. real implementations. Port what's real.
 - `js/src/ceremonial-diary.ts` — Ceremonial mode
 - `js/src/role-tooling.ts` — Role-based tooling
 
-### C4. Update index.ts, package.json, MCP server
+### C5. Update index.ts, package.json, MCP server
 
-### C5. Build and test
+### C6. Build and test
 
-### C6. Commit JS parity
+### C7. Commit JS parity
 
 ---
 
@@ -82,9 +90,8 @@ Many Python modules may be stubs vs. real implementations. Port what's real.
 
 ---
 
-## Ambiguities Requiring Human Review
+## Resolved Ambiguities (from human review)
 
-1. Should NARINTEL_QUICK_START.md be merged or kept?
-2. Depth of LangGraph JS integration — direct dependency or lightweight abstraction?
-3. Scope of ceremonial mode in TypeScript — full COAIA fusion or ceremony-aware prompts?
-4. KINSHIP.md — should code examples from MISSION be preserved as spec references?
+- ✅ NARINTEL_QUICK_START.md → merge into NARINTEL_README.md, then delete
+- ✅ Python modules are sole reference; inspect ava-langchain/ava-langgraph for patterns
+- ✅ KINSHIP.md is a relational charter, not an implementation plan — transform code examples into spec references
