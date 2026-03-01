@@ -81,12 +81,17 @@
 
 ---
 
-## Relationship to Portfolio
+## Cross-Repository Links
 
-This package is part of a larger body of work documented in the [LLMS-txt Portfolio](https://llms.jgwill.com):
+- [Master LLM Index](https://llms.jgwill.com/llms-full.txt): Guidance portfolio — Creative Orientation, Narrative Craft, Ceremonial Technology methodology
+- [RISE Framework](https://llms.jgwill.com/llms-rise-framework.txt): Specification methodology
+- [NarIntel](https://docs.narintel.jgwill.com/llms.txt): Specification source — NCP schema and Three-Universe model consumed via narrative_intelligence package with bidirectional COORDINATION documents
+
+## Methodology References
+
+Part of a larger body of work documented in the [LLMS-txt Portfolio](https://llms.jgwill.com):
 
 - [Creative Orientation](https://llms.jgwill.com/llms-creative-orientation.txt) — foundational framework
-- [RISE Framework](https://llms.jgwill.com/llms-rise-framework.txt) — specification methodology
 - [Structural Tension Charts](https://llms.jgwill.com/llms-structural-tension-charts.txt) — advancement methodology
 - [Narrative Craft](https://llms.jgwill.com/docs/narrative-craft) — story documentation practices
 - [Ceremonial Technology](https://llms.jgwill.com/docs/ceremonial-technology) — building tools that honor relational accountability
