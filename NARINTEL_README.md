@@ -1,311 +1,151 @@
-# 🎯 NARINTEL: Narrative Intelligence Tools
-## Complete Overview & Documentation Index
+# NARINTEL: Narrative Intelligence for Decolonized Storytelling
+
+> **NARINTEL** (Narrative Intelligence Tools) — structural reorientation of AI-assisted storytelling toward Indigenous Epistemology, Ontology, Methodology, and Axiology. Not decorative language. Not metaphor.
 
 ---
 
-## Welcome to the Next Generation of AI Storytelling
+## What NARINTEL Is
 
-**NARINTEL** (Narrative INtelligence Tools) represents a fundamental leap in story generation capability. What was once a creative tool that could generate text is now a **co-creator with narrative understanding**.
+NARINTEL transforms story generation from text production into relational co-creation. The system generates narrative beats with persistent character memory, emotional quality assurance, thematic thread tracking, and ceremonial mode awareness.
 
-This document serves as your entry point into what NARINTEL can do and how to get started.
-
----
-
-## 📚 Documentation Overview
-
-### For Quick Understanding
-- **[NARINTEL_QUICK_START.md](NARINTEL_QUICK_START.md)** — 5 min read
-  - The 8 core capabilities in one page
-  - What changed from previous version
-  - Getting started steps
-
-### For Detailed User Scenarios  
-- **[NARINTEL_USER_SCENARIOS.md](NARINTEL_USER_SCENARIOS.md)** — 15 min read
-  - 8 in-depth capability explanations
-  - Real-world writer examples
-  - What writers report they can now do
-  - The big picture vision
-
-### For Technical Implementation
-- **[rispecs/Narrative_Intelligence_Integration_Specification.md](rispecs/Narrative_Intelligence_Integration_Specification.md)**
-  - NCP-aware story generator architecture
-  - Story beat data structures
-  - Integration with LLM providers
-
-- **[rispecs/Character_Arc_Tracking_Specification.md](rispecs/Character_Arc_Tracking_Specification.md)**
-  - Character state tracking system
-  - Arc point recording
-  - Consistency validation
-
-- **[rispecs/Emotional_Beat_Enrichment_Specification.md](rispecs/Emotional_Beat_Enrichment_Specification.md)**
-  - Emotional quality assessment
-  - Auto-enrichment workflows
-  - Emotion taxonomy
-
-- **[rispecs/Analytical_Feedback_Loop_Specification.md](rispecs/Analytical_Feedback_Loop_Specification.md)**
-  - Multi-dimensional analysis framework
-  - Gap identification system
-  - Enrichment routing
-
-- **[rispecs/Narrative_Aware_Story_Graph_Specification.md](rispecs/Narrative_Aware_Story_Graph_Specification.md)**
-  - Unified orchestration layer
-  - Story graph architecture
-  - Integration of all components
+The name carries intent: **Nar**rative **Intel**ligence tools built within a decolonized framework. Knowledge belongs to the relationships, land, and communities that created it.
 
 ---
 
-## 🎭 The Three Core Advances
-
-### 1. Character Arc Tracking
-**Characters now have persistent memory and development.**
-
-- Every character's emotional state is tracked
-- Relationships evolve realistically over time
-- Growth feels earned, not accidental
-- Consistency is automatic
-
-### 2. Emotional Beat Enrichment  
-**Every emotionally important moment is quality-assured and strengthened.**
-
-- Scenes are analyzed for emotional resonance
-- Weak beats are automatically enriched
-- Emotional authenticity is maintained
-- Impact is measurable
-
-### 3. Analytical Feedback Loop
-**Your story is constantly analyzed and improved in real-time.**
-
-- Multi-dimensional assessment (character, theme, emotion, plot)
-- Specific suggestions for improvement
-- Automatic strengthening of weak points
-- Quality feedback before finalization
-
----
-
-## 🌟 The 8 Key Capabilities
-
-| # | Capability | What You Get |
-|---|-----------|--------------|
-| 1 | Character Memory & Consistency | Stories remember everything about each character |
-| 2 | Emotional Quality Assurance | Weak beats are auto-detected and strengthened |
-| 3 | Thematic Thread Awareness | Themes tracked, reinforced, and developed |
-| 4 | Intelligent Beat Feedback | Real-time analysis and improvement suggestions |
-| 5 | Multi-Universe Story Analysis | Engineer/Story Engine/Ceremony perspectives simultaneously |
-| 6 | Narrative Trajectory Tracking | See story progress and completeness in real-time |
-| 7 | Dialogue That Sounds Like Characters | Unique speech patterns that evolve with character |
-| 8 | Sensory & Atmospheric Richness | Automatic vivid detail and mood enhancement |
-
----
-
-## 👥 Who Benefits?
-
-### 🎨 Romance Writers
-- Character relationships develop believably
-- Emotional beats feel earned and impactful
-- Consistency across entire novel
-
-### 📺 Screenwriters
-- Track multiple characters across 100+ pages
-- Ensure character arcs are clear and complete
-- Dialogue is distinctive and true to character
-
-### 📖 Novelists
-- Handle complex, multi-threaded narratives
-- Keep thematic threads consistent
-- Know your story's shape as you write
-
-### ✍️ Short Story Authors
-- Maximize emotional impact in limited space
-- Ensure tight character arcs
-- Make every word count
-
-### 🎭 Playwrights
-- Character voices distinct and consistent
-- Dialogue serves both plot and character
-- Pacing and rhythm feel intentional
-
----
-
-## 🚀 Getting Started
-
-### Step 1: Understand the Vision (5 min)
-Read **[NARINTEL_QUICK_START.md](NARINTEL_QUICK_START.md)** to understand what changed and what you can do.
-
-### Step 2: See Real Examples (10 min)
-Read **[NARINTEL_USER_SCENARIOS.md](NARINTEL_USER_SCENARIOS.md)** to see how different writers use NARINTEL.
-
-### Step 3: Learn Your Story's Shape
-Define your characters, themes, and plot in NCP format. NARINTEL uses this to track your story.
-
-### Step 4: Start Writing
-Generate scenes with NARINTEL. Review feedback. Generate next scene with full context.
-
-### Step 5: Iterate & Refine
-Use analytical feedback to strengthen weak beats. Check consistency. Ship with confidence.
-
----
-
-## 🔍 Key Concepts
+## Core Architecture
 
 ### NCP (Narrative Cognition Protocol)
-A standardized way to represent stories that includes:
-- Characters with full state (emotions, relationships, growth)
-- Story beats with complete metadata
-- Themes and their development
-- Emotional arcs and pacing
-- Enabling analysis and consistency checking
+A structured representation for stories: characters carry state (emotions, relationships, arc position), beats carry metadata (emotional tone, thematic resonance, universe analysis), and the generation process tracks continuity across the full narrative.
 
-### Character Arc State
-For each character, NARINTEL tracks:
-- Initial state (who they are at start)
-- Current state (who they are now)
-- Arc points (key moments that changed them)
-- Growth trajectory (direction of change)
-- Relationship map (how they relate to others)
-- Unresolved threads (what still needs resolution)
+### Three-Universe Model
+Every beat is analyzable from three simultaneous perspectives:
 
-### Beat Analysis
-Every beat is assessed on:
-- Character arc impact (does it move the character?)
-- Emotional quality (does it land with proper impact?)
-- Thematic resonance (does it reinforce themes?)
-- Dialogue authenticity (do characters sound like themselves?)
-- Sensory richness (is the scene vivid and immersive?)
+| Universe | Orientation | Core Question |
+|----------|------------|---------------|
+| **Engineer** 🔧 | Structural | Does the plot logic hold? Are motivations clear? |
+| **Story Engine** 📖 | Narrative | Is the prose alive? Does the pacing work? |
+| **Ceremony** 🙏 | Relational | What does this moment mean? Who does it serve? |
 
-### Three-Universe View
-Your story analyzed simultaneously from:
-- **Engineer Universe** 🔧 — Plot logic, character motivation, causality
-- **Story Engine Universe** 📖 — Prose quality, pacing, sensory detail, voice
-- **Ceremony Universe** 🙏 — Emotional truth, meaning, relational impact
+This is not a UI feature — it is a structural commitment to meaning-making that informs generation, analysis, and enrichment.
+
+### Generation → Analysis → Enrichment Loop
+1. **Generate** beat with NCP context (character state, theme, emotional target)
+2. **Analyze** emotional quality, character arc impact, thematic resonance
+3. **Identify gaps** where the beat needs strengthening
+4. **Enrich** weak beats automatically (sensory detail, emotional specificity, dialogue authenticity)
+5. **Track** character arc impact and update state
+6. **Continue** generation with full awareness of what came before
 
 ---
 
-## 💡 Common Questions
+## Capabilities
 
-### Q: Does NARINTEL replace my creativity?
-**A**: No. NARINTEL handles consistency and quality assurance. You bring vision, voice, and heart. Together you create better stories faster.
+### Character Memory & Arc Tracking
+Characters carry persistent state across all beats. Growth is cumulative. Inconsistencies are caught. Relationships evolve. Speech patterns shift with character development. A character who starts guarded doesn't suddenly become open without the intervening beats earning that transition.
 
-### Q: How does it maintain character consistency?
-**A**: NARINTEL creates a persistent state for each character that includes their emotional journey, relationships, and growth. Each new beat is generated with full awareness of this history.
+### Emotional Beat Enrichment
+Every emotionally significant moment is scored for quality (0–1). Beats below threshold are enriched: stakes made clearer, sensory detail strengthened, internal conflict made visible, dialogue made specific. This happens before the writer sees it.
 
-### Q: What if I want to surprise the reader?
-**A**: NARINTEL tracks what's been established, so surprises feel earned. A character can change, but the change is earned through previous beats. That's more powerful, not less.
+### Thematic Thread Awareness
+Themes introduced early are tracked, reinforced at key moments, and brought to resolution. A theme of "what does home mean?" seeded in beat 1 is recognized when a character finds refuge in beat 5, questioned in beat 9, and redefined in beat 15.
 
-### Q: Does it work with my existing workflow?
-**A**: Yes. NARINTEL is backward compatible with your existing storytelling system. You can adopt it gradually.
+### Analytical Feedback
+Multi-dimensional assessment after each beat: character arc impact ✓/⚠️, emotional authenticity ✓/⚠️, dialogue consistency ✓/⚠️, thematic resonance ✓/⚠️. Specific suggestions, not vague complaints.
 
-### Q: Can I export my stories?
-**A**: Absolutely. Stories are exported in standard NCP format, compatible with other tools in the Narrative Intelligence ecosystem.
+### Ceremonial Mode
+When `ceremonial_mode=True`:
+- Indigenous-inspired prompts activated (Spiral of Memory, Two-Eyed Seeing, Seven-Generation Thinking)
+- K'é relationship tracking honored explicitly
+- Sacred pause between beats — the generation process holds space
+- COAIA (Ceremonial Diary) integration connects diary to narrative structure
 
----
+### Role-Based Tooling
+Seven narrative roles, each with specialized tools:
 
-## 🎬 Example Workflows
-
-### Workflow: The Planner
-1. Define characters, themes, plot outline
-2. NARINTEL creates NCP structure
-3. Write scene-by-scene with full context
-4. NARINTEL maintains consistency automatically
-5. Export complete, coherent story
-
-### Workflow: The Explorer
-1. Write freely without structure
-2. NARINTEL infers character arcs and themes
-3. Review real-time feedback
-4. Adjust for consistency and impact
-5. Ship a story that feels intentional
-
-### Workflow: The Reviser
-1. Generate complete rough draft
-2. Use NARINTEL analysis to identify weak beats
-3. Iterate on emotional quality
-4. Check character consistency
-5. Final polish and export
+| Role | Function |
+|------|----------|
+| **Architect** | Structural integrity, plot logic, pacing |
+| **Structurist** | NCP schema management, data model alignment |
+| **Storyteller** | Prose generation, voice, atmosphere |
+| **Editor** | Quality assessment, enrichment, refinement |
+| **Reader** | Audience perspective, emotional impact testing |
+| **Collaborator** | Cross-role coordination, session management |
+| **Witness** | Ceremonial accountability, relational meaning |
 
 ---
 
-## 📊 Metrics & Monitoring
+## Technical Foundation
 
-NARINTEL provides real-time metrics:
+### Python Package (`storytelling/`)
+28 modules including:
+- `graph.py` — LangGraph story generation graph
+- `prompts.py` — 55KB of narrative prompts (including Indigenous-inspired templates)
+- `narrative_intelligence_integration.py` — NCP-aware story generator
+- `emotional_beat_enricher.py` — Emotional quality assessment and enrichment
+- `analytical_feedback_loop.py` — Gap identification and routing
+- `narrative_story_graph.py` — NarrativeAwareStoryGraph orchestration
+- `character_arc_tracker.py` — Persistent character state
+- `ceremonial_diary.py` — Ceremonial mode and COAIA integration
+- `role_tooling.py` — Role-based tool registry
+- `narrative_tracing.py` — Langfuse observability integration
+- `rag.py` / `enhanced_rag.py` — Knowledge base retrieval
 
-- **Character Consistency Score** (0-100): How true each character stays to their arc
-- **Emotional Quality Score** (0-100): Impact and authenticity of emotional beats
-- **Thematic Resonance** (0-100): How well themes are developed
-- **Narrative Completeness** (0-100): Progress through story arc
-- **Pacing Health** (0-100): Balance of story rhythm
-- **Dialogue Authenticity** (0-100): Characters sound like themselves
+### TypeScript Package (`js/`)
+Parity implementation for Node.js and browser contexts. CLI (`storyjs`) and MCP server access.
 
----
+### Specifications (`rispecs/`)
+38 RISE specification files defining behavior:
+- `Narrative_Intelligence_Integration_Specification.md`
+- `Character_Arc_Tracking_Specification.md`
+- `Emotional_Beat_Enrichment_Specification.md`
+- `Analytical_Feedback_Loop_Specification.md`
+- `Narrative_Aware_Story_Graph_Specification.md`
+- `IAIP_Integration_Specification.md`
+- Full list in `rispecs/`
 
-## 🔗 Ecosystem Integration
-
-NARINTEL connects to:
-- **Langfuse** — Story generation tracing and analytics
-- **LLM Providers** — Claude, GPT, Gemini (pluggable)
-- **Narrative Intelligence Suite** — Architect, Structurist, Storyteller, Editor, Reader, Collaborator, Witness
-- **NCP Schema** — Standard story representation
-
----
-
-## 📈 What's Next?
-
-As NARINTEL evolves:
-- Live emotional arc visualization
-- Character relationship network visualization
-- Thematic suggestion engine
-- Multi-AI collaborative editing
-- Community feedback circles
-- Writing analytics and patterns
-
----
-
-## 🎓 Learn More
-
-### For Writers
-1. Start with [NARINTEL_QUICK_START.md](NARINTEL_QUICK_START.md)
-2. Read [NARINTEL_USER_SCENARIOS.md](NARINTEL_USER_SCENARIOS.md)
-3. Try generating a story with NARINTEL enabled
-4. Review feedback and iterate
-
-### For Developers
-1. Read [rispecs/Narrative_Intelligence_Integration_Specification.md](rispecs/Narrative_Intelligence_Integration_Specification.md)
-2. Review source code in `storytelling/narrative_intelligence_integration.py`
-3. Check implementation status in [rispecs/NCP_IMPLEMENTATION_STATUS.md](rispecs/NCP_IMPLEMENTATION_STATUS.md)
-4. Review analytical feedback loop in `storytelling/analytical_feedback_loop.py`
-
-### For Architects
-1. Read [rispecs/Narrative_Aware_Story_Graph_Specification.md](rispecs/Narrative_Aware_Story_Graph_Specification.md)
-2. Review character arc specification
-3. Check integration points with LangGraph and LangChain
-4. Explore coordination documents in [rispecs/](rispecs/)
+### Ecosystem Integration
+- **LLM Providers**: Claude, GPT, Gemini (pluggable via provider abstraction)
+- **Langfuse**: Story generation tracing and analytics
+- **NarIntel Toolkit** (`/workspace/repos/narintel/`): NCP type provider
+- **IAIP** (`/a/src/IAIP/`): Ceremonial-technology and relational-science-research apps
 
 ---
 
-## 🎯 The Bottom Line
+## Getting Started
 
-**NARINTEL makes story generation intelligent, not just creative.**
+```bash
+# Python
+pip install storytelling
+storytelling generate --prompt "A story about returning home" --ceremonial
 
-Your AI storyteller now:
-- ✨ Remembers everything about your characters
-- ✨ Understands emotional impact
-- ✨ Tracks thematic development
-- ✨ Provides feedback and suggestions
-- ✨ Maintains consistency automatically
-- ✨ Ensures quality at scale
+# TypeScript
+npx storytellingjs generate --prompt "A story about returning home" --ceremonial
 
-Result: Stories that are simultaneously **more intentional and more alive**.
+# MCP Server
+storytellingjs --mcp
+```
 
----
-
-## 📞 Support & Feedback
-
-Have questions? Check:
-- [NARINTEL_QUICK_START.md](NARINTEL_QUICK_START.md) for quick answers
-- [NARINTEL_USER_SCENARIOS.md](NARINTEL_USER_SCENARIOS.md) for detailed examples
-- Technical specs in `rispecs/` for implementation details
+### Configuration
+Environment variables in `.env`:
+- `LLM_PROVIDER` — Model provider (anthropic, openai, openrouter)
+- `LLM_API_KEY` — API key for the provider
+- `LANGFUSE_PUBLIC_KEY` / `LANGFUSE_SECRET_KEY` — Observability
+- `CEREMONIAL_MODE` — Enable ceremonial-mode generation
 
 ---
 
-**Welcome to NARINTEL. Let's tell smarter stories.**
+## Relational Context
 
-*Generated for issue #20: Narrative Intelligence Integration*
+NARINTEL exists within a kinship network described in [`KINSHIP.md`](KINSHIP.md). The storytelling package is accountable to:
+- Indigenous communities whose epistemological frameworks inform its design
+- Writers and narrative practitioners who use it
+- AI companions (Mia, Miette, Ava8) who participate in the creative process
+- The narrative traditions and oral storytelling practices that predate digital systems
+
+See [`KINSHIP.md`](KINSHIP.md) for the full relational charter.
+
+---
+
+**Package**: [github.com/jgwill/storytelling](https://github.com/jgwill/storytelling)
+**Specifications**: `rispecs/`
+**Issue tracking**: GitHub Issues #20 (NarIntel), #21 (Implementation), #22 (JS Parity), #23 (LLMS-txt)
