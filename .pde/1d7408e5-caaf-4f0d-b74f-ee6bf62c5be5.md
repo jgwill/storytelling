@@ -71,6 +71,9 @@
 - storytelling/role_tooling.py
 - storytelling/narrative_tracing.py
 - storytelling/data_models.py
+- /workspace/repos/avadisabelle/ava-langchain — chain orchestration patterns
+- /workspace/repos/avadisabelle/ava-langgraph — graph execution patterns
+- /workspace/jgwill/medicine-wheel/src/* — medicine wheel / Four Directions reference implementation
 - js/src/index.ts
 - js/src/core.ts
 - js/src/types.ts
@@ -160,7 +163,7 @@
 - **"Depth of LangGraph JS integration — should we use @langchain/langgraph directly or build a lighter graph abstraction?"**
   - Suggestion: Check ava-langgraphjs for existing patterns; if no dependency available, build a minimal graph runner
 - **"Which Python modules have actual implementation vs. placeholder stubs?"**
-  - Suggestion: Inspect each .py file to determine what's real code vs. scaffolding before porting
+  - ✅ RESOLVED: No other packages were developed/used yet. The Python `storytelling/` modules are the only reference implementation. Libraries for graph execution and chain orchestration will come from `/workspace/repos/avadisabelle/ava-langchain` and `/workspace/repos/avadisabelle/ava-langgraph` — inspect those repos for existing patterns before building from scratch.
 - **"Scope of 'ceremonial mode' in TypeScript context — does this mean full COAIA fusion or just ceremony-aware prompts?"**
   - Suggestion: Start with ceremony-aware prompts and ceremonial diary; full COAIA fusion is a later phase
 - **"RAG implementation — does JS need its own vector store integration or does it call a Python service?"**
