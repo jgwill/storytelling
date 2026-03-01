@@ -278,6 +278,125 @@ def should_use_scene_generation_pipeline(state: StoryState) -> str:
     )
 
 
+def revise_buzz_terms_node(state: StoryState) -> dict:
+    """
+    Detect and replace overused/cliché terms in the chapter.
+    
+    Uses the style glossary (custom or default) to identify buzz terms
+    and rewrites them with fresher alternatives.
+    """
+    logger = state.get("logger")
+    config = state.get("config")
+    
+    if logger:
+        chapter_index = state.get("current_chapter_index", 0)
+        logger.info(f"=== NODE: Revising buzz terms in Chapter {chapter_index + 1} ===")
+    
+    try:
+        current_chapter = state.get("current_chapter_text", "")
+        
+        if not current_chapter:
+            if logger:
+                logger.warning("No chapter content for buzz term revision")
+            return {
+                **_preserve_state(state),
+            }
+        
+        # Check if buzz term revision is enabled
+        if not getattr(config, 'enable_buzz_term_revision', True):
+            if logger:
+                logger.info("Buzz term revision disabled, skipping")
+            return {
+                **_preserve_state(state),
+            }
+        
+        # Get style glossary
+        glossary = getattr(config, 'style_glossary', None)
+        if not glossary:
+            if logger:
+                logger.info("No style glossary configured, skipping buzz term revision")
+            return {
+                **_preserve_state(state),
+            }
+        
+        if config and config.mock_mode:
+            revised_chapter = current_chapter + "\n\n[Mock: Buzz terms revised]"
+            if logger:
+                logger.info("Using mock buzz term revision")
+        else:
+            llm = get_llm_from_uri(config.chapter_revision_model)
+            
+            # Format avoid terms
+            avoid_terms_str = "\n".join(f"- {term}" for term in glossary.avoid_terms)
+            
+            # Format avoid phrases
+            avoid_phrases_str = "\n".join(f"- \"{phrase}\"" for phrase in glossary.custom_avoid_phrases)
+            
+            # Format alternatives
+            alternatives_lines = []
+            for term, alts in glossary.preferred_alternatives.items():
+                alternatives_lines.append(f"- {term} → {', '.join(alts)}")
+            alternatives_str = "\n".join(alternatives_lines)
+            
+            # Build and invoke the prompt
+            prompt = prompts.BUZZ_TERM_REVISION_PROMPT.format_messages(
+                _Chapter=current_chapter,
+                _AvoidTerms=avoid_terms_str or "No specific terms configured",
+                _AvoidPhrases=avoid_phrases_str or "No specific phrases configured",
+                _Alternatives=alternatives_str or "Use contextually appropriate alternatives",
+            )
+            
+            revised_chapter = llm.invoke(prompt).content
+            
+            if logger:
+                # Log the revision
+                logger.save_interaction(
+                    f"Chapter_{chapter_index + 1}_BuzzTermRevision",
+                    [p.dict() for p in prompt] + [{"content": revised_chapter}],
+                )
+                logger.info(f"Buzz term revision complete for chapter {chapter_index + 1}")
+        
+        # Update the chapter in the chapters list
+        chapters = state.get("chapters", [])
+        current_index = state.get("current_chapter_index", 0)
+        if chapters and current_index < len(chapters):
+            chapters[current_index]["content"] = revised_chapter
+            chapters[current_index]["current_chapter_text"] = revised_chapter
+            chapters[current_index]["buzz_terms_revised"] = True
+        
+        result = {
+            **_preserve_state(state, exclude=["chapters", "current_chapter_text"]),
+            "chapters": chapters,
+            "current_chapter_text": revised_chapter,
+        }
+        
+        # Save checkpoint
+        session_manager = state.get("session_manager")
+        session_id = state.get("session_id")
+        if session_manager and session_id and logger:
+            session_manager.save_checkpoint(
+                session_id,
+                "revise_buzz_terms",
+                result,
+                metadata={
+                    "node_type": "style_revision",
+                    "success": True,
+                    "chapter_index": current_index,
+                },
+            )
+            logger.info(f"Checkpoint saved: buzz term revision")
+        
+        return result
+        
+    except Exception as e:
+        if logger:
+            logger.error(f"Error during buzz term revision: {e}")
+        # On error, return state unchanged
+        return {
+            **_preserve_state(state),
+            "errors": state.get("errors", []) + [f"Buzz term revision failed: {str(e)}"],
+        }
+
 def critique_chapter_node(state: StoryState) -> dict:
     """Critique the current chapter using CRITIC_CHAPTER_PROMPT with optional RAG context"""
     logger = state.get("logger")
@@ -1084,6 +1203,8 @@ def create_graph(config=None, session_id=None, session_manager=None, retriever=N
         "generate_single_chapter_scene_by_scene",
         generate_single_chapter_scene_by_scene_node,
     )
+    # Buzz term revision node - runs after chapter generation, before critique
+    workflow.add_node("revise_buzz_terms", revise_buzz_terms_node)
     # Chapter revision loop nodes
     workflow.add_node("critique_chapter", critique_chapter_node)
     workflow.add_node("check_chapter_complete", check_chapter_complete_node)
@@ -1103,10 +1224,11 @@ def create_graph(config=None, session_id=None, session_manager=None, retriever=N
     )
 
     # Chapter revision loop:
-    # generate_chapter → critique → check_complete → [revise → critique] OR increment
+    # generate_chapter → buzz_term_revision → critique → check_complete → [revise → critique] OR increment
     workflow.add_edge(
-        "generate_single_chapter_scene_by_scene", "critique_chapter"
+        "generate_single_chapter_scene_by_scene", "revise_buzz_terms"
     )
+    workflow.add_edge("revise_buzz_terms", "critique_chapter")
     workflow.add_edge("critique_chapter", "check_chapter_complete")
 
     # Conditional: should we revise or move to next chapter?
@@ -1148,7 +1270,7 @@ def create_resume_graph(
 
     workflow = StateGraph(dict)
 
-    # Add all nodes - including BaseContext extraction
+    # Add all nodes - including BaseContext extraction and buzz term revision
     workflow.add_node("extract_base_context", extract_base_context_node)
     workflow.add_node("generate_story_elements", generate_story_elements_node)
     workflow.add_node("generate_initial_outline", generate_initial_outline_node)
@@ -1157,6 +1279,8 @@ def create_resume_graph(
         "generate_single_chapter_scene_by_scene",
         generate_single_chapter_scene_by_scene_node,
     )
+    # Buzz term revision node
+    workflow.add_node("revise_buzz_terms", revise_buzz_terms_node)
     # Chapter revision loop nodes
     workflow.add_node("critique_chapter", critique_chapter_node)
     workflow.add_node("check_chapter_complete", check_chapter_complete_node)
@@ -1189,14 +1313,16 @@ def create_resume_graph(
     if resume_from_node in [
         "determine_chapter_count",
         "generate_single_chapter_scene_by_scene",
+        "revise_buzz_terms",
         "critique_chapter",
         "check_chapter_complete",
         "revise_chapter",
         "increment_chapter_index",
     ]:
         workflow.add_edge(
-            "generate_single_chapter_scene_by_scene", "critique_chapter"
+            "generate_single_chapter_scene_by_scene", "revise_buzz_terms"
         )
+        workflow.add_edge("revise_buzz_terms", "critique_chapter")
         workflow.add_edge("critique_chapter", "check_chapter_complete")
         workflow.add_conditional_edges(
             "check_chapter_complete",

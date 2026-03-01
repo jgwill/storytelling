@@ -135,6 +135,23 @@ def main(argv: Optional[List[str]] = None) -> int:
     if not ADVANCED_MODE:
         return simple_main(argv)
 
+    # Handle --version and --help before anything else
+    args = argv if argv is not None else sys.argv[1:]
+    if "--version" in args or "-V" in args:
+        print(f"storytelling {__version__}")
+        raise SystemExit(0)
+    if "--help" in args or "-h" in args:
+        # Show comprehensive help
+        print(f"storytelling {__version__} - AI Story Generation System")
+        print("\nUsage: storytelling [OPTIONS] prompt_file")
+        print("\nSession Management:")
+        print("  --list-sessions           List available sessions")
+        print("  --session-info SESSION_ID Show information about a session")
+        print("  --resume SESSION_ID       Resume from session ID")
+        print("  --resume-from-node NODE   Resume from specific node")
+        print("\nFor full options, run with a prompt file.")
+        raise SystemExit(0)
+
     start_time = time.time()
 
     # Parse session management arguments first
