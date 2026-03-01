@@ -1,6 +1,7 @@
 /**
  * storytellingjs - Main Library Export
  *
+ * 
  * TypeScript story generation library with CLI and MCP server.
  * Full parity with Python storytelling package.
  */
@@ -15,6 +16,9 @@ export type { LogLevel, LogEntry } from './logger.js';
 export {
   DEFAULT_CONFIG,
   createConfig,
+export { 
+  DEFAULT_CONFIG, 
+  createConfig, 
   getDefaultStyleGlossary,
   parseModelUri,
   isValidModelUri,
@@ -32,6 +36,9 @@ export {
 export type {
   ParsedModelUri,
   LLMProvider,
+export type { 
+  ParsedModelUri, 
+  LLMProvider, 
   GenerateOptions,
   ModelProvider,
 } from './llm-providers.js';
@@ -152,6 +159,7 @@ export type {
 } from './narrative-tracing.js';
 
 // Type exports (original types.ts — data models and MCP)
+// Type exports
 export type {
   // Session types
   SessionStatus,
@@ -159,6 +167,7 @@ export type {
   SessionCheckpoint,
   SessionInfo,
 
+  
   // Data model types
   ChapterCount,
   CompletionCheck,
@@ -166,6 +175,7 @@ export type {
   StoryInfo,
   SceneList,
 
+  
   // Configuration types
   StorytellingConfig,
   StyleGlossary,
@@ -174,6 +184,16 @@ export type {
   // Core types
   Story as StoryInterface,
 
+  
+  // Core types
+  Story as StoryInterface,
+  
+  // NCP types
+  StoryBeat,
+  CharacterArcState,
+  Gap,
+  NCPState,
+  
   // MCP types
   ToolDefinition,
   PropertySchema,
@@ -193,3 +213,4 @@ export {
 
 // Package version
 export const VERSION = '0.2.0';
+export const VERSION = '0.1.0';
