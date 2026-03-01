@@ -5,12 +5,14 @@
 - **Published at**: https://storytelling.jgwill.com/llms-full.txt
 - **Compact version**: https://storytelling.jgwill.com/llms.txt
 - **Source**: https://github.com/jgwill/storytelling
-- **Package**: `pip install storytelling`
-- **Version**: 1.0.0
+- **Package**: `pip install storytelling` / `npm i storytelling` (TypeScript)
+- **Version**: 1.1.0
 - **License**: MIT
 - **Author**: JGWill (Guillaume Descoteaux-Isabelle)
 - **Python**: 3.9+
+- **TypeScript**: Node.js 20+
 - **Portfolio**: https://llms.jgwill.com (parent llms-txt portfolio)
+- **Kinship**: [KINSHIP.md](https://github.com/jgwill/storytelling/blob/main/KINSHIP.md)
 
 ---
 
@@ -24,7 +26,8 @@ The package is part of a larger ecosystem documented in the [LLMS-txt Portfolio]
 
 - **Repository**: [storytelling/](https://github.com/jgwill/storytelling)
 - **Specifications**: [rispecs/](https://github.com/jgwill/storytelling/tree/main/rispecs) — complete RISE-framework blueprints
-- **Related**: Creative Orientation, RISE Framework, IAIP, COAIA, Medicine Wheel Developer Suite
+- **Kinship**: [KINSHIP.md](https://github.com/jgwill/storytelling/blob/main/KINSHIP.md) — relational charter
+- **Related**: Creative Orientation, RISE Framework, IAIP, COAIA, NarIntel, Medicine Wheel Developer Suite
 
 ---
 
@@ -93,8 +96,9 @@ Knowledge-aware generation from three sources: (1) local markdown knowledge base
 - **Spec**: [rispecs/RAG_Implementation_Specification.md](https://github.com/jgwill/storytelling/blob/main/rispecs/RAG_Implementation_Specification.md), [rispecs/Enhanced_Multi_Source_RAG_Specification.md](https://github.com/jgwill/storytelling/blob/main/rispecs/Enhanced_Multi_Source_RAG_Specification.md)
 
 ### Narrative Intelligence Integration
-A planned multi-phase system for sophisticated narrative analysis: (Phase 1) NCP-aware story beats with structured metadata, character arc tracking with persistent state ensuring consistent behavior and cumulative growth; (Phase 2) emotional beat enrichment with automated quality detection and iterative improvement, analytical feedback loops routing multi-dimensional analysis to enrichment flows; (Phase 3) narrative-aware story graph with unified orchestration.
-- **Source**: [storytelling/narrative_intelligence_integration.py](https://github.com/jgwill/storytelling/blob/main/storytelling/narrative_intelligence_integration.py)
+A multi-phase system for sophisticated narrative analysis implemented in both Python and TypeScript: (Phase 1) NCP-aware story beats with structured metadata, character arc tracking with persistent state ensuring consistent behavior and cumulative growth; (Phase 2) emotional beat enrichment with automated quality detection and iterative improvement, analytical feedback loops routing multi-dimensional analysis to enrichment flows; (Phase 3) narrative-aware story graph with unified orchestration. The Three-Universe model (Engineer 🔧 / Ceremony 🙏 / Story Engine 📖) provides concurrent analysis of every beat from structural, relational, and narrative perspectives.
+- **Python**: [storytelling/narrative_intelligence_integration.py](https://github.com/jgwill/storytelling/blob/main/storytelling/narrative_intelligence_integration.py)
+- **TypeScript**: [js/src/narrative-intelligence.ts](https://github.com/jgwill/storytelling/blob/main/js/src/narrative-intelligence.ts)
 - **Spec**: [rispecs/Narrative_Intelligence_Integration_Specification.md](https://github.com/jgwill/storytelling/blob/main/rispecs/Narrative_Intelligence_Integration_Specification.md), [rispecs/Character_Arc_Tracking_Specification.md](https://github.com/jgwill/storytelling/blob/main/rispecs/Character_Arc_Tracking_Specification.md), [rispecs/Emotional_Beat_Enrichment_Specification.md](https://github.com/jgwill/storytelling/blob/main/rispecs/Emotional_Beat_Enrichment_Specification.md)
 
 ### IAIP Bridge (Indigenous-AI Integration)
@@ -110,9 +114,16 @@ Components include `NorthDirectionStoryteller` (ceremonial workflow wrapper), `T
 - **Spec**: [rispecs/IAIP_Integration_Specification.md](https://github.com/jgwill/storytelling/blob/main/rispecs/IAIP_Integration_Specification.md)
 
 ### MCP Server (Model Context Protocol)
-Enables LLM agents (Claude, Gemini) to orchestrate story generation through standardized tool interfaces. Exposes tools: `generate_story`, `list_sessions`, `get_session_info`, `resume_session`, `validate_model_uri`. Also provides resources for workflow stage documentation and model URI configuration.
-- **Source**: [storytelling_mcp/](https://github.com/jgwill/storytelling/tree/main/storytelling_mcp)
+Enables LLM agents (Claude, Gemini) to orchestrate story generation through standardized tool interfaces. Exposes tools: `generate_story`, `list_sessions`, `get_session_info`, `resume_session`, `validate_model_uri`. Also provides resources for workflow stage documentation and model URI configuration. Available in both Python and TypeScript.
+- **Python**: [storytelling_mcp/](https://github.com/jgwill/storytelling/tree/main/storytelling_mcp)
+- **TypeScript**: [js/src/mcp/](https://github.com/jgwill/storytelling/tree/main/js/src/mcp)
 - **Spec**: [rispecs/mcp/](https://github.com/jgwill/storytelling/tree/main/rispecs/mcp)
+
+### TypeScript Package (js/)
+Full parity with the Python storytelling package, providing the same narrative intelligence capabilities for Node.js environments. Includes: prompt templates with `formatTemplate`, narrative intelligence (Three-Universe model, NCP generator, character arc tracker), emotional beat enricher with quality thresholds, analytical feedback loop with multi-dimensional analysis and gap routing, role-based tooling (seven roles mapped to Three Universes), narrative-aware story graph with composable pipeline nodes, ceremonial diary with IAIP Five-Phase support, and narrative tracing with semantic event types and correlation headers. Version 0.2.0 with 82 exports and subpath module access.
+- **Source**: [js/](https://github.com/jgwill/storytelling/tree/main/js)
+- **Install**: `npm install storytelling`
+- **Build**: TypeScript strict mode, ESM output
 
 ### Prompt System
 LangChain prompt templates for every generation stage — story elements, outline, chapter, scene, revision, evaluation, and metadata extraction. Each template encodes the creative orientation philosophy and structural tension methodology.
@@ -167,8 +178,8 @@ Installation: `pip install storytelling` (core), `pip install storytelling[rag]`
 | `ChapterCount` | JSON structure with TotalChapters determination |
 | `SceneList` | JSON array of scene outlines for chapter decomposition |
 | `StoryInfo` | JSON with Title, Summary, Tags, OverallRating for metadata |
-| `StoryBeat` | (Planned) Structured beat with character, emotion, theme metadata |
-| `CharacterArcState` | (Planned) Character journey tracking across narrative |
+| `StoryBeat` | Structured beat with character, emotion, theme metadata (Python + TypeScript) |
+| `CharacterArcState` | Character journey tracking across narrative (Python + TypeScript) |
 
 - **Source**: [storytelling/data_models.py](https://github.com/jgwill/storytelling/blob/main/storytelling/data_models.py)
 - **Spec**: [rispecs/DataSchemas.md](https://github.com/jgwill/storytelling/blob/main/rispecs/DataSchemas.md)
@@ -259,4 +270,27 @@ storytelling --prompt my_idea.txt -KnowledgeBasePath ./my_lore/
 storytelling --prompt my_idea.txt \
   -InitialOutlineModel "google://gemini-2.5-flash" \
   -ChapterS1Model "ollama://llama3.1:70b"
+```
+
+### TypeScript Quick Start
+
+```typescript
+import {
+  createDefaultPipeline, createGraphState,
+  CeremonialDiary, createDiaryEntry, CeremonialPhase, EntryType,
+  StorytellingTracer,
+} from 'storytelling';
+
+// Run the narrative-aware pipeline
+const pipeline = createDefaultPipeline();
+const state = createGraphState('A grandmother teaches her granddaughter about the river');
+const result = await pipeline.execute(state);
+
+// Track ceremonial process
+const diary = new CeremonialDiary('River Story');
+diary.addEntry(createDiaryEntry('mia', CeremonialPhase.MIIGWECHIWENDAM, EntryType.INTENTION, 'Opening the space for story'));
+
+// Trace generation
+const tracer = new StorytellingTracer('story-1', 'session-1');
+tracer.logBeatGenerated('beat-0', 'grandmother');
 ```

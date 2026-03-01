@@ -5,18 +5,19 @@
 - **Published at**: https://storytelling.jgwill.com/llms.txt
 - **Full version**: https://storytelling.jgwill.com/llms-full.txt
 - **Source**: https://github.com/jgwill/storytelling
-- **Package**: `pip install storytelling`
-- **Version**: 1.0.0
+- **Package**: `pip install storytelling` / `npm i storytelling` (TypeScript)
+- **Version**: 1.1.0
 - **License**: MIT
 - **Portfolio**: https://llms.jgwill.com (parent llms-txt portfolio)
 
 ---
 
 ## Package Overview
-> A Python package (aliases: `willwrite`, `specforge`) that empowers users to manifest complete, coherent narratives from a single prompt. Uses LangGraph state machines, multi-provider LLM support, RAG knowledge integration, session persistence, and Indigenous ceremonial frameworks.
+> A Python + TypeScript package (aliases: `willwrite`, `specforge`) that empowers users to manifest complete, coherent narratives from a single prompt. Uses LangGraph state machines, multi-provider LLM support, RAG knowledge integration, session persistence, and Indigenous ceremonial frameworks.
 - **Repository**: [storytelling/](https://github.com/jgwill/storytelling)
 - **Specifications**: [rispecs/](https://github.com/jgwill/storytelling/tree/main/rispecs)
-- **Related**: Creative Orientation, RISE Framework, IAIP, COAIA
+- **Kinship**: [KINSHIP.md](https://github.com/jgwill/storytelling/blob/main/KINSHIP.md)
+- **Related**: Creative Orientation, RISE Framework, IAIP, COAIA, NarIntel
 
 ## Core Modules
 
@@ -41,8 +42,9 @@
 - **Source**: [storytelling/rag.py](https://github.com/jgwill/storytelling/blob/main/storytelling/rag.py)
 
 ### Narrative Intelligence
-> Character arc tracking, emotional beat enrichment, and thematic continuity analysis across generated narratives.
-- **Source**: [storytelling/narrative_intelligence_integration.py](https://github.com/jgwill/storytelling/blob/main/storytelling/narrative_intelligence_integration.py)
+> Three-Universe model (Engineer/Ceremony/Story Engine), character arc tracking, emotional beat enrichment, analytical feedback loops, and role-based tooling across seven narrative creation roles.
+- **Python**: [storytelling/narrative_intelligence_integration.py](https://github.com/jgwill/storytelling/blob/main/storytelling/narrative_intelligence_integration.py)
+- **TypeScript**: [js/src/narrative-intelligence.ts](https://github.com/jgwill/storytelling/blob/main/js/src/narrative-intelligence.ts)
 
 ### IAIP Bridge (Indigenous-AI Integration)
 > Five-phase ceremonial methodology mapping story generation to Indigenous protocols: sacred space → two-eyed research → knowledge integration → creative expression → ceremonial closing.
@@ -50,7 +52,13 @@
 
 ### MCP Server
 > Model Context Protocol server enabling LLM agents (Claude, Gemini) to orchestrate story generation, session management, and model validation.
-- **Source**: [storytelling_mcp/](https://github.com/jgwill/storytelling/tree/main/storytelling_mcp)
+- **Python**: [storytelling_mcp/](https://github.com/jgwill/storytelling/tree/main/storytelling_mcp)
+- **TypeScript**: [js/src/mcp/](https://github.com/jgwill/storytelling/tree/main/js/src/mcp)
+
+### TypeScript Package (js/)
+> Full parity with Python storytelling package: prompts, narrative intelligence, emotional beat enrichment, analytical feedback loops, role tooling, narrative story graph, ceremonial diary, narrative tracing. v0.2.0.
+- **Source**: [js/](https://github.com/jgwill/storytelling/tree/main/js)
+- **Install**: `npm install storytelling`
 
 ## Configuration
 > 40+ parameters controlling models, RAG, quality, workflow stages, translation, and debug modes. URI-based model selection per generation stage.
