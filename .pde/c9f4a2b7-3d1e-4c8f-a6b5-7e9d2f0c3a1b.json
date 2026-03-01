@@ -1,0 +1,160 @@
+{
+  "id": "c9f4a2b7-3d1e-4c8f-a6b5-7e9d2f0c3a1b",
+  "timestamp": "2026-03-01T23:42:22.621Z",
+  "prompt": "Add Architecture Overview section to README.md: main diagram like WillWrite, 1-2 sub-diagrams from STC state machine perspective, plus 'Envisioned Next Major Architecture' section with Narintel Suite codename. Focus on what is actually implemented in ./storytelling/ (Python only, not JS parity).",
+  "result": {
+    "primary": {
+      "action": "manifest",
+      "target": "README.md Architecture Overview — three-tier diagrammatic portrait of storytelling: implemented pipeline, STC state transitions, and envisioned NARINTEL next phase",
+      "urgency": "session",
+      "confidence": 0.96
+    },
+    "secondary": [
+      {
+        "action": "create",
+        "target": "Main architecture block diagram (Mermaid flowchart) mapping LangGraph pipeline nodes in graph.py",
+        "implicit": false,
+        "dependency": null,
+        "confidence": 0.97
+      },
+      {
+        "action": "create",
+        "target": "STC State Machine sub-diagram: story generation pipeline mapped to structural tension state transitions",
+        "implicit": false,
+        "dependency": "main diagram",
+        "confidence": 0.90
+      },
+      {
+        "action": "create",
+        "target": "NarrativeAware Story Graph sub-diagram: NCP-aware enrichment loop",
+        "implicit": true,
+        "dependency": "main diagram",
+        "confidence": 0.85
+      },
+      {
+        "action": "create",
+        "target": "Envisioned Next Major Architecture section with codename Wâpano (NARINTEL:EAST)",
+        "implicit": false,
+        "dependency": "main diagram",
+        "confidence": 0.88
+      },
+      {
+        "action": "update",
+        "target": "README.md with all Architecture sections",
+        "implicit": false,
+        "dependency": "all diagrams",
+        "confidence": 0.96
+      }
+    ],
+    "context": {
+      "files_needed": [
+        "storytelling/graph.py",
+        "storytelling/narrative_story_graph.py",
+        "storytelling/narrative_intelligence_integration.py",
+        "storytelling/emotional_beat_enricher.py",
+        "storytelling/analytical_feedback_loop.py",
+        "llms/llms-stc-state-machine.md",
+        "NARINTEL_README.md",
+        "llms/docs/medicine-wheel-research.md",
+        "README.md"
+      ],
+      "tools_required": ["file editor", "git"],
+      "assumptions": [
+        "Diagrams will be Mermaid format embedded in README.md fenced blocks",
+        "GitHub renders Mermaid natively — no SVG file needed",
+        "JS parity (js/) is explicitly excluded from current architecture diagrams",
+        "NARINTEL modules exist in Python but are not yet wired into main graph.py workflow",
+        "Codename Wâpano = East direction (Cree: wâpan = dawn) = NARINTEL:EAST phase",
+        "Session checkpoint/resume and RAG/knowledge base are part of current implemented architecture"
+      ]
+    },
+    "outputs": {
+      "artifacts": ["README.md (updated)"],
+      "updates": ["README.md — Architecture Overview section + Wâpano vision section"],
+      "communications": ["Git commit with architecture diagram addition"]
+    },
+    "directions": {
+      "east": [
+        {
+          "text": "README as living architectural portrait: current pipeline + STC movement + future Wâpano",
+          "confidence": 0.96,
+          "implicit": false
+        }
+      ],
+      "south": [
+        {
+          "text": "Map graph.py nodes/edges: extract_base_context → story_elements → outline → chapter_count → scene_by_scene → buzz_terms → critique → check_complete → [revise|increment] → final_story",
+          "confidence": 0.98,
+          "implicit": false
+        },
+        {
+          "text": "Identify STC phase equivalents in pipeline (Germination/Assimilation/Completion)",
+          "confidence": 0.92,
+          "implicit": false
+        }
+      ],
+      "west": [
+        {
+          "text": "Validate all diagram nodes match graph.py create_graph() exactly",
+          "confidence": 0.98,
+          "implicit": false
+        },
+        {
+          "text": "Validate Wâpano codename is culturally grounded and clearly marked as envisioned",
+          "confidence": 0.90,
+          "implicit": false
+        }
+      ],
+      "north": [
+        {
+          "text": "Write main LangGraph pipeline diagram",
+          "confidence": 0.97,
+          "implicit": false
+        },
+        {
+          "text": "Write STC state machine diagram",
+          "confidence": 0.90,
+          "implicit": false
+        },
+        {
+          "text": "Write NarIntel enrichment loop diagram",
+          "confidence": 0.85,
+          "implicit": true
+        },
+        {
+          "text": "Write Envisioned Wâpano section with Four Directions architecture",
+          "confidence": 0.88,
+          "implicit": false
+        },
+        {
+          "text": "Insert sections into README.md",
+          "confidence": 0.96,
+          "implicit": false
+        }
+      ]
+    },
+    "actionStack": [
+      { "text": "Verify graph.py nodes/edges against create_graph()", "direction": "south", "dependency": null, "completed": false },
+      { "text": "Write main Mermaid flowchart — full LangGraph pipeline with session/RAG branches", "direction": "north", "dependency": null, "completed": false },
+      { "text": "Write STC state machine diagram", "direction": "north", "dependency": "main diagram", "completed": false },
+      { "text": "Write NarIntel enrichment loop diagram", "direction": "north", "dependency": "main diagram", "completed": false },
+      { "text": "Write Envisioned Wâpano section", "direction": "north", "dependency": "main diagram", "completed": false },
+      { "text": "Insert all sections into README.md", "direction": "north", "dependency": "all diagrams", "completed": false },
+      { "text": "git add README.md and commit", "direction": "north", "dependency": "README updated", "completed": false }
+    ],
+    "ambiguities": [
+      {
+        "text": "How many sub-diagrams?",
+        "suggestion": "2 sub-diagrams: STC state machine overlay + NarrativeAware enrichment loop"
+      },
+      {
+        "text": "Codename selection for next major version",
+        "suggestion": "Wâpano — East direction in Cree, medicine wheel East = Inquiry/new beginnings, maps to NARINTEL:EAST first Four-Directions implementation"
+      }
+    ]
+  },
+  "options": {
+    "extractImplicit": true,
+    "mapDependencies": true
+  }
+}
