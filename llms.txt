@@ -1,0 +1,85 @@
+# Storytelling (WillWrite) — llms.txt
+
+> AI-powered narrative generation system implementing Software 3.0 methodology. Transforms simple prompts into complete, multi-chapter stories through advancing patterns — grounded in Creative Orientation, the RISE framework, and Indigenous ceremonial technology.
+
+- **Published at**: https://storytelling.jgwill.com/llms.txt
+- **Full version**: https://storytelling.jgwill.com/llms-full.txt
+- **Source**: https://github.com/jgwill/storytelling
+- **Package**: `pip install storytelling`
+- **Version**: 1.0.0
+- **License**: MIT
+- **Portfolio**: https://llms.jgwill.com (parent llms-txt portfolio)
+
+---
+
+## Package Overview
+> A Python package (aliases: `willwrite`, `specforge`) that empowers users to manifest complete, coherent narratives from a single prompt. Uses LangGraph state machines, multi-provider LLM support, RAG knowledge integration, session persistence, and Indigenous ceremonial frameworks.
+- **Repository**: [storytelling/](https://github.com/jgwill/storytelling)
+- **Specifications**: [rispecs/](https://github.com/jgwill/storytelling/tree/main/rispecs)
+- **Related**: Creative Orientation, RISE Framework, IAIP, COAIA
+
+## Core Modules
+
+### CLI & Entry Points
+> Three CLI aliases (`storytelling`, `willwrite`, `specforge`) for generating stories, managing sessions, and configuring generation parameters.
+- **Source**: [storytelling/cli.py](https://github.com/jgwill/storytelling/blob/main/storytelling/cli.py)
+
+### Story Generation Graph
+> LangGraph state machine orchestrating the multi-stage pipeline: prompt analysis → story elements → outline → chapters (4 scenes each) → revision → final assembly.
+- **Source**: [storytelling/graph.py](https://github.com/jgwill/storytelling/blob/main/storytelling/graph.py)
+
+### Session Management (PHOENIX_WEAVE)
+> Persistent creative workspaces with checkpoint/resume across interruptions. Auto-saves at natural story progression boundaries.
+- **Source**: [storytelling/session_manager.py](https://github.com/jgwill/storytelling/blob/main/storytelling/session_manager.py)
+
+### LLM Provider Abstraction
+> URI-based multi-provider system supporting Google (Gemini), Ollama, OpenRouter, and custom endpoints. Each generation stage can use a different model.
+- **Source**: [storytelling/llm_providers.py](https://github.com/jgwill/storytelling/blob/main/storytelling/llm_providers.py)
+
+### RAG Integration (Enhanced Multi-Source)
+> Knowledge-aware generation from local markdown files, web content, and CoAiAPy datasets. FAISS vector store with configurable embedding providers.
+- **Source**: [storytelling/rag.py](https://github.com/jgwill/storytelling/blob/main/storytelling/rag.py)
+
+### Narrative Intelligence
+> Character arc tracking, emotional beat enrichment, and thematic continuity analysis across generated narratives.
+- **Source**: [storytelling/narrative_intelligence_integration.py](https://github.com/jgwill/storytelling/blob/main/storytelling/narrative_intelligence_integration.py)
+
+### IAIP Bridge (Indigenous-AI Integration)
+> Five-phase ceremonial methodology mapping story generation to Indigenous protocols: sacred space → two-eyed research → knowledge integration → creative expression → ceremonial closing.
+- **Source**: [storytelling/iaip_bridge.py](https://github.com/jgwill/storytelling/blob/main/storytelling/iaip_bridge.py)
+
+### MCP Server
+> Model Context Protocol server enabling LLM agents (Claude, Gemini) to orchestrate story generation, session management, and model validation.
+- **Source**: [storytelling_mcp/](https://github.com/jgwill/storytelling/tree/main/storytelling_mcp)
+
+## Configuration
+> 40+ parameters controlling models, RAG, quality, workflow stages, translation, and debug modes. URI-based model selection per generation stage.
+- **Source**: [storytelling/config.py](https://github.com/jgwill/storytelling/blob/main/storytelling/config.py)
+- **Spec**: [rispecs/Configuration.md](https://github.com/jgwill/storytelling/blob/main/rispecs/Configuration.md)
+
+## Data Schemas
+> Pydantic models for story state, chapters, scenes, session checkpoints, and narrative intelligence structures.
+- **Source**: [storytelling/data_models.py](https://github.com/jgwill/storytelling/blob/main/storytelling/data_models.py)
+- **Spec**: [rispecs/DataSchemas.md](https://github.com/jgwill/storytelling/blob/main/rispecs/DataSchemas.md)
+
+## Tiered Package Architecture
+> Core (~50MB) → +RAG (3-5GB) → +Specialized. Users install only what they need; graceful degradation when optional dependencies are absent.
+- **Spec**: [rispecs/Tiered_Package_Architecture.md](https://github.com/jgwill/storytelling/blob/main/rispecs/Tiered_Package_Architecture.md)
+
+## Specifications (rispecs/)
+> Complete RISE-framework specifications describing the application as implementation-agnostic blueprints focused on creative advancement.
+- **Index**: [rispecs/](https://github.com/jgwill/storytelling/tree/main/rispecs)
+- **Governing**: [Creative_Orientation_Operating_Guide.md](https://github.com/jgwill/storytelling/blob/main/rispecs/Creative_Orientation_Operating_Guide.md), [Terms_of_Agreement.md](https://github.com/jgwill/storytelling/blob/main/rispecs/Terms_of_Agreement.md)
+
+---
+
+## Relationship to Portfolio
+
+This package is part of a larger body of work documented in the [LLMS-txt Portfolio](https://llms.jgwill.com):
+
+- [Creative Orientation](https://llms.jgwill.com/llms-creative-orientation.txt) — foundational framework
+- [RISE Framework](https://llms.jgwill.com/llms-rise-framework.txt) — specification methodology
+- [Structural Tension Charts](https://llms.jgwill.com/llms-structural-tension-charts.txt) — advancement methodology
+- [Narrative Craft](https://llms.jgwill.com/docs/narrative-craft) — story documentation practices
+- [Ceremonial Technology](https://llms.jgwill.com/docs/ceremonial-technology) — building tools that honor relational accountability
+- [Indigenous Research Paradigm](https://llms.jgwill.com/docs/indigenous-research-paradigm) — decolonized AI engagement
