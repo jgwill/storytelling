@@ -60,9 +60,23 @@ Four Directions multi-agent architecture:
 
 - `README.md` — insert Architecture sections after "Key Features" block
 
+## Human Review Additions (from PDE edits)
+
+- **LangChain/LangGraph context**: reference `llms/imported/llms-langchain.txt` — LangGraph IS a state machine for LLMs, that motivation should be visible
+- **Langfuse tracing**: show as planned node (`🚧`) in the diagram; add note that `rispecs/` should include a Langfuse spec
+- **Style glossary YAML** (`storytelling/templates/style_glossary_sample.yaml`): new and important — show in the `revise_buzz_terms` node
+- **Decolonization framing**: the Wâpano section should explicitly acknowledge the current package as still shaped by Western storytelling frameworks, and that Wâpano begins the structural decolonization
+- **Creative orientation as event-driven architecture**: Robert Fritz link — this is where creative orientation meets LangGraph architecture
+- **smcraft**: mention as a future git submodule integration (`jgwill/smcraft`) in the Wâpano vision
+- **"Kinship successor, an Elder"**: 7 generations concept — `storytelling` as kinship successor to WillWrite
+- **IAIP = ceremonial-devops and relational-science** (TypeScript for next major)
+- **ava-langchain/ava-langgraph as orchestration runtime** for next major refactoring
+- **Discreet addition to `llms/docs/storytelling.md`**: link to README.md diagrams at storytelling.jgwill.com
+
 ## Notes
 
-- All diagrams use Mermaid (GitHub renders natively)
+- All diagrams use Mermaid (GitHub renders natively — no SVG file needed)
 - "Envisioned" sections clearly marked with 🚧 to distinguish from implemented
 - STC oscillation risk in the revision loop is intentionally visible
-- The NarrativeAware modules ARE implemented in Python (`narrative_story_graph.py` etc.) but are not wired into the default graph.py workflow — show as "implemented, not default pathway"
+- The NarrativeAware modules ARE implemented in Python (`narrative_story_graph.py` etc.) but are not wired into the default graph.py workflow — show as "implemented, opt-in pathway"
+- README will be visible at https://storytelling.jgwill.com — link awareness matters
