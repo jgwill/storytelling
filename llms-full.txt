@@ -2,8 +2,8 @@
 
 > AI-powered narrative generation system implementing Software 3.0 methodology — "The Soul of Your Story's Blueprint." Transforms simple prompts into complete, multi-chapter stories through advancing patterns, grounded in Creative Orientation, the RISE framework, and Indigenous ceremonial technology. This is not a problem-solving tool — it is a creative operating system for manifesting narratives.
 
-- **Published at**: https://storytelling.jgwill.com/llms-full.txt
-- **Compact version**: https://storytelling.jgwill.com/llms.txt
+- **Published at**: https://docs.storytelling.jgwill.com/llms-full.txt
+- **Compact version**: https://docs.storytelling.jgwill.com/llms.txt
 - **Source**: https://github.com/jgwill/storytelling
 - **Package**: `pip install storytelling` / `npm i storytelling` (TypeScript)
 - **Version**: 1.1.0
